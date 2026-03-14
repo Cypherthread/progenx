@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .dna-gradient {
+    background: linear-gradient(135deg, #16a34a 0%, #2563eb 50%, #7c3aed 100%);
+  }
+  .dna-gradient-text {
+    background: linear-gradient(135deg, #16a34a 0%, #2563eb 50%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* DNA helix animation for loading */
+@keyframes helixSpin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.helix-spin {
+  animation: helixSpin 2s linear infinite;
+}
+
+/* Pulse for generating state */
+@keyframes bioGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(22, 163, 74, 0.6); }
+}
+
+.bio-glow {
+  animation: bioGlow 2s ease-in-out infinite;
+}

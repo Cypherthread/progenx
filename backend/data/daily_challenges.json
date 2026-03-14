@@ -1,0 +1,162 @@
+[
+  {
+    "id": "ocean-plastic",
+    "title": "Ocean Microplastic Muncher",
+    "prompt": "Design a microbe that eats ocean microplastics and turns them into biodegradable plastic",
+    "category": "climate",
+    "difficulty": "intermediate",
+    "impact": "Over 14 million tons of plastic end up in the ocean every year. Engineered microbes could break down polyethylene into PHA bioplastic."
+  },
+  {
+    "id": "carbon-capture",
+    "title": "Carbon Capture Cyanobacteria",
+    "prompt": "Design a cyanobacterium that captures CO2 from the atmosphere 10x faster than natural photosynthesis",
+    "category": "climate",
+    "difficulty": "advanced",
+    "impact": "Enhanced carbon fixation could help offset industrial emissions while producing useful biomass."
+  },
+  {
+    "id": "drought-crop",
+    "title": "Drought-Proof Soil Microbe",
+    "prompt": "Design a soil bacterium that helps plants retain water during drought conditions",
+    "category": "agriculture",
+    "difficulty": "beginner",
+    "impact": "Drought affects 55 million people annually. Soil microbes that enhance plant water retention could save crops and lives."
+  },
+  {
+    "id": "gut-health",
+    "title": "Gut Inflammation Fighter",
+    "prompt": "Design a probiotic bacterium that detects and reduces gut inflammation markers",
+    "category": "health",
+    "difficulty": "intermediate",
+    "impact": "IBD affects 6.8 million people globally. Smart probiotics could provide targeted, continuous therapy."
+  },
+  {
+    "id": "oil-spill",
+    "title": "Oil Spill Remediation Bug",
+    "prompt": "Design a marine bacterium that breaks down crude oil into harmless byproducts after an oil spill",
+    "category": "climate",
+    "difficulty": "intermediate",
+    "impact": "Oil spills devastate marine ecosystems for decades. Engineered bioremediation could accelerate recovery from years to months."
+  },
+  {
+    "id": "nitrogen-fixer",
+    "title": "Self-Fertilizing Crop Helper",
+    "prompt": "Design a root-associated bacterium that fixes atmospheric nitrogen for cereal crops like corn and wheat",
+    "category": "agriculture",
+    "difficulty": "advanced",
+    "impact": "Synthetic fertilizer production causes 1.4% of global CO2 emissions. Biological nitrogen fixation could replace chemical fertilizers."
+  },
+  {
+    "id": "pfas-destroyer",
+    "title": "Forever Chemical Destroyer",
+    "prompt": "Design an enzyme or microbe that breaks down PFAS (forever chemicals) in contaminated groundwater",
+    "category": "climate",
+    "difficulty": "advanced",
+    "impact": "PFAS contamination affects drinking water for 200+ million Americans. No natural organism efficiently degrades these persistent chemicals."
+  },
+  {
+    "id": "biofuel-producer",
+    "title": "Algae Biofuel Factory",
+    "prompt": "Design an algae strain that produces high-yield biodiesel from sunlight and wastewater",
+    "category": "energy",
+    "difficulty": "intermediate",
+    "impact": "Algae biofuels could replace petroleum diesel with a carbon-neutral alternative grown on non-arable land."
+  },
+  {
+    "id": "antibiotic-producer",
+    "title": "Novel Antibiotic Producer",
+    "prompt": "Design a soil bacterium that produces a novel class of antibiotic effective against MRSA",
+    "category": "health",
+    "difficulty": "advanced",
+    "impact": "Antibiotic-resistant infections kill 1.27 million people per year. New antibiotic classes are desperately needed."
+  },
+  {
+    "id": "methane-eater",
+    "title": "Livestock Methane Reducer",
+    "prompt": "Design a gut microbe for cattle that reduces methane emissions from digestion by 50%",
+    "category": "climate",
+    "difficulty": "intermediate",
+    "impact": "Livestock methane accounts for 14.5% of global greenhouse gas emissions. A probiotic solution could transform the industry."
+  },
+  {
+    "id": "textile-dye",
+    "title": "Bio-Dye Factory",
+    "prompt": "Design a microbe that produces vibrant textile dyes from sugar, replacing toxic chemical dyes",
+    "category": "sustainability",
+    "difficulty": "beginner",
+    "impact": "Textile dyeing pollutes 20% of global wastewater. Microbial dyes offer a non-toxic, renewable alternative."
+  },
+  {
+    "id": "coral-rescue",
+    "title": "Coral Reef Protector",
+    "prompt": "Design a symbiotic microbe that helps coral resist bleaching from rising ocean temperatures",
+    "category": "climate",
+    "difficulty": "advanced",
+    "impact": "Half of the world's coral reefs have died since 1950. Heat-tolerant symbionts could buy reefs time to adapt."
+  },
+  {
+    "id": "plastic-bottle",
+    "title": "PET Bottle Recycler",
+    "prompt": "Design an enzyme that breaks down PET plastic bottles into reusable monomers at room temperature",
+    "category": "sustainability",
+    "difficulty": "beginner",
+    "impact": "Only 9% of plastic is recycled. Enzymatic recycling could make plastic truly circular."
+  },
+  {
+    "id": "heavy-metal",
+    "title": "Heavy Metal Sponge",
+    "prompt": "Design a bacterium that absorbs lead and arsenic from contaminated drinking water",
+    "category": "health",
+    "difficulty": "intermediate",
+    "impact": "240 million people are exposed to arsenic-contaminated water. Biofilters could provide affordable purification."
+  },
+  {
+    "id": "spider-silk",
+    "title": "Spider Silk Brewery",
+    "prompt": "Design a yeast strain that produces spider silk protein for sustainable high-strength textiles",
+    "category": "sustainability",
+    "difficulty": "intermediate",
+    "impact": "Spider silk is 5x stronger than steel by weight. Microbial production could replace petroleum-based synthetic fibers."
+  },
+  {
+    "id": "food-waste",
+    "title": "Food Waste Valorizer",
+    "prompt": "Design a microbe that converts food waste into animal feed protein",
+    "category": "sustainability",
+    "difficulty": "beginner",
+    "impact": "1/3 of all food produced is wasted. Converting it to protein could feed millions while reducing landfill methane."
+  },
+  {
+    "id": "rare-earth",
+    "title": "Rare Earth Miner Microbe",
+    "prompt": "Design a bacterium that extracts rare earth elements from electronic waste for recycling",
+    "category": "sustainability",
+    "difficulty": "advanced",
+    "impact": "Rare earth mining devastates ecosystems. Biomining from e-waste could provide critical materials sustainably."
+  },
+  {
+    "id": "skin-probiotic",
+    "title": "Acne-Fighting Skin Probiotic",
+    "prompt": "Design a skin-surface probiotic that outcompetes acne-causing bacteria and produces anti-inflammatory compounds",
+    "category": "health",
+    "difficulty": "beginner",
+    "impact": "Acne affects 85% of teenagers. Probiotic treatments could replace antibiotics and harsh chemicals."
+  },
+  {
+    "id": "concrete-healer",
+    "title": "Self-Healing Concrete Microbe",
+    "prompt": "Design a spore-forming bacterium that can be mixed into concrete to heal cracks by producing calcium carbonate",
+    "category": "sustainability",
+    "difficulty": "intermediate",
+    "impact": "Concrete repair costs $100B+ annually. Self-healing concrete could dramatically extend infrastructure lifespan."
+  },
+  {
+    "id": "vaccine-producer",
+    "title": "Shelf-Stable Vaccine Factory",
+    "prompt": "Design a probiotic bacterium that produces and delivers vaccine antigens orally, no refrigeration needed",
+    "category": "health",
+    "difficulty": "advanced",
+    "impact": "Cold chain requirements prevent vaccines from reaching 20M children annually. Oral biologics could change that."
+  }
+]

@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+backend/venv/
+
+# Build output
+dist/
+.vite/
+
+# Secrets
+.env
+backend/.env
+
+# Database
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# COBRApy models (downloaded on first use, ~50MB each)
+backend/fba_models/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

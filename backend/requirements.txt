@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+anthropic
+biopython
+sqlalchemy
+httpx
+pydantic
+python-multipart
+pyjwt[crypto]
+bcrypt
+email-validator
+cobra
+dna-features-viewer
+matplotlib
+pillow
