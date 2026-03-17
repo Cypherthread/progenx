@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useState, useEffect, useRef } from 'react'
 import AuthModal from '@/components/AuthModal'
-import { AnimatedCounter, LiveTicker } from '@/components/LiveCounter'
+import { AnimatedCounter, LiveStat } from '@/components/LiveCounter'
 import { clickSound, welcomeSound, initAudio } from '@/lib/sounds'
+import { stats as statsApi } from '@/lib/api'
 
 const EXAMPLES = [
   'Design a microbe that eats ocean microplastics and converts them to biodegradable PHA bioplastic',
@@ -70,6 +71,11 @@ export default function Landing() {
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
   const [showAuth, setShowAuth] = useState(false)
+  const [liveStats, setLiveStats] = useState({ users: 0, designs: 0 })
+
+  useEffect(() => {
+    statsApi.get().then(setLiveStats).catch(() => {})
+  }, [])
 
   useEffect(() => {
     initAudio()
@@ -290,10 +296,10 @@ export default function Landing() {
         <RevealSection>
           <section className="bg-[#080C14] border-y border-gray-800">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
-              {/* Live ticker bar */}
+              {/* Real stats from backend */}
               <div className="flex flex-wrap items-center justify-center gap-6 mb-10">
-                <LiveTicker base={147} label="designs generated today" />
-                <LiveTicker base={23} label="researchers online now" />
+                <LiveStat value={liveStats.designs} label="designs generated" />
+                <LiveStat value={liveStats.users} label="researchers signed up" />
               </div>
               {/* Animated counters */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

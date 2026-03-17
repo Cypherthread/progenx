@@ -24,7 +24,6 @@ export function AnimatedCounter({ end, duration = 2000, prefix = '', suffix = ''
     const timer = setInterval(() => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / duration, 1)
-      // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3)
       setCount(Math.floor(eased * end))
       if (progress >= 1) clearInterval(timer)
@@ -54,25 +53,15 @@ export function AnimatedCounter({ end, duration = 2000, prefix = '', suffix = ''
 }
 
 /**
- * Simulated "live" ticker that slowly increments.
- * Creates the impression of real-time platform activity.
- * Starts from a base number and ticks up by 1 every few seconds.
+ * Live stat from real backend data.
+ * Fetches on mount and displays with a pulsing dot.
  */
-export function LiveTicker({ base, label, suffix = '' }: { base: number; label: string; suffix?: string }) {
-  const [value, setValue] = useState(base)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setValue((v) => v + 1)
-    }, 3000 + Math.random() * 5000) // tick every 3-8 seconds
-    return () => clearInterval(interval)
-  }, [])
-
+export function LiveStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-center gap-2">
       <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
       <span className="text-sm text-gray-300 tabular-nums">
-        <span className="font-semibold text-white">{value.toLocaleString()}{suffix}</span>{' '}
+        <span className="font-semibold text-white">{value.toLocaleString()}</span>{' '}
         <span className="text-gray-500">{label}</span>
       </span>
     </div>

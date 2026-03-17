@@ -42,3 +42,20 @@ def info():
         "tagline": settings.TAGLINE,
         "free_tier_limit": settings.FREE_TIER_MONTHLY_DESIGNS,
     }
+
+
+@app.get("/api/stats")
+def public_stats():
+    """Real-time platform stats — no auth required, shown on landing page."""
+    from database import SessionLocal
+    from models import User, Design
+    db = SessionLocal()
+    try:
+        total_users = db.query(User).count()
+        total_designs = db.query(Design).filter(Design.status == "complete").count()
+        return {
+            "users": total_users,
+            "designs": total_designs,
+        }
+    finally:
+        db.close()

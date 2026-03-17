@@ -49,6 +49,11 @@ export const billing = {
     request<{ portal_url: string }>('/billing/portal', { method: 'POST' }),
 }
 
+// Stats (public, no auth)
+export const stats = {
+  get: () => request<{ users: number; designs: number }>('/stats'),
+}
+
 // Challenges
 export const challenges = {
   daily: () => request<Challenge>('/challenges/daily'),
