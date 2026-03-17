@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: progenx-api
+    runtime: python
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NCBI_EMAIL
+        sync: false
+      - key: OLLAMA_BASE_URL
+        value: http://localhost:11434/v1
+      - key: OLLAMA_MODEL
+        value: llama3.1:8b
+      - key: DATABASE_URL
+        value: sqlite:////data/progenx.db
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+    disk:
+      name: progenx-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /api/health
+    plan: starter

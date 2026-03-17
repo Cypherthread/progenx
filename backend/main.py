@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
-from database import init_db
+from database import engine, init_db
 from routers import auth_router, designs_router, challenges_router, billing_router
 
 app = FastAPI(
@@ -89,7 +89,22 @@ app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"
 
 @app.on_event("startup")
 def startup():
+    # Safety: crash if JWT secret is the default value
+    if settings.JWT_SECRET == "change-me-in-production":
+        raise RuntimeError(
+            "FATAL: JWT_SECRET is set to the default value. "
+            "Set a strong random secret in your .env file before running in production. "
+            "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
+        )
+
     init_db()
+
+    # Enable WAL mode for SQLite (better concurrent read performance)
+    if "sqlite" in settings.DATABASE_URL:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("PRAGMA journal_mode=WAL"))
+            conn.commit()
 
 
 @app.get("/api/health")
