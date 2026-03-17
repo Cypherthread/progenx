@@ -25,13 +25,6 @@ export default function App() {
           <Route path="/pricing" element={<Pricing />} />
         </Routes>
       </main>
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        <p>ProtoForge v0.1 — Educational & Research Use Only</p>
-        <p className="mt-1 text-xs max-w-2xl mx-auto px-4">
-          Designs are computational predictions, not validated constructs. Any laboratory
-          implementation must comply with institutional biosafety requirements and all applicable regulations.
-        </p>
-      </footer>
     </div>
   )
 }
