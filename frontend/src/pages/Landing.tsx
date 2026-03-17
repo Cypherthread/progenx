@@ -3,7 +3,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { useState, useEffect, useRef } from 'react'
 import AuthModal from '@/components/AuthModal'
 import { AnimatedCounter, LiveStat } from '@/components/LiveCounter'
-import { clickSound, welcomeSound, initAudio } from '@/lib/sounds'
 import { stats as statsApi } from '@/lib/api'
 
 const EXAMPLES = [
@@ -77,21 +76,12 @@ export default function Landing() {
     statsApi.get().then(setLiveStats).catch(() => {})
   }, [])
 
-  useEffect(() => {
-    initAudio()
-    // Play welcome sound after a short delay (after first user interaction)
-    const timer = setTimeout(() => welcomeSound(), 500)
-    return () => clearTimeout(timer)
-  }, [])
-
   function handleTryExample(prompt: string) {
-    clickSound()
     if (!user) { setShowAuth(true); return }
     navigate('/studio', { state: { prompt } })
   }
 
   function handleCTA() {
-    clickSound()
     if (user) navigate('/studio')
     else setShowAuth(true)
   }

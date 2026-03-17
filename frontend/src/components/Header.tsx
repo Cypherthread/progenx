@@ -1,46 +1,62 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AuthModal from './AuthModal'
 
 export default function Header() {
   const { user, logout } = useAuth()
   const [showAuth, setShowAuth] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const location = useLocation()
-  const isLanding = location.pathname === '/'
+  const [scrolled, setScrolled] = useState(false)
 
-  // Dark frosted glass on landing, dark frosted on other pages too
-  const headerBg = isLanding
-    ? 'bg-[#080C14]/70 backdrop-blur-xl border-gray-800/50'
-    : 'bg-[#0B1120]/80 backdrop-blur-xl border-gray-800/50'
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <>
-      <header className={`border-b sticky top-0 z-50 ${headerBg}`}>
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/images/logo-progenx.png" alt="Progenx" className="h-7" />
+      <header className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-[#0A0E18]/95 backdrop-blur-md border-b border-cyan-500/10 shadow-lg shadow-black/20'
+          : 'bg-[#080C14] border-b border-gray-800/30'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <img src="/images/logo-progenx.png" alt="Progenx" className="h-7 sm:h-8" />
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link to="/studio" className="text-gray-400 hover:text-cyan-400 transition-colors">Design Studio</Link>
-            <Link to="/history" className="text-gray-400 hover:text-cyan-400 transition-colors">My Designs</Link>
-            <Link to="/pricing" className="text-gray-400 hover:text-cyan-400 transition-colors">Pricing</Link>
+          {/* Desktop nav — centered */}
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { to: '/studio', label: 'Design Studio' },
+              { to: '/history', label: 'My Designs' },
+              { to: '/pricing', label: 'Pricing' },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
 
+          {/* Right side */}
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <span className="text-sm text-gray-500 hidden sm:inline">
+                <span className="text-xs text-gray-500 hidden sm:inline tabular-nums">
                   {user.tier === 'free'
-                    ? `${user.designs_this_month}/${user.monthly_limit} designs`
+                    ? `${user.designs_this_month}/${user.monthly_limit}`
                     : 'Pro'}
                 </span>
                 <button
                   onClick={logout}
-                  className="text-sm text-gray-500 hover:text-gray-300 transition-colors hidden md:inline"
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors hidden md:inline"
                 >
                   Log out
                 </button>
@@ -48,7 +64,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => setShowAuth(true)}
-                className="px-4 py-2 progenx-gradient text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity hidden md:inline"
+                className="hidden md:inline px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors"
               >
                 Sign in
               </button>
@@ -57,7 +73,7 @@ export default function Header() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-md hover:bg-white/5 text-gray-400"
+              className="md:hidden p-2 rounded-lg hover:bg-white/5 text-gray-400"
               aria-label="Menu"
             >
               {mobileOpen ? (
@@ -75,16 +91,27 @@ export default function Header() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-gray-800 bg-[#0B1120]/95 backdrop-blur-xl px-4 py-3 space-y-1">
-            <Link to="/studio" onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-gray-300 hover:text-cyan-400">Design Studio</Link>
-            <Link to="/history" onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-gray-300 hover:text-cyan-400">My Designs</Link>
-            <Link to="/pricing" onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-gray-300 hover:text-cyan-400">Pricing</Link>
-            <div className="pt-2 border-t border-gray-800 mt-2">
+          <div className="md:hidden border-t border-gray-800/50 bg-[#0A0E18]/98 backdrop-blur-xl px-4 py-3 space-y-0.5">
+            {[
+              { to: '/studio', label: 'Design Studio' },
+              { to: '/history', label: 'My Designs' },
+              { to: '/pricing', label: 'Pricing' },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setMobileOpen(false)}
+                className="block py-2.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg"
+              >
+                {label}
+              </Link>
+            ))}
+            <div className="pt-2 border-t border-gray-800/50 mt-2">
               {user ? (
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-sm text-gray-500">
                     {user.tier === 'free'
-                      ? `${user.designs_this_month}/${user.monthly_limit} designs this month`
+                      ? `${user.designs_this_month}/${user.monthly_limit} designs`
                       : 'Pro plan'}
                   </span>
                   <button onClick={() => { logout(); setMobileOpen(false) }} className="text-sm text-red-400">Log out</button>
@@ -92,7 +119,7 @@ export default function Header() {
               ) : (
                 <button
                   onClick={() => { setShowAuth(true); setMobileOpen(false) }}
-                  className="w-full py-2.5 progenx-gradient text-white rounded-lg text-sm font-medium"
+                  className="w-full py-2.5 bg-cyan-600 text-white rounded-lg text-sm font-medium"
                 >
                   Sign in
                 </button>
