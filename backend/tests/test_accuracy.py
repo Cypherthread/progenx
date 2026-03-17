@@ -1,5 +1,5 @@
 """
-Known-answer regression tests for ProtoForge design accuracy.
+Known-answer regression tests for Progenx design accuracy.
 
 How this works:
 1. Each test case defines a prompt and the EXPECTED genes/chassis
@@ -248,7 +248,7 @@ def run_all():
     all_errors = []
 
     print("=" * 60)
-    print("PROTOFORGE REGRESSION TEST SUITE")
+    print("PROGENX REGRESSION TEST SUITE")
     print("=" * 60)
 
     for name, test_fn in tests:

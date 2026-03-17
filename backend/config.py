@@ -5,7 +5,7 @@ load_dotenv()
 
 
 class Settings:
-    APP_NAME = "ProtoForge"
+    APP_NAME = "Progenx"
     VERSION = "0.2.0"
     TAGLINE = (
         "We help scientists, climate innovators, bio-hackers, and everyday "
@@ -13,13 +13,13 @@ class Settings:
         "in plain English — without a PhD, wet lab, or million-dollar budget."
     )
 
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./protoforge.db")
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./progenx.db")
     CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", "./chroma_data")
 
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
     # NCBI Entrez (required for real sequence fetching)
-    NCBI_EMAIL = os.getenv("NCBI_EMAIL", "protoforge@example.com")
+    NCBI_EMAIL = os.getenv("NCBI_EMAIL", "progenx@example.com")
     NCBI_API_KEY = os.getenv("NCBI_API_KEY", "")  # optional, increases rate limit
 
     # Ollama (free-tier LLM — local, zero cost)

@@ -1,6 +1,6 @@
-Simulate ProtoForge's growth over the next 24 months (March 2026 - March 2028).
+Simulate Progenx's growth over the next 24 months (March 2026 - March 2028).
 
-ProtoForge is an AI-powered bioengineering design platform that turns plain-English
+Progenx is an AI-powered bioengineering design platform that turns plain-English
 prompts into real gene circuits, DNA sequences, plasmid maps, and safety scores.
 It targets biohackers, iGEM teams, climate founders, and Benchling users. It is
 currently a solo-founder MVP launching this week.

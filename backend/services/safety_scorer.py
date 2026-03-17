@@ -51,7 +51,7 @@ RESISTANCE_MARKERS = [
 
 DISCLAIMER = (
     "DISCLAIMER: This design is for educational and research purposes only. "
-    "ProtoForge outputs are computational predictions, not validated constructs. "
+    "Progenx outputs are computational predictions, not validated constructs. "
     "Any laboratory implementation must comply with institutional biosafety "
     "committees (IBC), NIH Guidelines for Research Involving Recombinant or "
     "Synthetic Nucleic Acid Molecules, and all applicable local, national, and "
@@ -90,7 +90,7 @@ def _screen_securedna(dna_sequence: str) -> dict | None:
 
     import httpx
 
-    fasta = f">protoforge_screen\n{dna_sequence}"
+    fasta = f">progenx_screen\n{dna_sequence}"
 
     try:
         resp = httpx.post(
@@ -98,7 +98,7 @@ def _screen_securedna(dna_sequence: str) -> dict | None:
             json={
                 "fasta": fasta,
                 "region": "all",
-                "provider_reference": "protoforge",
+                "provider_reference": "progenx",
             },
             timeout=30,
         )

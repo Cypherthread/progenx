@@ -12,11 +12,22 @@
 }
 
 @layer utilities {
+  /* ProGenX brand gradient — cyan to teal */
+  .progenx-gradient {
+    background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 50%, #22D3EE 100%);
+  }
+  .progenx-gradient-text {
+    background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 50%, #67E8F9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  /* Legacy alias */
   .dna-gradient {
-    background: linear-gradient(135deg, #16a34a 0%, #2563eb 50%, #7c3aed 100%);
+    background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 50%, #22D3EE 100%);
   }
   .dna-gradient-text {
-    background: linear-gradient(135deg, #16a34a 0%, #2563eb 50%, #7c3aed 100%);
+    background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 50%, #67E8F9 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -35,10 +46,20 @@
 
 /* Pulse for generating state */
 @keyframes bioGlow {
-  0%, 100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(22, 163, 74, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.6); }
 }
 
 .bio-glow {
   animation: bioGlow 2s ease-in-out infinite;
+}
+
+/* Cyan glow effect for hero elements */
+@keyframes cyanPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.cyan-pulse {
+  animation: cyanPulse 3s ease-in-out infinite;
 }

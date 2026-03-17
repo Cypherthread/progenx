@@ -13,10 +13,7 @@ export default function Header() {
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full dna-gradient flex items-center justify-center">
-              <span className="text-white font-bold text-sm">P</span>
-            </div>
-            <span className="font-semibold text-lg">ProtoForge</span>
+            <img src="/images/logo-progenx.png" alt="Progenx" className="h-8" />
           </Link>
 
           {/* Desktop nav */}

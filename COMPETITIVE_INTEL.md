@@ -1,13 +1,13 @@
-# ProtoForge Competitive Intelligence
+# Progenx Competitive Intelligence
 ## Cradle, Asimov, TeselaGen — March 2026
 
 ---
 
 ## The Bottom Line
 
-None of these three are direct competitors. They all serve experienced biotech professionals with existing wet labs and enterprise budgets. ProtoForge serves the underserved: biohackers, students, iGEM teams, climate founders who need the first 80% of ideation without a PhD or a million-dollar budget.
+None of these three are direct competitors. They all serve experienced biotech professionals with existing wet labs and enterprise budgets. Progenx serves the underserved: biohackers, students, iGEM teams, climate founders who need the first 80% of ideation without a PhD or a million-dollar budget.
 
-| Dimension | Cradle | Asimov | TeselaGen | ProtoForge |
+| Dimension | Cradle | Asimov | TeselaGen | Progenx |
 |-----------|--------|--------|-----------|------------|
 | **Input** | Protein sequence + lab data | Manual part selection | Structured + NL libraries | Plain English |
 | **Output** | Optimized protein variants | Cell lines, vectors | Libraries, protocols, worklists | Gene circuits, sequences, FBA, maps |
@@ -25,7 +25,7 @@ None of these three are direct competitors. They all serve experienced biotech p
 
 ### High Priority (do before or at launch)
 
-1. **"If you can describe it, you can design it"** — adapt Cradle's brilliant positioning ("if you can measure it, you can optimize it") to ProtoForge's plain-English strength.
+1. **"If you can describe it, you can design it"** — adapt Cradle's brilliant positioning ("if you can measure it, you can optimize it") to Progenx's plain-English strength.
 
 2. **iGEM partnership** — Asimov gives free Kernel access to iGEM teams. We should formalize a similar partnership. Same target users, massive credibility signal, pipeline to future enterprise customers.
 
@@ -49,7 +49,7 @@ None of these three are direct competitors. They all serve experienced biotech p
 
 10. **Combinatorial library design** — TeselaGen generates 96-384 variant libraries from a single prompt. We generate single circuits. Library design would be powerful for iGEM teams and researchers.
 
-11. **Content/media arm** — Asimov publishes Asimov Press (science media). A ProtoForge blog or newsletter about synbio design could build thought leadership cheaply.
+11. **Content/media arm** — Asimov publishes Asimov Press (science media). A Progenx blog or newsletter about synbio design could build thought leadership cheaply.
 
 12. **Lab automation integration** — TeselaGen exports worklists for Tecan/Hamilton/Echo. Not relevant until our users have automation hardware, but worth planning for enterprise tier.
 
@@ -71,7 +71,7 @@ None of these three are direct competitors. They all serve experienced biotech p
 
 ## Competitive Moat Assessment
 
-ProtoForge's defensible advantages:
+Progenx's defensible advantages:
 1. **Only plain-English-to-complete-design tool** — nobody else does this
 2. **Only free self-service synbio design platform** — TeselaGen has a free tier but it's for library design, not full circuits
 3. **Only platform with FBA metabolic modeling in the design pipeline** — none of the three do genome-scale FBA

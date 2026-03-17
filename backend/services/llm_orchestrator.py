@@ -226,7 +226,7 @@ def _self_consistency_check(system: str, user_msg: str, user_tier: str, n_runs: 
     return best_design
 
 
-SYSTEM_PROMPT = """You are ProtoForge's bioengineering AI. You design gene circuits based on user prompts.
+SYSTEM_PROMPT = """You are Progenx's bioengineering AI. You design gene circuits based on user prompts.
 
 VALUE PROPOSITION: {tagline}
 
@@ -430,7 +430,7 @@ def generate_design(
         marker=assembly["selection_marker"],
         kill_switch=assembly["kill_switch"],
         total_length=assembly["estimated_total_size_bp"],
-        design_name=design.get("design_name", "pProtoForge"),
+        design_name=design.get("design_name", "pProgenx"),
     )
 
     # Step 6: Build combined FASTA
@@ -456,7 +456,7 @@ def generate_design(
     genbank_content = ""
     if full_sequence:
         genbank_content = design_to_genbank(
-            design_name=design.get("design_name", "pProtoForge"),
+            design_name=design.get("design_name", "pProgenx"),
             dna_sequence=full_sequence,
             genes=genes,
             promoters=gene_circuit.get("promoters", []),
@@ -535,7 +535,7 @@ def _estimate_cost(total_bp: int) -> str:
     return f"${low:,.0f} - ${high:,.0f} (gene synthesis at $0.05-0.10/bp, 2026 pricing)"
 
 
-REFINE_SYSTEM = """You are ProtoForge's refinement assistant. The user has an existing design and wants changes.
+REFINE_SYSTEM = """You are Progenx's refinement assistant. The user has an existing design and wants changes.
 
 Return valid JSON with the same structure as the original, plus "refinement_summary" explaining changes.
 Only modify what the user asked for. Preserve working elements. Use real gene names only."""

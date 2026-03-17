@@ -1,8 +1,8 @@
-# CLAUDE.md — ProtoForge
+# CLAUDE.md — Progenx
 
 ## What This Is
 
-**ProtoForge** — an AI-powered bioengineering design platform that lets users describe custom microbes, enzymes, and genetic circuits in plain English and get back real gene circuits, DNA sequences, plasmid maps, safety scores, FBA yield predictions, assembly plans, and vendor links. Think "Canva for synthetic biology."
+**Progenx** — an AI-powered bioengineering design platform that lets users describe custom microbes, enzymes, and genetic circuits in plain English and get back real gene circuits, DNA sequences, plasmid maps, safety scores, FBA yield predictions, assembly plans, and vendor links. Think "Canva for synthetic biology."
 
 Target users: biohackers, students, iGEM teams, early-stage climate founders, researchers who need the first 80% of ideation without a PhD or million-dollar budget.
 
@@ -10,7 +10,7 @@ Target users: biohackers, students, iGEM teams, early-stage climate founders, re
 
 ### Backend (`backend/`)
 - **Python 3.12 + FastAPI** — REST API
-- **SQLAlchemy + SQLite** — ORM + database (`protoforge.db`, auto-created on startup)
+- **SQLAlchemy + SQLite** — ORM + database (`progenx.db`, auto-created on startup)
 - **Anthropic Claude API** (claude-sonnet-4-20250514) — structured gene circuit design (Pro tier)
 - **Ollama** (llama3.1:8b) — free tier LLM via OpenAI-compatible API ($0/design)
 - **OpenAI Python SDK** — Ollama compatibility layer
@@ -43,7 +43,7 @@ npx vite build       # production build → dist/
 # Test user (after server starts)
 curl -X POST http://localhost:8000/api/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@protoforge.dev","password":"testpass123","name":"Test"}'
+  -d '{"email":"test@progenx.dev","password":"testpass123","name":"Test"}'
 ```
 
 No test suite yet. Validation is manual via API calls.
@@ -110,9 +110,9 @@ Current registry covers: petase, mhetase, phaA/B/C, rbcL/S, ccmK/M, nifH/D/K, al
 ANTHROPIC_API_KEY=sk-ant-...
 JWT_SECRET=...
 CORS_ORIGINS=http://localhost:5173
-DATABASE_URL=sqlite:///./protoforge.db
+DATABASE_URL=sqlite:///./progenx.db
 EVO2_NVIDIA_API_KEY=nvapi-...     # optional
-NCBI_EMAIL=protoforge@paperst.co  # required for Entrez
+NCBI_EMAIL=progenx@paperst.co  # required for Entrez
 NCBI_API_KEY=                      # optional, increases rate limit
 ```
 

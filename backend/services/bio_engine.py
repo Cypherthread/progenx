@@ -36,7 +36,7 @@ def generate_fasta(sequence: str, name: str, description: str = "") -> str:
         Seq(sequence),
         id=name.replace(" ", "_").lower(),
         name=name,
-        description=description or f"ProtoForge design: {name}",
+        description=description or f"Progenx design: {name}",
     )
     output = io.StringIO()
     SeqIO.write(record, output, "fasta")

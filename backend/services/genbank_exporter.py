@@ -1,5 +1,5 @@
 """
-GenBank format export for ProtoForge designs.
+GenBank format export for Progenx designs.
 
 Generates standard GenBank flat files (.gb) from design output,
 including feature annotations for genes, promoters, terminators,
@@ -25,7 +25,7 @@ def design_to_genbank(
     host_organism: str = "",
     codon_optimized: dict | None = None,
 ) -> str:
-    """Convert a ProtoForge design to GenBank flat file format.
+    """Convert a Progenx design to GenBank flat file format.
 
     Returns a string in GenBank format that can be saved as .gb and opened
     in SnapGene, Benchling, Geneious, ApE, or any GenBank-compatible tool.
@@ -46,7 +46,7 @@ def design_to_genbank(
     )
 
     # DEFINITION
-    lines.append(f"DEFINITION  {design_name}, designed by ProtoForge.")
+    lines.append(f"DEFINITION  {design_name}, designed by Progenx.")
 
     # ACCESSION
     lines.append("ACCESSION   .")
@@ -55,7 +55,7 @@ def design_to_genbank(
     lines.append("VERSION     .")
 
     # KEYWORDS
-    lines.append("KEYWORDS    synthetic biology; ProtoForge; AI-designed.")
+    lines.append("KEYWORDS    synthetic biology; Progenx; AI-designed.")
 
     # SOURCE
     if host_organism:
@@ -66,7 +66,7 @@ def design_to_genbank(
         lines.append("  ORGANISM  synthetic construct")
 
     # COMMENT
-    lines.append("COMMENT     Designed by ProtoForge (AI-powered bioengineering platform).")
+    lines.append("COMMENT     Designed by Progenx (AI-powered bioengineering platform).")
     lines.append("            EDUCATIONAL/EXPERIMENTAL ONLY — NOT LAB-READY WITHOUT EXPERT REVIEW.")
     lines.append("            Sequences are computational predictions. Lab validation required.")
 
@@ -77,7 +77,7 @@ def design_to_genbank(
     lines.append(f"     source          1..{seq_len}")
     lines.append(f'                     /organism="{host_organism or "synthetic construct"}"')
     lines.append('                     /mol_type="other DNA"')
-    lines.append(f'                     /note="Designed by ProtoForge"')
+    lines.append(f'                     /note="Designed by Progenx"')
 
     # Track current position for feature placement
     current_pos = 1

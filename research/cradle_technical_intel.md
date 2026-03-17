@@ -7,7 +7,7 @@ Cradle's competitive advantage is NOT a single breakthrough model. It's the inte
 2. Adaptive exploration algorithms (AdaLead — open-sourced at github.com/samsinai/FLEXS)
 3. Experimental data feedback loops
 
-ProtoForge can replicate 1 and 2 with open-source tools today.
+Progenx can replicate 1 and 2 with open-source tools today.
 
 ### Founder Research Origins
 - Sam Sinai (co-founder) published:
@@ -15,7 +15,7 @@ ProtoForge can replicate 1 and 2 with open-source tools today.
   - AdaLead: adaptive greedy search for sequence design (Sinai et al. 2020)
   - EVOVAE: VAE for protein sequences (arxiv.org/abs/1712.03346, NIPS MLCB 2017)
 
-### Implementation Priority for ProtoForge
+### Implementation Priority for Progenx
 
 **Phase 1 (1-2 weeks):**
 - ESM-2 zero-shot variant scoring (pip install fair-esm)

@@ -1,7 +1,7 @@
-# ProtoForge Legal & Privacy Report
+# Progenx Legal & Privacy Report
 
 **Prepared:** March 14, 2026
-**Platform:** ProtoForge -- AI-Powered Bioengineering Design Platform
+**Platform:** Progenx -- AI-Powered Bioengineering Design Platform
 **Stage:** Pre-launch (March 2026)
 **Business Model:** Freemium SaaS ($29/mo Pro tier), solo founder
 
@@ -25,9 +25,9 @@
 
 ## 1. Privacy Policy Requirements
 
-### 1.1 Data ProtoForge Collects
+### 1.1 Data Progenx Collects
 
-Based on the codebase (SQLAlchemy models, auth system, design pipeline), ProtoForge collects and processes the following categories of personal and user-generated data:
+Based on the codebase (SQLAlchemy models, auth system, design pipeline), Progenx collects and processes the following categories of personal and user-generated data:
 
 | Data Category | Source | Storage | Sensitivity |
 |---|---|---|---|
@@ -48,7 +48,7 @@ Based on the codebase (SQLAlchemy models, auth system, design pipeline), ProtoFo
 - **Required disclosure:** The privacy policy must explicitly state that user prompts are sent to Anthropic for processing, specify the purpose (gene circuit design), note Anthropic's retention period, and link to Anthropic's privacy policy.
 
 **NCBI Entrez API:**
-- ProtoForge queries NCBI's public databases to fetch real gene sequences.
+- Progenx queries NCBI's public databases to fetch real gene sequences.
 - NCBI is a US government public database. Queries contain gene names and accession numbers, not personal data.
 - **Privacy concern level: Low.** The queries themselves do not contain personal information. However, NCBI's usage policy requires an email address (configured as `protoforge@paperst.co` in the .env), which is the platform's operational email, not user data.
 - **Recommended disclosure:** Mention that the platform queries public biological databases (NCBI/GenBank) to retrieve gene sequence data, and that no user personal information is transmitted to these databases.
@@ -59,8 +59,8 @@ Based on the codebase (SQLAlchemy models, auth system, design pipeline), ProtoFo
 
 **Definite applicability:**
 
-- **GDPR (EU/EEA):** ProtoForge targets iGEM teams (66+ countries). EU users are virtually guaranteed. GDPR applies to any entity processing data of EU residents, regardless of where the company is based. No revenue or size threshold.
-- **CCPA/CPRA (California):** Applies if ProtoForge has California users AND meets revenue thresholds ($25M annual revenue, 100,000+ consumers, or 50%+ revenue from selling personal data). At launch, ProtoForge likely falls below these thresholds. However, best practice is to comply proactively because (a) thresholds can be crossed quickly, and (b) a CCPA-compliant policy also satisfies most other state laws.
+- **GDPR (EU/EEA):** Progenx targets iGEM teams (66+ countries). EU users are virtually guaranteed. GDPR applies to any entity processing data of EU residents, regardless of where the company is based. No revenue or size threshold.
+- **CCPA/CPRA (California):** Applies if Progenx has California users AND meets revenue thresholds ($25M annual revenue, 100,000+ consumers, or 50%+ revenue from selling personal data). At launch, Progenx likely falls below these thresholds. However, best practice is to comply proactively because (a) thresholds can be crossed quickly, and (b) a CCPA-compliant policy also satisfies most other state laws.
 
 **Likely applicable (depending on user geography):**
 
@@ -75,7 +75,7 @@ Based on the codebase (SQLAlchemy models, auth system, design pipeline), ProtoFo
 
 At minimum, the privacy policy needs to cover:
 
-1. Identity and contact details of the data controller (ProtoForge / founder)
+1. Identity and contact details of the data controller (Progenx / founder)
 2. Categories of personal data collected (account data, design data, usage data)
 3. Purposes and legal basis for processing (contract performance, legitimate interest)
 4. Third-party data processors (Anthropic Claude API -- with specifics about prompt transmission)
@@ -92,15 +92,15 @@ At minimum, the privacy policy needs to cover:
 
 ### 2.1 Liability for Generated Designs
 
-This is the single most critical legal document for ProtoForge. The platform generates gene circuits, DNA sequences, and assembly plans that a user could theoretically attempt to build in a lab. The ToS must create a clear legal barrier between the platform's computational output and any downstream physical implementation.
+This is the single most critical legal document for Progenx. The platform generates gene circuits, DNA sequences, and assembly plans that a user could theoretically attempt to build in a lab. The ToS must create a clear legal barrier between the platform's computational output and any downstream physical implementation.
 
 **Required provisions:**
 
 - **"Not Lab-Ready" Disclaimer:** The existing disclaimer in `config.py` and `safety_scorer.py` ("EDUCATIONAL/EXPERIMENTAL ONLY -- NOT LAB-READY WITHOUT EXPERT REVIEW") is a good start, but it needs to be elevated to the ToS as a binding contractual term, not just a UI notification.
 - **No Warranty on Biological Accuracy:** Explicitly disclaim that generated sequences, predicted yields, FBA results, codon optimization outputs, and assembly plans are computational predictions only. No representation that they will function as described in vivo.
-- **No Professional Advice:** State that ProtoForge does not provide professional biological engineering, biosafety, or regulatory advice. Outputs should not be treated as substitutes for expert consultation.
+- **No Professional Advice:** State that Progenx does not provide professional biological engineering, biosafety, or regulatory advice. Outputs should not be treated as substitutes for expert consultation.
 - **Limitation of Liability:** Cap liability at the amount paid by the user (e.g., $29/month for Pro users, $0 for free-tier). Disclaim consequential, incidental, and indirect damages.
-- **Indemnification:** Users agree to indemnify ProtoForge against claims arising from their use of generated designs.
+- **Indemnification:** Users agree to indemnify Progenx against claims arising from their use of generated designs.
 
 ### 2.2 User Responsibility for Downstream Use
 
@@ -109,18 +109,18 @@ The ToS must make clear:
 - Users are solely responsible for any laboratory implementation of designs.
 - Users must comply with all applicable biosafety regulations (NIH Guidelines, institutional biosafety committees, local/national laws) before synthesizing, cloning, or expressing any generated construct.
 - Users must obtain all necessary institutional approvals (IBC review, IRB if applicable, export controls) before acting on any design output.
-- ProtoForge bears no responsibility for designs that are modified by the user after generation.
+- Progenx bears no responsibility for designs that are modified by the user after generation.
 
 ### 2.3 IP Ownership of Generated Designs
 
 This is a legally unsettled area. Key considerations:
 
 - **US Copyright Office position (current as of 2025):** Purely AI-generated works without sufficient human authorship are not copyrightable. However, if a user provides detailed, creative prompts and makes substantial editorial choices, the resulting work may have copyrightable elements attributable to the human author.
-- **Anthropic's API terms:** Anthropic assigns output ownership to the API customer (ProtoForge), and ProtoForge can then assign those rights to users.
+- **Anthropic's API terms:** Anthropic assigns output ownership to the API customer (Progenx), and Progenx can then assign those rights to users.
 - **Recommended ToS approach:**
   - Grant users ownership of their generated designs (this is the market standard -- OpenAI, Anthropic, and most AI platforms do this).
   - Disclaim any guarantee that designs are copyrightable or patentable.
-  - Reserve a limited license for ProtoForge to use anonymized/aggregated design data for service improvement (with appropriate privacy safeguards).
+  - Reserve a limited license for Progenx to use anonymized/aggregated design data for service improvement (with appropriate privacy safeguards).
   - Clarify that gene sequences retrieved from NCBI are public domain data and cannot be claimed as proprietary by any user.
 
 ### 2.4 Acceptable Use Policy (AUP)
@@ -135,7 +135,7 @@ This is especially important for a bioengineering platform. The AUP must prohibi
 - Using the platform to design controlled substances or precursors
 - Sharing designs publicly that contain high-risk elements flagged by the safety scorer
 
-**Enforcement mechanism:** The ToS should reserve ProtoForge's right to suspend accounts, refuse to generate designs that trigger safety flags, and report suspected misuse to appropriate authorities. The existing safety scoring system (`safety_scorer.py`) provides a technical foundation for this, but it needs a contractual counterpart in the ToS.
+**Enforcement mechanism:** The ToS should reserve Progenx's right to suspend accounts, refuse to generate designs that trigger safety flags, and report suspected misuse to appropriate authorities. The existing safety scoring system (`safety_scorer.py`) provides a technical foundation for this, but it needs a contractual counterpart in the ToS.
 
 ### 2.5 Account Termination and Data Handling
 
@@ -149,7 +149,7 @@ This is especially important for a bioengineering platform. The AUP must prohibi
 
 ### 3.1 Legal Basis for Processing
 
-ProtoForge needs a valid legal basis under GDPR Article 6 for each processing activity:
+Progenx needs a valid legal basis under GDPR Article 6 for each processing activity:
 
 | Processing Activity | Recommended Legal Basis |
 |---|---|
@@ -163,7 +163,7 @@ ProtoForge needs a valid legal basis under GDPR Article 6 for each processing ac
 
 ### 3.2 Right to Deletion (Article 17)
 
-ProtoForge must implement:
+Progenx must implement:
 
 - **Account deletion endpoint:** Delete the User record, all associated Design records, ChatMessage records, and AuditLog records.
 - **Timeline:** GDPR does not specify an exact deadline, but "without undue delay" is interpreted as within 30 days.
@@ -172,7 +172,7 @@ ProtoForge must implement:
 
 ### 3.3 Data Portability (Article 20)
 
-Users have the right to receive their personal data in a structured, commonly used, machine-readable format. For ProtoForge, this means:
+Users have the right to receive their personal data in a structured, commonly used, machine-readable format. For Progenx, this means:
 
 - Export all user designs (JSON or FASTA format -- the platform already generates FASTA downloads)
 - Export account information
@@ -182,11 +182,11 @@ Users have the right to receive their personal data in a structured, commonly us
 
 ### 3.4 Data Processing Agreements (DPAs)
 
-**Anthropic:** A DPA with Standard Contractual Clauses is automatically incorporated into Anthropic's Commercial Terms of Service. When ProtoForge accepted the API terms, this DPA was accepted. Verify this is in place by checking the Anthropic dashboard or contacting their privacy team.
+**Anthropic:** A DPA with Standard Contractual Clauses is automatically incorporated into Anthropic's Commercial Terms of Service. When Progenx accepted the API terms, this DPA was accepted. Verify this is in place by checking the Anthropic dashboard or contacting their privacy team.
 
 **NCBI:** NCBI is a US government agency operating public databases. No DPA is needed for querying public databases, as the queries do not involve personal data (gene names, accession numbers). NCBI's terms of use apply, but these are usage/rate-limit terms, not privacy terms.
 
-**Hosting/Infrastructure:** If ProtoForge deploys to Render, Vercel, or AWS, DPAs will be needed with those providers. Most major cloud providers offer standard DPAs.
+**Hosting/Infrastructure:** If Progenx deploys to Render, Vercel, or AWS, DPAs will be needed with those providers. Most major cloud providers offer standard DPAs.
 
 ### 3.5 Cookie Consent
 
@@ -200,13 +200,13 @@ The current codebase uses JWT tokens stored (likely) in localStorage or as HTTP-
 
 ### 3.6 Data Protection Officer (DPO)
 
-**A DPO is likely NOT required** for ProtoForge at launch. Under GDPR Article 37, a DPO is mandatory only when:
+**A DPO is likely NOT required** for Progenx at launch. Under GDPR Article 37, a DPO is mandatory only when:
 
 1. The organization is a public authority (no)
-2. Core activities require large-scale, regular and systematic monitoring of individuals (no -- ProtoForge monitors designs for safety, not individuals)
+2. Core activities require large-scale, regular and systematic monitoring of individuals (no -- Progenx monitors designs for safety, not individuals)
 3. Core activities involve large-scale processing of special category data or criminal conviction data (no)
 
-ProtoForge's core activity is generating bioengineering designs, not monitoring individuals or processing sensitive personal data at scale. The safety scoring system monitors content, not people.
+Progenx's core activity is generating bioengineering designs, not monitoring individuals or processing sensitive personal data at scale. The safety scoring system monitors content, not people.
 
 **However:** If the platform grows significantly and begins processing data in ways that involve systematic monitoring of user behavior (e.g., behavioral analytics, usage pattern tracking for safety purposes), this assessment should be revisited.
 
@@ -226,7 +226,7 @@ User data from EU users is transferred to the US when:
 
 The EU AI Act classifies AI systems into four risk tiers: unacceptable, high-risk, limited risk, and minimal risk.
 
-**ProtoForge's likely classification: Limited risk (with transparency obligations), NOT high-risk.**
+**Progenx's likely classification: Limited risk (with transparency obligations), NOT high-risk.**
 
 The high-risk AI systems are enumerated in Annex III of the AI Act, covering eight specific domains:
 1. Biometrics
@@ -248,23 +248,23 @@ A bioengineering design tool does not fall into any of these categories. It is n
 
 ### 4.2 Transparency Obligations
 
-Even if not classified as high-risk, ProtoForge has transparency obligations under Article 50 (applicable from August 2, 2026):
+Even if not classified as high-risk, Progenx has transparency obligations under Article 50 (applicable from August 2, 2026):
 
 - **AI-generated content disclosure:** Users must be informed that the gene circuits and designs are generated by an AI system (Claude). The existing disclaimers partially cover this, but a more explicit "This design was generated by an AI system (Anthropic Claude)" notice may be needed.
-- **Deployer obligations:** If ProtoForge is considered a "deployer" of an AI system (which it is, as it integrates Claude's API), it must inform users that they are interacting with an AI system.
+- **Deployer obligations:** If Progenx is considered a "deployer" of an AI system (which it is, as it integrates Claude's API), it must inform users that they are interacting with an AI system.
 
 ### 4.3 Scientific Research Exemption
 
 Article 2(6) of the EU AI Act exempts AI systems "specifically developed and put into service for the sole purpose of scientific research and development."
 
-**This exemption does NOT apply to ProtoForge** because:
-- ProtoForge is a commercial product (freemium model, $29/mo Pro tier), not a research tool developed solely for scientific R&D.
+**This exemption does NOT apply to Progenx** because:
+- Progenx is a commercial product (freemium model, $29/mo Pro tier), not a research tool developed solely for scientific R&D.
 - The exemption applies to AI that is "put into service" but NOT "placed on the market." A commercial SaaS product is placed on the market.
 - The exemption is interpreted narrowly: "sole purpose" means exclusively for research, not a commercial tool that researchers happen to use.
 
 ### 4.4 Documentation Requirements
 
-As a limited-risk AI system, ProtoForge's documentation obligations are lighter than for high-risk systems but still include:
+As a limited-risk AI system, Progenx's documentation obligations are lighter than for high-risk systems but still include:
 
 - Basic technical documentation of how the AI system works
 - Record of the AI model used (Claude sonnet-4) and its version
@@ -273,9 +273,9 @@ As a limited-risk AI system, ProtoForge's documentation obligations are lighter 
 
 ### 4.5 Timeline
 
-- **February 2, 2025:** Prohibitions on unacceptable-risk AI took effect (ProtoForge is not affected).
-- **August 2, 2025:** GPAI model obligations took effect (applies to Anthropic as the model provider, not to ProtoForge as the deployer).
-- **August 2, 2026:** Obligations for Annex III high-risk systems and transparency rules (Article 50) take effect. ProtoForge needs transparency compliance by this date.
+- **February 2, 2025:** Prohibitions on unacceptable-risk AI took effect (Progenx is not affected).
+- **August 2, 2025:** GPAI model obligations took effect (applies to Anthropic as the model provider, not to Progenx as the deployer).
+- **August 2, 2026:** Obligations for Annex III high-risk systems and transparency rules (Article 50) take effect. Progenx needs transparency compliance by this date.
 
 ---
 
@@ -283,27 +283,27 @@ As a limited-risk AI system, ProtoForge's documentation obligations are lighter 
 
 ### 5.1 Platform Liability for Dangerous Designs
 
-This is the highest-stakes legal question for ProtoForge. If a user generates a design for a dangerous organism, is the platform liable?
+This is the highest-stakes legal question for Progenx. If a user generates a design for a dangerous organism, is the platform liable?
 
 **Current US law -- multiple theories of liability:**
 
 **a) Section 230 of the Communications Decency Act:**
 - Section 230 traditionally shields platforms from liability for user-generated content.
-- **Critical issue:** Section 230 protects platforms from being "treated as the publisher or speaker of any information provided by another information content provider." But ProtoForge is not merely hosting user content -- it is generating content via AI in response to user prompts.
+- **Critical issue:** Section 230 protects platforms from being "treated as the publisher or speaker of any information provided by another information content provider." But Progenx is not merely hosting user content -- it is generating content via AI in response to user prompts.
 - Recent legal analysis (2025-2026) strongly suggests that **AI-generated outputs are unlikely to receive full Section 230 protection**, because the platform is "responsible, in whole or in part, for the creation or development" of the content. Transformer-based systems generate new, organic outputs, which looks less like neutral intermediation and more like authored speech.
 - **No court has yet ruled definitively** on Section 230 coverage for AI-generated biological designs. The Garcia v. Character Technologies case (2024) is instructive: AI defendants did not even raise Section 230, likely because AI companies materially contribute to the content.
 - Legislative proposals to sunset Section 230 by 2026 add further uncertainty.
 
 **b) Products liability:**
-- If a generated design causes harm, ProtoForge could face products liability claims. The design output could be treated as a "product" (information product / computational tool output).
+- If a generated design causes harm, Progenx could face products liability claims. The design output could be treated as a "product" (information product / computational tool output).
 - The "not lab-ready" disclaimer and safety scoring provide some defense, but disclaimers alone do not eliminate products liability if the plaintiff can show the tool was defectively designed or lacked adequate warnings.
 
 **c) Negligence:**
-- A negligence claim could argue that ProtoForge had a duty of care to prevent generation of dangerous designs, breached that duty through inadequate screening, and that the breach caused harm.
-- The existing `safety_scorer.py` demonstrates awareness of the risk and an attempt to mitigate it, which cuts both ways: it shows responsibility, but it also establishes that ProtoForge knew about the risk (relevant to a negligence analysis).
+- A negligence claim could argue that Progenx had a duty of care to prevent generation of dangerous designs, breached that duty through inadequate screening, and that the breach caused harm.
+- The existing `safety_scorer.py` demonstrates awareness of the risk and an attempt to mitigate it, which cuts both ways: it shows responsibility, but it also establishes that Progenx knew about the risk (relevant to a negligence analysis).
 
 **d) Aiding and abetting / conspiracy:**
-- If a user explicitly requests a bioweapon design and ProtoForge's system generates it, there is theoretical exposure under federal criminal law (18 U.S.C. Section 175 -- Biological Weapons Anti-Terrorism Act) if the platform knew or had reason to know the design would be used for prohibited purposes.
+- If a user explicitly requests a bioweapon design and Progenx's system generates it, there is theoretical exposure under federal criminal law (18 U.S.C. Section 175 -- Biological Weapons Anti-Terrorism Act) if the platform knew or had reason to know the design would be used for prohibited purposes.
 - The Acceptable Use Policy and safety scoring system are critical defenses here. They demonstrate that the platform prohibits such use and takes steps to prevent it.
 
 ### 5.2 US Executive Order 14110 (October 2023) -- AI Biosecurity Provisions
@@ -314,21 +314,21 @@ Section 4.4(b) of Executive Order 14110 directed the federal government to reduc
 - **May 5, 2025:** President Trump's Executive Order "Improving the Safety and Security of Biological Research" paused and directed revision of the 2024 Framework. The 90-day deadline (August 3, 2025) for revised guidance expired **without new guidance being issued**, leaving the regulatory landscape uncertain.
 - The Trump EO called for expanding the Framework to non-federally funded entities and adding enforcement mechanisms, but the specifics remain unresolved as of March 2026.
 
-**Implication for ProtoForge:** The current screening frameworks target physical synthesis vendors, not computational design tools. ProtoForge is not required to comply with the OSTP Framework. However:
+**Implication for Progenx:** The current screening frameworks target physical synthesis vendors, not computational design tools. Progenx is not required to comply with the OSTP Framework. However:
 - The regulatory trend is toward broader coverage.
 - Voluntary screening demonstrates good faith and reduces liability exposure.
-- If ProtoForge designs are exported and sent to a synthesis vendor, that vendor will perform their own screening.
+- If Progenx designs are exported and sent to a synthesis vendor, that vendor will perform their own screening.
 
 ### 5.3 Dual-Use Research of Concern (DURC) Policies
 
 - US DURC policy (updated May 2024) is limited to life sciences research on a specific list of select agents and applies primarily to federally funded research.
-- ProtoForge is a commercial tool, not a federally funded research project. DURC policies do not directly apply.
+- Progenx is a commercial tool, not a federally funded research project. DURC policies do not directly apply.
 - However, the platform's safety scorer addresses DURC-relevant genes (anthrax, botulinum, ricin, Ebola, smallpox components), which demonstrates awareness and voluntary compliance with the spirit of DURC oversight.
 - Policy experts have called for broadening DURC scope to include AI-driven synthetic biology tools. This is an evolving area.
 
 ### 5.4 Biological Weapons Convention (BWC)
 
-The BWC prohibits the development, production, and stockpiling of biological weapons. While the BWC applies to state actors, domestic implementing legislation (in the US, the Biological Weapons Anti-Terrorism Act, 18 U.S.C. Section 175) criminalizes individual actions. ProtoForge's AUP should explicitly reference compliance with the BWC and prohibit use of the platform for designing agents prohibited under the Convention.
+The BWC prohibits the development, production, and stockpiling of biological weapons. While the BWC applies to state actors, domestic implementing legislation (in the US, the Biological Weapons Anti-Terrorism Act, 18 U.S.C. Section 175) criminalizes individual actions. Progenx's AUP should explicitly reference compliance with the BWC and prohibit use of the platform for designing agents prohibited under the Convention.
 
 ---
 
@@ -347,15 +347,15 @@ The International Gene Synthesis Consortium's Harmonized Screening Protocol (upd
 
 **No, IGSC standards currently apply only to physical synthesis vendors** -- companies that manufacture and ship DNA. The IGSC is a consortium of gene synthesis companies (Twist Bioscience, IDT, GenScript, etc.), and their protocols govern the synthesis order workflow, not computational design.
 
-ProtoForge does not synthesize DNA. It generates computational designs that a user would then need to order from a synthesis vendor. At the point of ordering, the synthesis vendor performs IGSC-compliant screening.
+Progenx does not synthesize DNA. It generates computational designs that a user would then need to order from a synthesis vendor. At the point of ordering, the synthesis vendor performs IGSC-compliant screening.
 
 **However, this distinction is becoming less clear:**
 
 - In October 2025, Microsoft researchers demonstrated that AI protein design tools could redesign known toxins to evade BLAST-based screening. IGSC and major vendors deployed patches catching approximately 97% of AI-designed evasion attempts, but gaps remain.
 - The biosecurity community is increasingly discussing whether computational design tools should perform upstream screening to prevent users from even generating designs that would be flagged by synthesis vendors.
-- SecureDNA, a nonprofit, offers free screening for sequences 30+ nucleotides, with a REST API that could be integrated into ProtoForge's pipeline.
+- SecureDNA, a nonprofit, offers free screening for sequences 30+ nucleotides, with a REST API that could be integrated into Progenx's pipeline.
 
-### 6.3 Assessment of ProtoForge's Existing Safety Scorer
+### 6.3 Assessment of Progenx's Existing Safety Scorer
 
 The current `safety_scorer.py` (at `/home/cypherthread/protoforge/backend/services/safety_scorer.py`) performs:
 
@@ -421,10 +421,10 @@ COBRApy is dual-licensed under GPL-2.0-or-later and LGPL-2.0-or-later. Users may
 
 **Under GPL-2.0+:**
 - If you choose GPL, derivative works must also be GPL-licensed.
-- **The SaaS loophole:** Under GPL (v2 or v3), the copyleft obligation is triggered by "distribution." Running GPL software on a server and providing it as a service (SaaS) is NOT distribution. Therefore, ProtoForge can use GPL-licensed COBRApy server-side without open-sourcing its own code.
+- **The SaaS loophole:** Under GPL (v2 or v3), the copyleft obligation is triggered by "distribution." Running GPL software on a server and providing it as a service (SaaS) is NOT distribution. Therefore, Progenx can use GPL-licensed COBRApy server-side without open-sourcing its own code.
 - This is a well-established legal interpretation. The AGPL (Affero GPL) was specifically created to close this loophole, but COBRApy is NOT AGPL-licensed.
 
-**Bottom line:** ProtoForge can safely use COBRApy in a commercial SaaS under either the LGPL (preferred -- use it as a library without modification) or the GPL (SaaS loophole applies). Choose the LGPL path for maximum legal clarity. Do not modify the COBRApy source code unless you are prepared to release those modifications.
+**Bottom line:** Progenx can safely use COBRApy in a commercial SaaS under either the LGPL (preferred -- use it as a library without modification) or the GPL (SaaS loophole applies). Choose the LGPL path for maximum legal clarity. Do not modify the COBRApy source code unless you are prepared to release those modifications.
 
 ### 7.3 BioPython
 
@@ -440,7 +440,7 @@ The FBA engine downloads BiGG genome-scale models. These models are published sc
 
 ### 7.6 Summary
 
-**No copyleft (GPL/AGPL) dependencies that would force open-sourcing of ProtoForge's code** under a SaaS model. The only GPL-licensed dependency (COBRApy) is either usable under LGPL (permissive path) or under the GPL SaaS loophole. No AGPL dependencies were identified.
+**No copyleft (GPL/AGPL) dependencies that would force open-sourcing of Progenx's code** under a SaaS model. The only GPL-licensed dependency (COBRApy) is either usable under LGPL (permissive path) or under the GPL SaaS loophole. No AGPL dependencies were identified.
 
 **Action item:** Add a LICENSE-THIRD-PARTY.md or equivalent notice file acknowledging all open-source dependencies and their licenses. This is good practice and satisfies the attribution requirements of MIT, BSD, and Biopython licenses.
 
@@ -465,7 +465,7 @@ The FBA engine downloads BiGG genome-scale models. These models are published sc
 
 **Partially.** Here is a candid assessment:
 
-- **Privacy Policy:** A founder can produce a reasonable first draft using established templates (Termly, iubenda, PrivacyPolicies.com) and customize for ProtoForge's specific data flows. GDPR-specific provisions (legal basis, international transfers, DPA references) benefit from lawyer review. Cost of a lawyer review of a self-drafted policy: ~$500-$800.
+- **Privacy Policy:** A founder can produce a reasonable first draft using established templates (Termly, iubenda, PrivacyPolicies.com) and customize for Progenx's specific data flows. GDPR-specific provisions (legal basis, international transfers, DPA references) benefit from lawyer review. Cost of a lawyer review of a self-drafted policy: ~$500-$800.
 
 - **Terms of Service:** The general structure can be templated, but the biosecurity-specific provisions (acceptable use policy, liability for generated biological designs, dual-use disclaimers) are novel enough that a lawyer experienced in biotech or AI should review them. A biotech/AI-specialized lawyer reviewing a self-drafted ToS: ~$1,000-$2,000.
 
@@ -476,10 +476,10 @@ The FBA engine downloads BiGG genome-scale models. These models are published sc
 ### 8.3 Immediate Red Flags That Could Block Launch
 
 **RED FLAG 1: No Terms of Service exist.**
-Without a ToS that includes an acceptable use policy, liability limitations, and warranty disclaimers, ProtoForge has essentially no legal protection against misuse claims. This is a hard launch blocker.
+Without a ToS that includes an acceptable use policy, liability limitations, and warranty disclaimers, Progenx has essentially no legal protection against misuse claims. This is a hard launch blocker.
 
 **RED FLAG 2: Safety scorer is minimal.**
-The 4-regex, 11-gene-name safety system is better than nothing but far below industry expectations. If a user generates a design for a dangerous organism and the safety scorer fails to flag it, ProtoForge's defense ("we had safety measures") would be undermined. Integrating SecureDNA (free API) before launch would significantly strengthen both the safety posture and the legal defense.
+The 4-regex, 11-gene-name safety system is better than nothing but far below industry expectations. If a user generates a design for a dangerous organism and the safety scorer fails to flag it, Progenx's defense ("we had safety measures") would be undermined. Integrating SecureDNA (free API) before launch would significantly strengthen both the safety posture and the legal defense.
 
 **RED FLAG 3: No account deletion capability.**
 GDPR requires the ability to delete user data on request. The current codebase has no deletion endpoint. This needs to be implemented before serving EU users.

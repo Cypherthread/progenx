@@ -71,7 +71,7 @@ def generate_plasmid_map(
     marker: dict,
     kill_switch: dict,
     total_length: int,
-    design_name: str = "pProtoForge",
+    design_name: str = "pProgenx",
 ) -> dict:
     """
     Generate a plasmid map with real bp positions.
