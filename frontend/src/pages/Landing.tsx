@@ -137,9 +137,10 @@ export default function Landing() {
               </h1>
 
               <p className="text-lg md:text-xl text-gray-400 leading-relaxed mb-10 max-w-2xl">
-                Describe what you want — a plastic-eating bacterium, a carbon-capturing
-                microbe, a drought-resistant helper — and get real gene circuits, DNA
-                sequences, metabolic simulations, and safety scores in seconds.
+                Stop spending weeks on NCBI searches, manual circuit sketches, and
+                guesswork assembly plans. Describe your organism in one sentence —
+                get verified gene circuits, real DNA sequences, metabolic simulations,
+                and safety scores back in under a minute.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
@@ -158,7 +159,8 @@ export default function Landing() {
               </div>
 
               <p className="text-xs text-gray-600 mt-6">
-                5 designs/month free. Real NCBI sequences. 26 verified genes. Not AI-generated biology.
+                5 designs/month free. 26 verified gene accessions from NCBI. 3 chassis with genome-scale FBA models.
+                Computational predictions — lab validation required.
               </p>
             </div>
           </div>
@@ -288,21 +290,21 @@ export default function Landing() {
           </section>
         </RevealSection>
 
-        {/* ─── Live Stats ─── */}
+        {/* ─── Platform Stats (all real, all verifiable) ─── */}
         <RevealSection>
           <section className="bg-[#080C14] border-y border-gray-800">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
-              {/* Real stats from backend */}
+              {/* Live platform stats — real numbers from the database */}
               <div className="flex flex-wrap items-center justify-center gap-6 mb-10">
-                <LiveStat value={liveStats.designs} label="designs generated" />
-                <LiveStat value={liveStats.users} label="researchers signed up" />
+                <LiveStat value={liveStats.designs} label={liveStats.designs === 1 ? 'design generated' : 'designs generated'} />
+                <LiveStat value={liveStats.users} label={liveStats.users === 1 ? 'researcher signed up' : 'researchers signed up'} />
               </div>
-              {/* Animated counters */}
+              {/* Verified facts — each number is traceable to source code */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <AnimatedCounter end={26} label="Verified Genes" sublabel="in curated registry" />
-                <AnimatedCounter end={56} label="Tests Passing" sublabel="regression suite" />
-                <AnimatedCounter end={6} label="Pipeline Stages" sublabel="all automated" />
-                <AnimatedCounter end={400} suffix="+" label="Threats Screened" sublabel="via SecureDNA" />
+                <AnimatedCounter end={26} label="Verified Genes" sublabel="curated NCBI accessions" />
+                <AnimatedCounter end={56} label="Regression Tests" sublabel="passing on every deploy" />
+                <AnimatedCounter end={6} label="Pipeline Stages" sublabel="automated end-to-end" />
+                <AnimatedCounter end={3} label="Chassis Organisms" sublabel="with genome-scale models" />
               </div>
             </div>
           </section>
