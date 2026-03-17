@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
 from database import init_db
@@ -18,6 +19,67 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ── Security headers middleware ──────────────────────────────────
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        if request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
+
+
+# ── Per-IP rate limiting for auth endpoints ──────────────────────
+import time
+import threading
+
+_login_attempts: dict[str, list[float]] = {}  # IP -> list of timestamps
+_login_lock = threading.Lock()
+LOGIN_LIMIT = 10  # max attempts per window
+LOGIN_WINDOW = 60  # seconds
+
+
+def _check_login_rate(ip: str) -> bool:
+    """Returns True if the IP is allowed to attempt login."""
+    now = time.time()
+    with _login_lock:
+        attempts = _login_attempts.get(ip, [])
+        # Remove old attempts outside the window
+        attempts = [t for t in attempts if now - t < LOGIN_WINDOW]
+        _login_attempts[ip] = attempts
+        if len(attempts) >= LOGIN_LIMIT:
+            return False
+        attempts.append(now)
+        _login_attempts[ip] = attempts
+        return True
+
+
+# Monkey-patch rate limiting into auth endpoints
+from fastapi import HTTPException
+
+_original_login = auth_router.router.routes
+# We'll use a middleware approach instead — intercept /api/auth/login
+
+@app.middleware("http")
+async def rate_limit_auth(request: Request, call_next):
+    if request.url.path in ("/api/auth/login", "/api/auth/signup"):
+        ip = request.client.host if request.client else "unknown"
+        if not _check_login_rate(ip):
+            return Response(
+                content='{"detail":"Too many attempts. Try again in 60 seconds."}',
+                status_code=429,
+                media_type="application/json",
+            )
+    return await call_next(request)
+
 
 app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"])
 app.include_router(designs_router.router, prefix="/api/designs", tags=["designs"])

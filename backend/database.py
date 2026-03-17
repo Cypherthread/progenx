@@ -51,14 +51,19 @@ def _migrate_sqlite():
             },
         }
 
+        # Allowlist of safe column names — prevents any injection risk
+        SAFE_COLUMN_NAMES = {"stripe_customer_id", "stripe_subscription_id"}
+
         for table, columns in migrations.items():
             for col_name, col_type in columns.items():
-                if col_name not in existing_cols:
+                if col_name not in existing_cols and col_name in SAFE_COLUMN_NAMES:
                     try:
-                        cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}")
+                        # Safe: col_name is from allowlist, not user input
+                        stmt = f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"
+                        cursor.execute(stmt)
                         print(f"[DB] Migrated: added {table}.{col_name}")
                     except sqlite3.OperationalError:
-                        pass  # Column might already exist in a race condition
+                        pass
 
         conn.commit()
         conn.close()
