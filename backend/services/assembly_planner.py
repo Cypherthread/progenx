@@ -1,7 +1,9 @@
 """
 Assembly planning: ori selection, resistance markers, kill switches,
-and cloning strategy (Golden Gate / Gibson).
+cloning strategy (Golden Gate / Gibson), and primer design.
 """
+
+from services.primer_designer import design_primers_for_gene, calculate_tm
 
 
 def plan_assembly(
@@ -9,9 +11,11 @@ def plan_assembly(
     chassis: str,
     environment: str,
     total_construct_bp: int,
+    codon_optimized: dict | None = None,
 ) -> dict:
     """
     Generate a complete assembly plan for the construct.
+    Optionally includes primer design if codon-optimized DNA sequences are provided.
     """
     n_parts = len(genes) + 2  # genes + promoter region + terminator region
     total_bp = total_construct_bp
@@ -35,7 +39,10 @@ def plan_assembly(
     overhead = ori["size_bp"] + marker["size_bp"] + kill_switch["size_bp"] + 500  # regulatory
     full_size = total_bp + overhead
 
-    return {
+    # 7. Primer design (if DNA sequences available)
+    primers = _design_primers(genes, codon_optimized)
+
+    result = {
         "origin_of_replication": ori,
         "selection_marker": marker,
         "assembly_method": method,
@@ -45,6 +52,32 @@ def plan_assembly(
         "parts_count": n_parts,
         "summary": _build_summary(ori, marker, method, kill_switch, rbs, full_size, genes),
     }
+
+    if primers:
+        result["primers"] = primers
+
+    return result
+
+
+def _design_primers(genes: list[dict], codon_optimized: dict | None) -> list[dict] | None:
+    """Design primers for each gene if codon-optimized DNA is available."""
+    if not codon_optimized:
+        return None
+
+    primers = []
+    for gene in genes:
+        name = gene.get("name", "")
+        opt = codon_optimized.get(name, {})
+        dna = opt.get("optimized_dna", "")
+
+        if not dna or len(dna) < 50:
+            continue
+
+        result = design_primers_for_gene(dna, name, target_tm=60.0)
+        if "error" not in result:
+            primers.append(result)
+
+    return primers if primers else None
 
 
 def _select_ori(chassis: str, construct_bp: int) -> dict:

@@ -11,10 +11,12 @@ Target users: biohackers, students, iGEM teams, early-stage climate founders, re
 ### Backend (`backend/`)
 - **Python 3.12 + FastAPI** — REST API
 - **SQLAlchemy + SQLite** — ORM + database (`protoforge.db`, auto-created on startup)
-- **Anthropic Claude API** (claude-sonnet-4) — structured gene circuit design via LLM
+- **Anthropic Claude API** (claude-sonnet-4-20250514) — structured gene circuit design (Pro tier)
+- **Ollama** (llama3.1:8b) — free tier LLM via OpenAI-compatible API ($0/design)
+- **OpenAI Python SDK** — Ollama compatibility layer
 - **BioPython + NCBI Entrez** — real CDS sequence fetching from GenBank
 - **COBRApy** — flux balance analysis with genome-scale models (iJO1366 for E. coli, iJN1463 for P. putida)
-- **dna_features_viewer** — circular plasmid map rendering (matplotlib backend)
+- **Custom SVG renderer** — circular plasmid map rendering (pure SVG, no matplotlib dependency for maps)
 - **JWT auth** (PyJWT + bcrypt) — user accounts, rate limiting (5 free designs/month)
 
 ### Frontend (`frontend/`)
@@ -60,7 +62,7 @@ The core value — a 6-step pipeline that runs on every `/api/designs/generate` 
 
 ### Backend Services (`backend/services/`)
 - `llm_orchestrator.py` — main pipeline coordinator
-- `ncbi_client.py` — NCBI Entrez + hardcoded gene registry (CRITICAL: has alias system to avoid gene symbol collisions like cutA)
+- `ncbi_client.py` — NCBI Entrez + hardcoded gene registry (19 genes). Hardened with organism-filtered search, LLM function validation (Haiku), unsupported biology detection, UniProt keyword fallback stub. CRITICAL: has alias system to avoid gene symbol collisions like cutA
 - `codon_optimizer.py` — per-chassis codon frequency tables
 - `fba_engine.py` — COBRApy wrapper, downloads BiGG models on first use to `./fba_models/`
 - `assembly_planner.py` — ori/marker/method/kill switch selection logic
@@ -122,9 +124,16 @@ NCBI_API_KEY=                      # optional, increases rate limit
 - **No fake sequences** — all DNA comes from NCBI fetch + codon optimization, never generated/padded
 - **Audit logging** — every generate/refine action logged with user ID and safety flags
 
+## Tier System (Cost Protection)
+
+- **Free tier** (`user.tier == "free"`): LLM calls route to Ollama (local, $0/design). NCBI function validation skipped (saves Haiku API cost). 5 designs/month limit.
+- **Pro tier** (`user.tier == "pro"`): LLM calls route to Claude Sonnet. Full NCBI function validation via Haiku. Unlimited designs. Stripe integration not yet implemented.
+- **Design caching**: In-memory cache keyed by `(prompt_hash, environment, safety, complexity)`. Identical prompts served without any LLM call. Max 500 entries, survives until server restart.
+- Tier routing is in `_llm_call()` in `llm_orchestrator.py`. Both `generate_design()` and `refine_design()` use it.
+
 ## Known Limitations / Future Work
 
-- FBA uses iJO1366 (E. coli) for all chassis — need iJN1463 download for P. putida
+- FBA uses iJO1366 (E. coli) and iJN1463 (P. putida) — chassis normalization now handles strain suffixes. Other organisms still fall back to E. coli
 - COBRApy model download happens on first FBA call (~30s)
 - NCBI search fallback can return wrong proteins (gene name ambiguity) — registry is the fix
 - No Benchling/SnapGene export yet (APIs exist)

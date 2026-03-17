@@ -17,6 +17,17 @@ export default function ResultsPanel({ design }: Props) {
     URL.revokeObjectURL(url)
   }
 
+  function downloadGenBank() {
+    if (!design.genbank_content) return
+    const blob = new Blob([design.genbank_content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${design.design_name.replace(/\s+/g, '_')}.gb`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function safetyColor(score: number) {
     if (score >= 0.8) return 'text-green-600 bg-green-50 border-green-200'
     if (score >= 0.5) return 'text-yellow-600 bg-yellow-50 border-yellow-200'
@@ -35,6 +46,13 @@ export default function ResultsPanel({ design }: Props) {
       <div className="bg-amber-50 border border-amber-300 rounded-lg px-4 py-2.5 text-xs text-amber-800 font-medium">
         {design.disclaimer || 'EDUCATIONAL/EXPERIMENTAL ONLY — NOT LAB-READY WITHOUT EXPERT REVIEW'}
       </div>
+
+      {/* Conceptual Design Banner */}
+      {design.conceptual_banner && (
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg px-4 py-3 text-sm text-red-800 font-semibold">
+          {design.conceptual_banner}
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -92,13 +110,52 @@ export default function ResultsPanel({ design }: Props) {
                   <span className={`text-xs px-1.5 py-0.5 rounded ${
                     data.source === 'ncbi_registry' ? 'bg-green-100 text-green-700' :
                     data.source === 'ncbi_search' ? 'bg-blue-100 text-blue-700' :
+                    data.source === 'unsupported_biology' ? 'bg-red-100 text-red-700' :
+                    data.conceptual_only ? 'bg-orange-100 text-orange-700' :
                     'bg-gray-100 text-gray-600'
                   }`}>
-                    {data.source === 'ncbi_registry' ? 'NCBI verified' :
-                     data.source === 'ncbi_search' ? 'NCBI search' : 'pending'}
+                    {data.source === 'ncbi_registry' ? 'Verified' :
+                     data.source === 'ncbi_search' ? 'NCBI search' :
+                     data.source === 'unsupported_biology' ? 'No known parts' :
+                     data.conceptual_only ? 'Conceptual only' : 'pending'}
                   </span>
                   {data.length > 0 && <p className="text-xs text-muted-foreground mt-0.5">{data.length} {data.type === 'protein' ? 'aa' : 'bp'}</p>}
+                  {data.confidence && data.confidence !== 'unknown' && (
+                    <span className={`text-[10px] px-1 py-0.5 rounded mt-0.5 inline-block ${
+                      data.confidence === 'high' ? 'bg-green-50 text-green-700' :
+                      data.confidence === 'medium' ? 'bg-blue-50 text-blue-700' :
+                      data.confidence === 'low' ? 'bg-yellow-50 text-yellow-700' :
+                      'bg-red-50 text-red-700'
+                    }`} title={data.confidence_reason || ''}>
+                      {data.confidence} confidence
+                    </span>
+                  )}
+                  {data.function_validation && !data.function_validation.match && (
+                    <p className="text-[10px] text-red-600 mt-0.5">Function mismatch ({(data.function_validation.score * 100).toFixed(0)}%)</p>
+                  )}
                 </div>
+                {data.warning && (
+                  <p className="text-xs text-red-600 mt-1 w-full">{data.warning}</p>
+                )}
+                {data.variant_predictions?.beneficial_mutations?.length > 0 && (
+                  <div className="w-full mt-1.5 pt-1.5 border-t border-gray-100">
+                    <p className="text-[10px] text-emerald-700 font-medium mb-0.5">
+                      ESM-2 predicted improvements ({data.variant_predictions.total_beneficial} found):
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {data.variant_predictions.beneficial_mutations.slice(0, 5).map((m: any) => (
+                        <span key={m.notation} className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded font-mono" title={`Score: +${m.score}`}>
+                          {m.notation}
+                        </span>
+                      ))}
+                      {data.variant_predictions.beneficial_mutations.length > 5 && (
+                        <span className="text-[10px] text-gray-400">
+                          +{data.variant_predictions.beneficial_mutations.length - 5} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -146,12 +203,19 @@ export default function ResultsPanel({ design }: Props) {
             {fba.source === 'cobra_fba' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-green-100 text-green-700 rounded">COBRApy</span>}
             {fba.source === 'heuristic_fallback' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded">Heuristic</span>}
           </h3>
+          {fba.source !== 'no_model' ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-            <Metric label="WT Growth" value={`${fba.wild_type_growth_rate} h⁻¹`} />
-            <Metric label="With Burden" value={`${fba.burdened_growth_rate} h⁻¹`} />
-            <Metric label="Growth Hit" value={`-${fba.growth_reduction_pct}%`} />
-            <Metric label="Est. Titer" value={`${fba.estimated_titer_g_per_L} g/L`} />
+            <Metric label="WT Growth" value={fba.wild_type_growth_rate != null ? `${fba.wild_type_growth_rate} h⁻¹` : 'N/A'} />
+            <Metric label="With Burden" value={fba.burdened_growth_rate != null ? `${fba.burdened_growth_rate} h⁻¹` : 'N/A'} />
+            <Metric label="Growth Hit" value={fba.growth_reduction_pct != null ? `-${fba.growth_reduction_pct}%` : 'N/A'} />
+            <Metric label="Max Titer (theoretical)" value={fba.estimated_titer_g_per_L != null ? `${fba.estimated_titer_g_per_L} g/L` : 'N/A'} />
           </div>
+          ) : (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+            <p className="text-sm text-amber-800 font-medium">No metabolic model available for this chassis organism.</p>
+            <p className="text-xs text-amber-600 mt-1">FBA predictions require a genome-scale model. Supported: E. coli (iJO1366), P. putida (iJN1463).</p>
+          </div>
+          )}
           {fba.model_used && fba.model_used !== 'heuristic_fallback' && (
             <p className="text-xs text-muted-foreground">
               Model: {fba.model_used} ({fba.model_genes} genes, {fba.model_reactions} reactions) |
@@ -208,6 +272,31 @@ export default function ResultsPanel({ design }: Props) {
               <br /><em>{assembly.rbs_notes.tool_note}</em>
             </div>
           )}
+          {(assembly.primers?.length ?? 0) > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Suggested Primers</p>
+              <div className="space-y-1.5">
+                {assembly.primers!.map((p: any) => (
+                  <div key={p.gene} className="bg-secondary/30 rounded-lg p-2">
+                    <p className="text-xs font-medium mb-1">{p.gene}</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">Forward (Tm {p.forward?.tm}°C)</p>
+                        <p className="text-[10px] font-mono break-all">{p.forward?.sequence}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">Reverse (Tm {p.reverse?.tm}°C)</p>
+                        <p className="text-[10px] font-mono break-all">{p.reverse?.sequence}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                SantaLucia (1998) nearest-neighbor model. 500 nM primer, 50 mM Na+. Verify with NEB Tm Calculator before ordering.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -225,8 +314,13 @@ export default function ResultsPanel({ design }: Props) {
           <h3 className="text-sm font-medium">Codon-Optimized Construct Sequence</h3>
           <div className="flex gap-2">
             <button onClick={downloadFasta} className="px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium hover:opacity-90">
-              Download FASTA
+              FASTA
             </button>
+            {design.genbank_content && (
+              <button onClick={downloadGenBank} className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-xs font-medium hover:opacity-90">
+                GenBank
+              </button>
+            )}
             <button onClick={() => navigator.clipboard.writeText(design.dna_sequence)} className="px-3 py-1.5 border rounded-md text-xs font-medium hover:bg-secondary">
               Copy
             </button>

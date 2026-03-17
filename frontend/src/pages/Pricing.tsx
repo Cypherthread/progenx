@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useState } from 'react'
 import AuthModal from '@/components/AuthModal'
+import { billing } from '@/lib/api'
 
 const PLANS = [
   {
@@ -11,13 +12,14 @@ const PLANS = [
     features: [
       '5 designs per month',
       'All organism types',
-      'Interactive plasmid maps',
-      'FASTA download',
+      'Plasmid maps + FASTA download',
       'Safety scoring',
-      'Daily challenges',
+      'Powered by local AI (Ollama)',
+      'Community support',
     ],
     cta: 'Start Free',
     highlighted: false,
+    action: 'free',
   },
   {
     name: 'Pro',
@@ -25,32 +27,34 @@ const PLANS = [
     period: '/month',
     features: [
       'Unlimited designs',
-      'Priority generation (faster)',
-      'Advanced Evo 2 parameters',
-      'Batch design generation',
-      'Export to GenBank format',
-      'Vendor quote integration',
+      'Claude Sonnet AI (best quality)',
+      'LLM function validation on NCBI results',
+      'Priority generation queue',
       'Design version history',
       'API access',
+      'Export to GenBank format',
+      'Email support',
     ],
-    cta: 'Coming Soon',
+    cta: 'Upgrade to Pro',
     highlighted: true,
+    action: 'pro',
   },
   {
-    name: 'Team',
-    price: '$99',
-    period: '/month',
+    name: 'Enterprise',
+    price: 'Custom',
+    period: '',
     features: [
       'Everything in Pro',
-      '5 team members',
-      'Shared design library',
+      'Team workspaces',
+      'SSO / SAML',
+      'Private gene registries',
       'Custom safety rules',
-      'BLAST integration',
-      'Priority support',
-      'Custom model fine-tuning',
+      'On-prem deployment',
+      'Dedicated support',
     ],
     cta: 'Contact Us',
     highlighted: false,
+    action: 'enterprise',
   },
 ]
 
@@ -58,6 +62,36 @@ export default function Pricing() {
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
   const [showAuth, setShowAuth] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  async function handleUpgrade() {
+    if (!user) {
+      setShowAuth(true)
+      return
+    }
+    if (user.tier === 'pro') {
+      // Already pro — open portal to manage subscription
+      try {
+        setLoading(true)
+        const { portal_url } = await billing.portal()
+        window.location.href = portal_url
+      } catch (e: any) {
+        alert(e.message || 'Failed to open billing portal')
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+    try {
+      setLoading(true)
+      const { checkout_url } = await billing.checkout()
+      window.location.href = checkout_url
+    } catch (e: any) {
+      alert(e.message || 'Stripe not configured yet. Coming soon!')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -65,7 +99,7 @@ export default function Pricing() {
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold mb-3">Simple, transparent pricing</h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Start designing custom organisms for free. Upgrade when you need more.
+            Start designing custom organisms for free. Upgrade when you need more power.
           </p>
         </div>
 
@@ -101,30 +135,31 @@ export default function Pricing() {
               </ul>
               <button
                 onClick={() => {
-                  if (plan.name === 'Free') {
+                  if (plan.action === 'free') {
                     user ? navigate('/studio') : setShowAuth(true)
+                  } else if (plan.action === 'pro') {
+                    handleUpgrade()
                   }
+                  // enterprise = no action yet
                 }}
-                disabled={plan.name !== 'Free'}
+                disabled={plan.action === 'enterprise' || loading}
                 className={`w-full py-2.5 rounded-md text-sm font-medium transition-all ${
                   plan.highlighted
                     ? 'bg-primary text-white hover:opacity-90 disabled:opacity-50'
                     : 'border hover:bg-secondary disabled:opacity-50'
                 }`}
               >
-                {plan.cta}
+                {loading && plan.action === 'pro' ? 'Loading...' : plan.cta}
               </button>
             </div>
           ))}
         </div>
 
         <div className="mt-16 text-center">
-          <h2 className="text-xl font-semibold mb-4">Open Core Model</h2>
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-            ProtoForge is open-source under MIT license. The core design engine, UI, and
-            biology integrations are free to use, modify, and deploy. The proprietary safety
-            screening layer and Evo 2 fine-tuned models are available exclusively to Pro and
-            Team subscribers.
+          <p className="text-xs text-muted-foreground max-w-2xl mx-auto">
+            Free tier uses Ollama (local AI) for gene circuit design. Pro tier uses Claude Sonnet
+            for higher quality outputs and includes LLM-based NCBI function validation.
+            All tiers include real NCBI sequences, COBRApy FBA, and safety scoring.
           </p>
         </div>
       </div>

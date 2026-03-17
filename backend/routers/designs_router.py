@@ -50,6 +50,10 @@ class DesignResponse(BaseModel):
     model_used: str
     is_public: bool
     disclaimer: str
+    is_conceptual: bool = False
+    conceptual_banner: str = ""
+    non_registry_genes: list[str] = []
+    conceptual_genes: list[str] = []
 
 
 @router.post("/generate", response_model=DesignResponse)
@@ -79,6 +83,7 @@ def create_design(
             environment=req.environment,
             safety_level=req.safety_level,
             complexity=req.complexity,
+            user_tier=user.tier,
         )
 
         safety = score_safety(
@@ -130,7 +135,23 @@ def create_design(
     except Exception as e:
         design.status = "error"
         db.commit()
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        # Provide user-friendly error messages for common failures
+        if "No LLM available" in error_msg or "Connection refused" in error_msg:
+            detail = (
+                "Design engine is temporarily unavailable. "
+                "The AI model may be starting up — please try again in 30 seconds."
+            )
+        elif "Could not parse LLM response" in error_msg:
+            detail = (
+                "The AI returned an unexpected response. "
+                "This sometimes happens — please try again or simplify your prompt."
+            )
+        elif "rate" in error_msg.lower() or "429" in error_msg:
+            detail = "Rate limit reached. Please wait a moment and try again."
+        else:
+            detail = f"Design generation failed: {error_msg[:200]}"
+        raise HTTPException(status_code=500, detail=detail)
 
     return _design_response(design)
 
@@ -164,6 +185,7 @@ def refine(
         },
         refinement_request=req.message,
         conversation_history=messages,
+        user_tier=user.tier,
     )
 
     safety = score_safety(result.get("dna_sequence", ""), result.get("organism_summary", ""), json.dumps(result.get("gene_circuit", {})))
@@ -251,6 +273,28 @@ def _parse_json_field(value: str, default=None):
 
 
 def _design_response(design: Design) -> DesignResponse:
+    gene_seqs = _parse_json_field(design.gene_sequences)
+
+    # Derive conceptual flags from stored gene_sequences data
+    non_registry = []
+    conceptual = []
+    for name, data in gene_seqs.items():
+        if isinstance(data, dict):
+            if data.get("source") != "ncbi_registry":
+                non_registry.append(name)
+            if data.get("conceptual_only"):
+                conceptual.append(name)
+
+    is_conceptual = bool(non_registry)
+    conceptual_banner = ""
+    if is_conceptual:
+        conceptual_banner = settings.CONCEPTUAL_ONLY_BANNER
+        if conceptual:
+            conceptual_banner += (
+                f" Genes with no verified biological parts: "
+                f"{', '.join(conceptual)}."
+            )
+
     return DesignResponse(
         id=design.id,
         status=design.status,
@@ -258,7 +302,7 @@ def _design_response(design: Design) -> DesignResponse:
         host_organism=design.host_organism or "",
         organism_summary=design.organism_summary,
         gene_circuit=_parse_json_field(design.gene_circuit),
-        gene_sequences=_parse_json_field(design.gene_sequences),
+        gene_sequences=gene_seqs,
         codon_optimized=_parse_json_field(design.codon_optimized),
         dna_sequence=design.dna_sequence,
         fasta_content=design.fasta_content,
@@ -275,4 +319,8 @@ def _design_response(design: Design) -> DesignResponse:
         model_used=design.model_used,
         is_public=design.is_public,
         disclaimer=settings.DISCLAIMER,
+        is_conceptual=is_conceptual,
+        conceptual_banner=conceptual_banner,
+        non_registry_genes=non_registry,
+        conceptual_genes=conceptual,
     )

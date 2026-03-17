@@ -17,6 +17,8 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     name = Column(String, default="")
     tier = Column(String, default="free")
+    stripe_customer_id = Column(String, default="")
+    stripe_subscription_id = Column(String, default="")
     designs_this_month = Column(Integer, default=0)
     month_reset = Column(String, default="")
     created_at = Column(DateTime, default=datetime.utcnow)

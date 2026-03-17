@@ -83,9 +83,21 @@ CHASSIS_MAP = {
 STOP_CODONS = {"TAA", "TAG", "TGA"}
 
 
+def _normalize_chassis_key(chassis: str) -> str:
+    """Normalize chassis name to a codon table key using substring matching.
+    Handles strain suffixes like 'Pseudomonas putida KT2440'."""
+    chassis_lower = chassis.lower().strip()
+    if chassis_lower in CHASSIS_MAP:
+        return CHASSIS_MAP[chassis_lower]
+    for key, table_key in CHASSIS_MAP.items():
+        if key in chassis_lower:
+            return table_key
+    return "e_coli"
+
+
 def _best_codons_for_chassis(chassis: str) -> dict[str, str]:
     """Build a reverse map: amino acid -> best codon for chassis."""
-    key = CHASSIS_MAP.get(chassis.lower().strip(), "e_coli")
+    key = _normalize_chassis_key(chassis)
     usage = CODON_USAGE[key]
     table = CodonTable.standard_dna_table
 
@@ -119,7 +131,7 @@ def optimize_protein_to_dna(protein_seq: str, chassis: str = "E. coli") -> dict:
     optimized_dna = "".join(codons)
 
     # Calculate CAI-like score (ratio of used codons to best codons)
-    key = CHASSIS_MAP.get(chassis.lower().strip(), "e_coli")
+    key = _normalize_chassis_key(chassis)
     usage = CODON_USAGE[key]
     table = CodonTable.standard_dna_table
 

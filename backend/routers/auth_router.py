@@ -87,3 +87,23 @@ def me(user: User = Depends(get_current_user)):
         designs_this_month=user.designs_this_month,
         monthly_limit=settings.FREE_TIER_MONTHLY_DESIGNS if user.tier == "free" else -1,
     )
+
+
+@router.delete("/account")
+def delete_account(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Delete user account and all associated data (GDPR right to erasure)."""
+    from models import Design, ChatMessage, AuditLog
+
+    # Delete all user data in order (foreign key constraints)
+    designs = db.query(Design).filter(Design.user_id == user.id).all()
+    for design in designs:
+        db.query(ChatMessage).filter(ChatMessage.design_id == design.id).delete()
+    db.query(Design).filter(Design.user_id == user.id).delete()
+    db.query(AuditLog).filter(AuditLog.user_id == user.id).delete()
+    db.query(User).filter(User.id == user.id).delete()
+    db.commit()
+
+    return {"deleted": True, "message": "Account and all associated data deleted."}

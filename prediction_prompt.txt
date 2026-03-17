@@ -1,0 +1,34 @@
+Simulate ProtoForge's growth over the next 24 months (March 2026 - March 2028).
+
+ProtoForge is an AI-powered bioengineering design platform that turns plain-English
+prompts into real gene circuits, DNA sequences, plasmid maps, and safety scores.
+It targets biohackers, iGEM teams, climate founders, and Benchling users. It is
+currently a solo-founder MVP launching this week.
+
+Use the attached seed file for full context on the product, market, pricing,
+competition, and foresight alignment.
+
+Run this simulation under all five Global Trends 2040 scenarios:
+  1. Renaissance of Democracies
+  2. World Adrift
+  3. Competitive Coexistence
+  4. Separate Silos
+  5. Tragedy and Mobilization
+
+For EACH scenario, predict:
+  - Monthly user growth curve (Month 1-24)
+  - Monthly revenue projection (free vs. Pro conversion rates)
+  - Churn risks and retention drivers
+  - Regulatory risks specific to that scenario
+  - Probability of acquisition offer and likely valuation range ($5M-$150M)
+  - Recommended strategic pivots
+  - Key signposts that indicate this scenario is materializing
+
+Also provide:
+  - Probability weight for each scenario (must sum to 100%)
+  - Cross-scenario consensus: what is true in ALL scenarios?
+  - Biggest single risk across all scenarios
+  - Highest-upside opportunity across all scenarios
+  - One-sentence recommendation for the founder right now
+
+Format the output as a structured report with clear section headers.

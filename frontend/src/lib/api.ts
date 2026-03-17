@@ -41,6 +41,14 @@ export const designs = {
   share: (id: string) => request<{ is_public: boolean }>(`/designs/${id}/share`, { method: 'POST' }),
 }
 
+// Billing
+export const billing = {
+  checkout: () =>
+    request<{ checkout_url: string }>('/billing/checkout', { method: 'POST' }),
+  portal: () =>
+    request<{ portal_url: string }>('/billing/portal', { method: 'POST' }),
+}
+
 // Challenges
 export const challenges = {
   daily: () => request<Challenge>('/challenges/daily'),
@@ -73,6 +81,7 @@ export interface DesignResponse {
   codon_optimized: Record<string, CodonOptResult>
   dna_sequence: string
   fasta_content: string
+  genbank_content?: string
   plasmid_map_data: PlasmidMapData
   fba_results: FBAResults
   assembly_plan: AssemblyPlan
@@ -86,6 +95,10 @@ export interface DesignResponse {
   model_used: string
   is_public: boolean
   disclaimer: string
+  is_conceptual?: boolean
+  conceptual_banner?: string
+  non_registry_genes?: string[]
+  conceptual_genes?: string[]
 }
 
 export interface GeneCircuit {
@@ -102,6 +115,19 @@ export interface GeneSequenceResult {
   source: string
   type: string
   description: string
+  function_validation?: { score: number; match: boolean; reason: string }
+  conceptual_only?: boolean
+  warning?: string
+  confidence?: 'high' | 'medium' | 'low' | 'none' | 'unknown'
+  confidence_reason?: string
+  variant_predictions?: {
+    beneficial_mutations: { position: number; wild_type: string; mutant: string; score: number; notation: string }[]
+    total_beneficial: number
+    total_scored: number
+    model_used: string
+    method: string
+    note: string
+  }
 }
 
 export interface CodonOptResult {
@@ -144,6 +170,13 @@ export interface AssemblyPlan {
   rbs_notes: { strategy: string; details: string[]; tool_note: string }
   estimated_total_size_bp: number
   summary: string
+  primers?: {
+    gene: string
+    forward: { sequence: string; length: number; tm: number; gc: number }
+    reverse: { sequence: string; length: number; tm: number; gc: number }
+    expected_product_bp: number
+    note: string
+  }[]
 }
 
 export interface ChatMessage {
