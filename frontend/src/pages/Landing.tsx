@@ -93,6 +93,23 @@ export default function Landing() {
             />
             <div className="absolute inset-0 bg-gradient-to-b from-[#080C14]/60 via-transparent to-[#080C14]" />
           </div>
+          {/* Floating particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="particle"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  bottom: `-${Math.random() * 20}%`,
+                  animationDuration: `${8 + Math.random() * 12}s`,
+                  animationDelay: `${Math.random() * 10}s`,
+                  width: `${1 + Math.random() * 3}px`,
+                  height: `${1 + Math.random() * 3}px`,
+                }}
+              />
+            ))}
+          </div>
 
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-32">
             <div className="max-w-3xl">
@@ -115,7 +132,7 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleCTA}
-                  className="px-8 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
+                  className="cta-glow px-8 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
                 >
                   Start Designing — Free
                 </button>
@@ -176,6 +193,35 @@ export default function Landing() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ─── Demo Video Section ─── */}
+        <RevealSection>
+          <section className="bg-[#080C14] py-20 md:py-24">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold mb-3 text-white">See It in Action</h2>
+                <p className="text-gray-500 max-w-xl mx-auto">From a single sentence to a complete bioengineering design</p>
+              </div>
+              {/* Video placeholder — replace with real demo recording */}
+              <div className="relative aspect-video rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/50 group cursor-pointer"
+                onClick={handleCTA}>
+                <img src="/images/hero-dna.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080C14] via-transparent to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500/30 transition-all">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-cyan-300 ml-1">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <p className="text-white font-semibold text-lg">Watch: "Design a plastic-eating microbe" in 60 seconds</p>
+                  <p className="text-gray-400 text-sm mt-1">Full pipeline demo — gene circuit, NCBI sequences, FBA simulation, plasmid map</p>
+                </div>
               </div>
             </div>
           </section>
