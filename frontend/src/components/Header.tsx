@@ -22,10 +22,10 @@ export default function Header() {
           ? 'bg-[#0A0E18]/95 backdrop-blur-md border-b border-cyan-500/10 shadow-lg shadow-black/20'
           : 'bg-[#080C14] border-b border-gray-800/30'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src="/images/logo-progenx.png" alt="Progenx" className="h-7 sm:h-8" />
+            <img src="/images/logo-progenx.png" alt="Progenx" className="h-12 sm:h-14" />
           </Link>
 
           {/* Desktop nav — centered */}
