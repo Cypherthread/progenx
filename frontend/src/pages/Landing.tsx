@@ -331,6 +331,80 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ─── Contact ─── */}
+        <RevealSection>
+          <section id="contact" className="bg-[#0B1120] py-20 md:py-24 border-t border-gray-800">
+            <div className="max-w-2xl mx-auto px-4 sm:px-6">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold mb-3 text-white">Get in Touch</h2>
+                <p className="text-gray-500">Questions, partnerships, enterprise inquiries, or just say hi.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-8">
+                {/* Direct contact */}
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-300 mb-1">Email</p>
+                    <a href="mailto:hello@progenx.ai" className="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
+                      hello@progenx.ai
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-300 mb-1">For enterprise</p>
+                    <a href="mailto:enterprise@progenx.ai" className="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">
+                      enterprise@progenx.ai
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-300 mb-1">Response time</p>
+                    <p className="text-sm text-gray-500">Usually within 24 hours</p>
+                  </div>
+                </div>
+                {/* Quick contact form */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const form = e.target as HTMLFormElement
+                    const data = new FormData(form)
+                    const subject = encodeURIComponent(`Progenx: ${data.get('subject')}`)
+                    const body = encodeURIComponent(`${data.get('message')}\n\n— ${data.get('email')}`)
+                    window.location.href = `mailto:hello@progenx.ai?subject=${subject}&body=${body}`
+                    form.reset()
+                  }}
+                  className="space-y-3"
+                >
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="Your email"
+                    className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50"
+                  />
+                  <input
+                    name="subject"
+                    type="text"
+                    required
+                    placeholder="Subject"
+                    className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50"
+                  />
+                  <textarea
+                    name="message"
+                    required
+                    rows={4}
+                    placeholder="Your message"
+                    className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 resize-none"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Send Message
+                  </button>
+                </form>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
         {/* ─── Footer ─── */}
         <footer className="bg-[#060A12] text-gray-500 py-12 border-t border-gray-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -351,11 +425,10 @@ export default function Landing() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-gray-300 text-sm font-semibold mb-3">Legal</h4>
+                <h4 className="text-gray-300 text-sm font-semibold mb-3">Company</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><span className="cursor-default">Privacy Policy</span></li>
-                  <li><span className="cursor-default">Terms of Service</span></li>
-                  <li><span className="cursor-default">Biosafety Notice</span></li>
+                  <li><a href="#contact" className="hover:text-cyan-400 transition-colors">Contact</a></li>
+                  <li><a href="mailto:hello@progenx.ai" className="hover:text-cyan-400 transition-colors">hello@progenx.ai</a></li>
                 </ul>
               </div>
             </div>
