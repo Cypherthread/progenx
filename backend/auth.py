@@ -33,9 +33,17 @@ def get_current_user(
     creds: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
+    """Authenticate via JWT token or API key (pgx_...)."""
+    token = creds.credentials
+
+    # Check if it's an API key (starts with pgx_)
+    if token.startswith("pgx_"):
+        return _auth_api_key(token, db)
+
+    # Otherwise treat as JWT
     try:
         payload = jwt.decode(
-            creds.credentials, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
         user_id = payload.get("sub")
         if not user_id:
@@ -50,6 +58,28 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="User not found")
 
     return user
+
+
+def _auth_api_key(raw_key: str, db: Session) -> User:
+    """Authenticate using a Pro-tier API key."""
+    from models import ApiKey
+
+    # Find all active API keys and check against each
+    # (bcrypt doesn't allow lookup by hash, so we check each one)
+    active_keys = db.query(ApiKey).filter(ApiKey.is_active == True).all()
+
+    for api_key in active_keys:
+        if verify_password(raw_key, api_key.key_hash):
+            # Found matching key — update last_used and return the user
+            api_key.last_used = datetime.utcnow()
+            db.commit()
+
+            user = db.query(User).filter(User.id == api_key.user_id).first()
+            if not user:
+                raise HTTPException(status_code=401, detail="API key owner not found")
+            return user
+
+    raise HTTPException(status_code=401, detail="Invalid API key")
 
 
 def check_rate_limit(user: User, db: Session):

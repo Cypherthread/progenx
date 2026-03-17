@@ -89,6 +89,57 @@ def me(user: User = Depends(get_current_user)):
     )
 
 
+@router.post("/api-key")
+def create_api_key(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Generate an API key for programmatic access (Pro tier only)."""
+    if user.tier != "pro":
+        raise HTTPException(status_code=403, detail="API keys are available for Pro tier. Upgrade to Pro for API access.")
+
+    import secrets
+    from models import ApiKey
+
+    # Generate a random API key
+    raw_key = f"pgx_{secrets.token_urlsafe(32)}"
+    key_hash = hash_password(raw_key)
+
+    api_key = ApiKey(
+        user_id=user.id,
+        key_hash=key_hash,
+        name="Default",
+    )
+    db.add(api_key)
+    db.commit()
+
+    # Return the raw key ONCE — it's hashed in the DB and can't be retrieved
+    return {
+        "api_key": raw_key,
+        "id": api_key.id,
+        "message": "Save this key — it cannot be retrieved again.",
+    }
+
+
+@router.get("/api-keys")
+def list_api_keys(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List active API keys (without revealing the key itself)."""
+    from models import ApiKey
+    keys = db.query(ApiKey).filter(ApiKey.user_id == user.id, ApiKey.is_active == True).all()
+    return [
+        {
+            "id": k.id,
+            "name": k.name,
+            "created_at": k.created_at.isoformat() if k.created_at else None,
+            "last_used": k.last_used.isoformat() if k.last_used else None,
+        }
+        for k in keys
+    ]
+
+
 @router.delete("/account")
 def delete_account(
     user: User = Depends(get_current_user),

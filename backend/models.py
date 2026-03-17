@@ -80,6 +80,37 @@ class ChatMessage(Base):
     design = relationship("Design", back_populates="messages")
 
 
+class ApiKey(Base):
+    """API keys for programmatic access (Pro tier)."""
+    __tablename__ = "api_keys"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    key_hash = Column(String, nullable=False)  # bcrypt hash of the key
+    name = Column(String, default="Default")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_used = Column(DateTime, default=None)
+    is_active = Column(Boolean, default=True)
+
+
+class DesignVersion(Base):
+    """Stores snapshots of a design before each refinement (Pro tier)."""
+    __tablename__ = "design_versions"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    design_id = Column(String, ForeignKey("designs.id"), nullable=False)
+    version_number = Column(Integer, default=1)
+    design_name = Column(String, default="")
+    organism_summary = Column(Text, default="")
+    gene_circuit = Column(Text, default="")
+    gene_sequences = Column(Text, default="{}")
+    dna_sequence = Column(Text, default="")
+    fba_results = Column(Text, default="{}")
+    assembly_plan = Column(Text, default="{}")
+    safety_score = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 

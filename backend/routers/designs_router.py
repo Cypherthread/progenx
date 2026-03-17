@@ -1,16 +1,22 @@
 import json
 import time
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import Any
 
 from database import get_db
-from models import User, Design, ChatMessage, AuditLog
+from models import User, Design, ChatMessage, AuditLog, DesignVersion
 from auth import get_current_user, check_rate_limit
 from services.llm_orchestrator import generate_design, refine_design
 from services.safety_scorer import score_safety
 from config import settings
+
+# Priority queue: track active free-tier generations.
+# Pro users are never queued. Free users may see a message if the system is busy.
+import threading
+_free_tier_active = threading.Semaphore(2)  # max 2 concurrent free designs
 
 router = APIRouter()
 
@@ -77,7 +83,18 @@ def create_design(
     db.refresh(design)
 
     start = time.time()
+    acquired_semaphore = False
     try:
+        # Priority queue: free tier limited to 2 concurrent generations.
+        # Pro tier bypasses — always gets immediate processing.
+        if user.tier == "free":
+            if not _free_tier_active.acquire(timeout=60):
+                raise HTTPException(
+                    status_code=503,
+                    detail="Design engine is busy. Pro users get priority access. Please try again in a moment.",
+                )
+            acquired_semaphore = True
+
         result = generate_design(
             prompt=req.prompt,
             environment=req.environment,
@@ -152,6 +169,9 @@ def create_design(
         else:
             detail = f"Design generation failed: {error_msg[:200]}"
         raise HTTPException(status_code=500, detail=detail)
+    finally:
+        if acquired_semaphore:
+            _free_tier_active.release()
 
     return _design_response(design)
 
@@ -166,6 +186,25 @@ def refine(
     design = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
     if not design:
         raise HTTPException(status_code=404, detail="Design not found")
+
+    # Save version snapshot before refining (Pro tier version history)
+    if user.tier == "pro":
+        version_count = db.query(DesignVersion).filter(
+            DesignVersion.design_id == design.id
+        ).count()
+        snapshot = DesignVersion(
+            design_id=design.id,
+            version_number=version_count + 1,
+            design_name=design.design_name,
+            organism_summary=design.organism_summary,
+            gene_circuit=design.gene_circuit,
+            gene_sequences=design.gene_sequences,
+            dna_sequence=design.dna_sequence,
+            fba_results=design.fba_results,
+            assembly_plan=design.assembly_plan,
+            safety_score=design.safety_score,
+        )
+        db.add(snapshot)
 
     user_msg = ChatMessage(design_id=design.id, role="user", content=req.message)
     db.add(user_msg)
@@ -223,6 +262,32 @@ def refine(
     db.refresh(design)
 
     return _design_response(design)
+
+
+@router.get("/{design_id}/versions")
+def get_versions(design_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get version history for a design (Pro tier)."""
+    design = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
+    if not design:
+        raise HTTPException(status_code=404, detail="Design not found")
+
+    versions = (
+        db.query(DesignVersion)
+        .filter(DesignVersion.design_id == design_id)
+        .order_by(DesignVersion.version_number.desc())
+        .all()
+    )
+    return [
+        {
+            "id": v.id,
+            "version": v.version_number,
+            "design_name": v.design_name,
+            "summary": (v.organism_summary or "")[:200],
+            "safety_score": v.safety_score,
+            "created_at": v.created_at.isoformat() if v.created_at else None,
+        }
+        for v in versions
+    ]
 
 
 @router.get("/history")

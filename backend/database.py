@@ -20,9 +20,8 @@ def get_db():
 
 
 def init_db():
-    """Create tables if they don't exist, and add missing columns to existing tables.
-    This handles the case where new columns (like stripe_customer_id) are added
-    to models but the SQLite database already exists from a previous version."""
+    """Create tables if they don't exist (including new tables like api_keys,
+    design_versions), and add missing columns to existing tables."""
     Base.metadata.create_all(bind=engine)
 
     # Auto-migrate: add missing columns to existing tables
