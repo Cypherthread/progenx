@@ -25,7 +25,7 @@ export default function PromptBox({ initialPrompt }: Props) {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Design a microbe that eats ocean microplastics and turns them into biodegradable plastic..."
-          className="w-full min-h-[120px] p-4 pr-24 border rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+          className="w-full min-h-[120px] p-4 pr-24 bg-gray-900/50 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
               handleGenerate()
@@ -37,8 +37,8 @@ export default function PromptBox({ initialPrompt }: Props) {
           disabled={generating || !prompt.trim()}
           className={`absolute right-3 bottom-3 px-4 py-2 rounded-lg text-sm font-medium text-white transition-all ${
             generating
-              ? 'bg-primary/50 bio-glow cursor-wait'
-              : 'bg-primary hover:opacity-90 disabled:opacity-40'
+              ? 'bg-cyan-600/50 bio-glow cursor-wait'
+              : 'bg-cyan-600 hover:bg-cyan-500 disabled:opacity-40 disabled:hover:bg-cyan-600'
           }`}
         >
           {generating ? (
@@ -64,7 +64,7 @@ export default function PromptBox({ initialPrompt }: Props) {
         setComplexity={setComplexity}
       />
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-gray-600">
         Press Ctrl+Enter to generate. All designs include safety scoring and dual-use assessment.
       </p>
     </div>

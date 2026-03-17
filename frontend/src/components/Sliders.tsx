@@ -23,10 +23,9 @@ export default function Sliders({
   setComplexity,
 }: Props) {
   return (
-    <div className="space-y-4 p-4 bg-secondary/50 rounded-xl">
-      {/* Environment */}
+    <div className="space-y-4 p-4 bg-gray-900/50 border border-gray-800 rounded-xl">
       <div>
-        <label className="text-xs font-medium text-muted-foreground block mb-2">
+        <label className="text-xs font-medium text-gray-400 block mb-2">
           Target Environment
         </label>
         <div className="grid grid-cols-4 gap-2">
@@ -34,10 +33,10 @@ export default function Sliders({
             <button
               key={env.value}
               onClick={() => setEnvironment(env.value)}
-              className={`py-2 px-2 rounded-md text-xs font-medium transition-all text-center ${
+              className={`py-2 px-2 rounded-lg text-xs font-medium transition-all text-center ${
                 environment === env.value
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-white hover:bg-gray-100'
+                  ? 'bg-cyan-600 text-white shadow-sm'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
               <span className="block text-base mb-0.5">{env.icon}</span>
@@ -47,11 +46,9 @@ export default function Sliders({
         </div>
       </div>
 
-      {/* Safety + Complexity side by side */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Safety Level */}
         <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-2">
+          <label className="text-xs font-medium text-gray-400 block mb-2">
             Safety: {Math.round(safetyLevel * 100)}%
           </label>
           <input
@@ -61,17 +58,15 @@ export default function Sliders({
             step="0.05"
             value={safetyLevel}
             onChange={(e) => setSafetyLevel(parseFloat(e.target.value))}
-            className="w-full accent-primary"
+            className="w-full accent-cyan-500"
           />
-          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+          <div className="flex justify-between text-[10px] text-gray-600 mt-1">
             <span>Low</span>
             <span>Max</span>
           </div>
         </div>
-
-        {/* Complexity */}
         <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-2">
+          <label className="text-xs font-medium text-gray-400 block mb-2">
             Complexity: {Math.round(complexity * 100)}%
           </label>
           <input
@@ -81,9 +76,9 @@ export default function Sliders({
             step="0.05"
             value={complexity}
             onChange={(e) => setComplexity(parseFloat(e.target.value))}
-            className="w-full accent-accent"
+            className="w-full accent-cyan-500"
           />
-          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+          <div className="flex justify-between text-[10px] text-gray-600 mt-1">
             <span>Simple</span>
             <span>Complex</span>
           </div>

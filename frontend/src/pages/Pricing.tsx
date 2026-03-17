@@ -113,14 +113,14 @@ export default function Pricing() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`rounded-xl p-6 ${
+              className={`rounded-xl p-6 bg-gray-900/30 ${
                 plan.highlighted
-                  ? 'border-2 border-primary shadow-lg relative'
-                  : 'border'
+                  ? 'border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/10 relative'
+                  : 'border border-gray-800'
               }`}
             >
               {plan.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-primary text-white text-xs font-medium rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-cyan-600 text-white text-xs font-medium rounded-full">
                   Most Popular
                 </div>
               )}
@@ -151,8 +151,8 @@ export default function Pricing() {
                 disabled={plan.action === 'enterprise' || loading}
                 className={`w-full py-2.5 rounded-md text-sm font-medium transition-all ${
                   plan.highlighted
-                    ? 'bg-primary text-white hover:opacity-90 disabled:opacity-50'
-                    : 'border hover:bg-secondary disabled:opacity-50'
+                    ? 'bg-cyan-600 text-white hover:opacity-90 disabled:opacity-50'
+                    : 'border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-50'
                 }`}
               >
                 {loading && plan.action === 'pro' ? 'Loading...' : plan.cta}

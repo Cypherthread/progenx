@@ -43,13 +43,13 @@ export default function ResultsPanel({ design }: Props) {
   return (
     <div className="space-y-5">
       {/* Disclaimer Banner */}
-      <div className="bg-amber-50 border border-amber-300 rounded-lg px-4 py-2.5 text-xs text-amber-800 font-medium">
+      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2.5 text-xs text-amber-300 font-medium">
         {design.disclaimer || 'EDUCATIONAL/EXPERIMENTAL ONLY — NOT LAB-READY WITHOUT EXPERT REVIEW'}
       </div>
 
       {/* Conceptual Design Banner */}
       {design.conceptual_banner && (
-        <div className="bg-red-50 border-2 border-red-300 rounded-lg px-4 py-3 text-sm text-red-800 font-semibold">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-300 font-semibold">
           {design.conceptual_banner}
         </div>
       )}
@@ -66,7 +66,7 @@ export default function ResultsPanel({ design }: Props) {
       </div>
 
       {/* Summary */}
-      <div className="bg-white border rounded-xl p-4">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
         <h3 className="text-sm font-medium mb-2">Organism Summary</h3>
         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{design.organism_summary}</p>
       </div>
@@ -94,7 +94,7 @@ export default function ResultsPanel({ design }: Props) {
 
       {/* NCBI Sequence Provenance */}
       {Object.keys(geneSeqs).length > 0 && (
-        <div className="bg-white border rounded-xl p-4">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-3">Gene Sequences (NCBI)</h3>
           <div className="space-y-2">
             {Object.entries(geneSeqs).map(([name, data]: [string, any]) => (
@@ -135,7 +135,7 @@ export default function ResultsPanel({ design }: Props) {
                   )}
                 </div>
                 {data.warning && (
-                  <p className="text-xs text-red-600 mt-1 w-full">{data.warning}</p>
+                  <p className="text-xs text-red-400 mt-1 w-full">{data.warning}</p>
                 )}
                 {data.variant_predictions?.beneficial_mutations?.length > 0 && (
                   <div className="w-full mt-1.5 pt-1.5 border-t border-gray-100">
@@ -164,11 +164,11 @@ export default function ResultsPanel({ design }: Props) {
 
       {/* Codon Optimization */}
       {Object.keys(codonOpt).length > 0 && (
-        <div className="bg-white border rounded-xl p-4">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-3">Codon-Optimized Sequences</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
             {Object.entries(codonOpt).map(([name, data]: [string, any]) => (
-              <div key={name} className="bg-secondary/30 rounded-lg p-2 text-center">
+              <div key={name} className="bg-gray-800/50 rounded-lg p-2 text-center">
                 <p className="text-xs font-medium">{name}</p>
                 <p className="text-sm font-bold">{data.length_bp?.toLocaleString()} bp</p>
                 {data.cai_score != null && <p className="text-[10px] text-muted-foreground">CAI: {data.cai_score}</p>}
@@ -182,7 +182,7 @@ export default function ResultsPanel({ design }: Props) {
 
       {/* Plasmid Map */}
       {plasmid.png_base64 && (
-        <div className="bg-white border rounded-xl p-4">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-2">Construct Map</h3>
           <img
             src={`data:image/${plasmid.png_base64.startsWith('PHN2') ? 'svg+xml' : 'png'};base64,${plasmid.png_base64}`}
@@ -197,7 +197,7 @@ export default function ResultsPanel({ design }: Props) {
 
       {/* FBA Results */}
       {fba.summary && (
-        <div className="bg-white border rounded-xl p-4">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-3">
             Flux Balance Analysis
             {fba.source === 'cobra_fba' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-green-100 text-green-700 rounded">COBRApy</span>}
@@ -211,9 +211,9 @@ export default function ResultsPanel({ design }: Props) {
             <Metric label="Max Titer (theoretical)" value={fba.estimated_titer_g_per_L != null ? `${fba.estimated_titer_g_per_L} g/L` : 'N/A'} />
           </div>
           ) : (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
-            <p className="text-sm text-amber-800 font-medium">No metabolic model available for this chassis organism.</p>
-            <p className="text-xs text-amber-600 mt-1">FBA predictions require a genome-scale model. Supported: E. coli (iJO1366), P. putida (iJN1463).</p>
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-3">
+            <p className="text-sm text-amber-300 font-medium">No metabolic model available for this chassis organism.</p>
+            <p className="text-xs text-amber-400 mt-1">FBA predictions require a genome-scale model. Supported: E. coli (iJO1366), P. putida (iJN1463).</p>
           </div>
           )}
           {fba.model_used && fba.model_used !== 'heuristic_fallback' && (
@@ -222,17 +222,17 @@ export default function ResultsPanel({ design }: Props) {
               Burden: {fba.metabolic_burden_estimate} | {fba.heterologous_genes} heterologous genes
             </p>
           )}
-          <pre className="text-xs font-mono bg-secondary/30 p-3 rounded-lg mt-2 whitespace-pre-wrap">{fba.summary}</pre>
+          <pre className="text-xs font-mono bg-gray-800/50 p-3 rounded-lg mt-2 whitespace-pre-wrap">{fba.summary}</pre>
         </div>
       )}
 
       {/* Assembly Plan */}
       {assembly.summary && (
-        <div className="bg-white border rounded-xl p-4">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-3">Assembly Plan</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
             {assembly.origin_of_replication && (
-              <div className="bg-secondary/30 rounded-lg p-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Origin</p>
                 <p className="text-sm font-medium">{assembly.origin_of_replication.name}</p>
                 <p className="text-xs text-muted-foreground">{assembly.origin_of_replication.copy_number}</p>
@@ -240,14 +240,14 @@ export default function ResultsPanel({ design }: Props) {
               </div>
             )}
             {assembly.selection_marker && (
-              <div className="bg-secondary/30 rounded-lg p-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selection</p>
                 <p className="text-sm font-medium">{assembly.selection_marker.name}</p>
                 <p className="text-xs text-muted-foreground mt-1">{assembly.selection_marker.rationale}</p>
               </div>
             )}
             {assembly.assembly_method && (
-              <div className="bg-secondary/30 rounded-lg p-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Assembly</p>
                 <p className="text-sm font-medium">{assembly.assembly_method.name}</p>
                 <p className="text-xs text-muted-foreground">{assembly.assembly_method.description}</p>
@@ -259,10 +259,10 @@ export default function ResultsPanel({ design }: Props) {
               </div>
             )}
             {assembly.kill_switch && (
-              <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-                <p className="text-xs font-semibold uppercase tracking-wider text-red-600">Biocontainment</p>
-                <p className="text-sm font-medium text-red-700">{assembly.kill_switch.name}</p>
-                <p className="text-xs text-red-600 mt-1">{assembly.kill_switch.mechanism}</p>
+              <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
+                <p className="text-xs font-semibold uppercase tracking-wider text-red-400">Biocontainment</p>
+                <p className="text-sm font-medium text-red-300">{assembly.kill_switch.name}</p>
+                <p className="text-xs text-red-400 mt-1">{assembly.kill_switch.mechanism}</p>
               </div>
             )}
           </div>
@@ -277,7 +277,7 @@ export default function ResultsPanel({ design }: Props) {
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Suggested Primers</p>
               <div className="space-y-1.5">
                 {assembly.primers!.map((p: any) => (
-                  <div key={p.gene} className="bg-secondary/30 rounded-lg p-2">
+                  <div key={p.gene} className="bg-gray-800/50 rounded-lg p-2">
                     <p className="text-xs font-medium mb-1">{p.gene}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -309,7 +309,7 @@ export default function ResultsPanel({ design }: Props) {
       </div>
 
       {/* DNA Sequence + FASTA download */}
-      <div className="bg-white border rounded-xl p-4">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-medium">Codon-Optimized Construct Sequence</h3>
           <div className="flex gap-2">
@@ -326,13 +326,13 @@ export default function ResultsPanel({ design }: Props) {
             </button>
           </div>
         </div>
-        <pre className="text-xs font-mono bg-secondary/30 p-3 rounded-lg overflow-x-auto max-h-32">
+        <pre className="text-xs font-mono bg-gray-800/50 p-3 rounded-lg overflow-x-auto max-h-32">
           {design.dna_sequence.match(/.{1,80}/g)?.join('\n') || 'No sequence'}
         </pre>
       </div>
 
       {/* Vendor links */}
-      <div className="bg-gradient-to-r from-primary/5 to-accent/5 border rounded-xl p-4">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
         <h3 className="text-sm font-medium mb-1">Ready to Build?</h3>
         <p className="text-xs text-muted-foreground mb-3">
           Sequences undergo additional IGSC biosecurity screening before synthesis.
@@ -346,7 +346,7 @@ export default function ResultsPanel({ design }: Props) {
       </div>
 
       {/* Disclaimer (bottom) */}
-      <div className="text-xs text-muted-foreground bg-amber-50 border border-amber-200 p-3 rounded-lg">
+      <div className="text-xs text-muted-foreground bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg">
         <strong>DISCLAIMER:</strong> {design.disclaimer}
       </div>
     </div>
@@ -355,7 +355,7 @@ export default function ResultsPanel({ design }: Props) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white border rounded-lg p-3">
+    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3">
       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-sm font-medium mt-1 break-words">{value || 'N/A'}</p>
     </div>

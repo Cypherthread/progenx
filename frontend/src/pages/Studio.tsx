@@ -75,26 +75,26 @@ export default function Studio() {
       </Helmet>
       {/* Remaining designs banner */}
       {user.tier === 'free' && (
-        <div className="mb-6 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
+        <div className="mb-6 flex items-center justify-between bg-cyan-500/5 border border-cyan-500/20 rounded-lg px-4 py-2.5">
           <div className="flex items-center gap-3">
             <div className="flex gap-1">
               {Array.from({ length: user.monthly_limit }).map((_, i) => (
                 <div
                   key={i}
                   className={`w-2.5 h-2.5 rounded-full ${
-                    i < user.designs_this_month ? 'bg-blue-500' : 'bg-blue-200'
+                    i < user.designs_this_month ? 'bg-cyan-500' : 'bg-gray-700'
                   }`}
                 />
               ))}
             </div>
-            <span className="text-sm text-blue-800">
-              {user.monthly_limit - user.designs_this_month} of {user.monthly_limit} free designs remaining this month
+            <span className="text-sm text-gray-300">
+              {user.monthly_limit - user.designs_this_month} of {user.monthly_limit} free designs remaining
             </span>
           </div>
           {user.designs_this_month >= user.monthly_limit && (
             <button
               onClick={() => navigate('/pricing')}
-              className="px-3 py-1 bg-blue-600 text-white rounded-md text-xs font-medium hover:bg-blue-700"
+              className="px-3 py-1 bg-cyan-600 text-white rounded-md text-xs font-medium hover:bg-cyan-500"
             >
               Upgrade to Pro
             </button>
@@ -121,14 +121,14 @@ export default function Studio() {
         <div className="lg:col-span-2 space-y-6">
           {/* Error display */}
           {error && (
-            <div className="p-4 border-2 border-red-200 rounded-xl bg-red-50">
-              <h3 className="font-semibold text-red-800 mb-1">Design failed</h3>
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="p-4 border border-red-500/30 rounded-xl bg-red-500/10">
+              <h3 className="font-semibold text-red-400 mb-1">Design failed</h3>
+              <p className="text-sm text-red-300/80">{error}</p>
               {error.includes('limit') || error.includes('429') ? (
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => navigate('/pricing')}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700"
+                    className="px-4 py-2 bg-cyan-600 text-white rounded-md text-sm font-medium hover:bg-cyan-500"
                   >
                     Upgrade to Pro — Unlimited Designs
                   </button>
@@ -136,7 +136,7 @@ export default function Studio() {
               ) : (
                 <button
                   onClick={() => useDesign.setState({ error: null })}
-                  className="mt-3 px-4 py-2 border border-red-300 text-red-700 rounded-md text-sm hover:bg-red-100"
+                  className="mt-3 px-4 py-2 border border-gray-700 text-gray-300 rounded-md text-sm hover:bg-gray-800"
                 >
                   Dismiss
                 </button>
@@ -146,13 +146,13 @@ export default function Studio() {
 
           {/* Generating state with progress steps */}
           {generating && (
-            <div className="p-6 border-2 border-blue-200 rounded-xl bg-blue-50/50">
+            <div className="p-6 border border-cyan-500/20 rounded-xl bg-cyan-500/5">
               <div className="flex items-center gap-3 mb-4">
-                <svg className="animate-spin h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 text-cyan-400" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                <h3 className="font-semibold text-blue-800">Designing your organism...</h3>
+                <h3 className="font-semibold text-cyan-300">Designing your organism...</h3>
               </div>
               <ProgressSteps />
             </div>
@@ -164,16 +164,16 @@ export default function Studio() {
               <ChatRefinement messages={chatMessages} />
             </ResultsErrorBoundary>
           ) : !generating && !error ? (
-            <div className="flex items-center justify-center min-h-[400px] border-2 border-dashed rounded-xl">
+            <div className="flex items-center justify-center min-h-[400px] border border-dashed border-gray-700 rounded-xl bg-gray-900/30">
               <div className="text-center p-8">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8 text-gray-400">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8 text-gray-500">
                     <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" />
                     <path d="M12 3v18M3 12h18" />
                   </svg>
                 </div>
-                <h3 className="font-semibold mb-2">Your design will appear here</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
+                <h3 className="font-semibold mb-2 text-gray-200">Your design will appear here</h3>
+                <p className="text-sm text-gray-500 max-w-sm">
                   Enter a prompt on the left and hit Generate. You'll get a complete organism
                   design with real gene circuits, DNA sequences, plasmid maps, and safety analysis.
                 </p>
@@ -222,9 +222,9 @@ function ProgressSteps() {
           i <= step ? 'opacity-100' : 'opacity-30'
         }`}>
           <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs ${
-            i < step ? 'bg-blue-600 text-white' :
-            i === step ? 'bg-blue-100 text-blue-600 animate-pulse' :
-            'bg-gray-100 text-gray-400'
+            i < step ? 'bg-cyan-600 text-white' :
+            i === step ? 'bg-cyan-500/20 text-cyan-400 animate-pulse' :
+            'bg-gray-800 text-gray-600'
           }`}>
             {i < step ? (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-3 h-3">
@@ -235,9 +235,9 @@ function ProgressSteps() {
             )}
           </div>
           <div>
-            <p className={`text-sm font-medium ${i <= step ? 'text-blue-800' : 'text-gray-400'}`}>{s.label}</p>
+            <p className={`text-sm font-medium ${i <= step ? 'text-cyan-300' : 'text-gray-600'}`}>{s.label}</p>
             {i === step && (
-              <p className="text-xs text-blue-600 mt-0.5">{s.desc}</p>
+              <p className="text-xs text-cyan-500 mt-0.5">{s.desc}</p>
             )}
           </div>
         </div>

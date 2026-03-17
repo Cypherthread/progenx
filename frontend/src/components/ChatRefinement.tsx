@@ -17,15 +17,14 @@ export default function ChatRefinement({ messages }: Props) {
   }
 
   return (
-    <div className="border rounded-xl overflow-hidden bg-white">
-      <div className="p-3 border-b bg-secondary/30">
-        <h3 className="text-sm font-medium">Refine Your Design</h3>
-        <p className="text-xs text-muted-foreground">
+    <div className="border border-gray-800 rounded-xl overflow-hidden bg-gray-900/50">
+      <div className="p-3 border-b border-gray-800 bg-gray-800/30">
+        <h3 className="text-sm font-medium text-gray-200">Refine Your Design</h3>
+        <p className="text-xs text-gray-500">
           Ask for changes: "Make it 30% more efficient" or "Add antibiotic resistance marker"
         </p>
       </div>
 
-      {/* Messages */}
       <div className="max-h-64 overflow-y-auto p-3 space-y-3">
         {messages.map((msg, i) => (
           <div
@@ -35,8 +34,8 @@ export default function ChatRefinement({ messages }: Props) {
             <div
               className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                 msg.role === 'user'
-                  ? 'bg-primary text-white'
-                  : 'bg-secondary text-foreground'
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-gray-800 text-gray-300'
               }`}
             >
               {msg.content}
@@ -45,7 +44,7 @@ export default function ChatRefinement({ messages }: Props) {
         ))}
         {refining && (
           <div className="flex justify-start">
-            <div className="bg-secondary rounded-lg px-3 py-2 text-sm text-muted-foreground">
+            <div className="bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-400">
               <span className="flex items-center gap-2">
                 <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -58,13 +57,12 @@ export default function ChatRefinement({ messages }: Props) {
         )}
       </div>
 
-      {/* Input */}
-      <div className="border-t p-3 flex gap-2">
+      <div className="border-t border-gray-800 p-3 flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Make it more efficient..."
-          className="flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="flex-1 px-3 py-2 bg-gray-900/50 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
@@ -75,7 +73,7 @@ export default function ChatRefinement({ messages }: Props) {
         <button
           onClick={handleSend}
           disabled={refining || !input.trim()}
-          className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:opacity-90 disabled:opacity-40"
+          className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-500 disabled:opacity-40"
         >
           Send
         </button>

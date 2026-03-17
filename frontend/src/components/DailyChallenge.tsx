@@ -24,10 +24,10 @@ export default function DailyChallenge({ onSelect }: Props) {
 
   const difficultyColor = (d: string) => {
     switch (d) {
-      case 'beginner': return 'bg-green-100 text-green-700'
-      case 'intermediate': return 'bg-yellow-100 text-yellow-700'
-      case 'advanced': return 'bg-red-100 text-red-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'beginner': return 'bg-green-500/20 text-green-400'
+      case 'intermediate': return 'bg-yellow-500/20 text-yellow-400'
+      case 'advanced': return 'bg-red-500/20 text-red-400'
+      default: return 'bg-gray-800 text-gray-400'
     }
   }
 
@@ -44,36 +44,32 @@ export default function DailyChallenge({ onSelect }: Props) {
 
   return (
     <div className="space-y-3">
-      {/* Daily Challenge */}
       {challenge && (
-        <div className="dna-gradient rounded-xl p-[1px]">
-          <div className="bg-white rounded-[11px] p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Today's Climate Challenge
-              </span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${difficultyColor(challenge.difficulty)}`}>
-                {challenge.difficulty}
-              </span>
-            </div>
-            <h3 className="font-medium text-sm mb-1">
-              {categoryIcon(challenge.category)} {challenge.title}
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3">{challenge.impact}</p>
-            <button
-              onClick={() => onSelect(challenge.prompt)}
-              className="px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium hover:opacity-90"
-            >
-              Try This Challenge
-            </button>
+        <div className="border border-cyan-500/30 rounded-xl p-4 bg-cyan-500/5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
+              Today's Climate Challenge
+            </span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${difficultyColor(challenge.difficulty)}`}>
+              {challenge.difficulty}
+            </span>
           </div>
+          <h3 className="font-medium text-sm mb-1 text-white">
+            {categoryIcon(challenge.category)} {challenge.title}
+          </h3>
+          <p className="text-xs text-gray-500 mb-3">{challenge.impact}</p>
+          <button
+            onClick={() => onSelect(challenge.prompt)}
+            className="px-3 py-1.5 bg-cyan-600 text-white rounded-lg text-xs font-medium hover:bg-cyan-500"
+          >
+            Try This Challenge
+          </button>
         </div>
       )}
 
-      {/* Show More */}
       <button
         onClick={loadAll}
-        className="text-xs text-primary font-medium hover:underline"
+        className="text-xs text-cyan-400 font-medium hover:text-cyan-300"
       >
         {showAll ? 'Hide challenges' : 'Browse all challenges'}
       </button>
@@ -84,7 +80,7 @@ export default function DailyChallenge({ onSelect }: Props) {
             <button
               key={c.id}
               onClick={() => onSelect(c.prompt)}
-              className="text-left p-3 border rounded-lg hover:bg-secondary/50 transition-colors"
+              className="text-left p-3 border border-gray-800 rounded-lg bg-gray-900/30 hover:border-cyan-500/30 hover:bg-gray-900/60 transition-colors"
             >
               <div className="flex items-center gap-1 mb-1">
                 <span className="text-sm">{categoryIcon(c.category)}</span>
@@ -92,7 +88,7 @@ export default function DailyChallenge({ onSelect }: Props) {
                   {c.difficulty}
                 </span>
               </div>
-              <p className="text-xs font-medium">{c.title}</p>
+              <p className="text-xs font-medium text-gray-300">{c.title}</p>
             </button>
           ))}
         </div>
