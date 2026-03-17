@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/hooks/useAuth'
 import { useState } from 'react'
 import AuthModal from '@/components/AuthModal'
@@ -95,6 +96,11 @@ export default function Pricing() {
 
   return (
     <>
+      <Helmet>
+        <title>Progenx Pricing — Free & Pro Plans for Synthetic Biology Design</title>
+        <meta name="description" content="Progenx pricing: Free tier with 5 designs/month, Pro at $29/month with unlimited AI-powered gene circuit design, NCBI validation, and metabolic modeling. No credit card for free tier." />
+        <link rel="canonical" href="https://progenx.ai/pricing" />
+      </Helmet>
       <div className="max-w-5xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold mb-3">Simple, transparent pricing</h1>

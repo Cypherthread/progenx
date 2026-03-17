@@ -1,5 +1,9 @@
+# Progenx — AI Bioengineering Design Platform
+# Allow all crawlers including AI (GPTBot, PerplexityBot, ClaudeBot)
+
 User-agent: *
 Allow: /
+Allow: /pricing
 Disallow: /api/
 Disallow: /studio
 Disallow: /history

@@ -1,4 +1,5 @@
 import { useEffect, useState, Component, type ReactNode } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useDesign } from '@/hooks/useDesign'
@@ -68,6 +69,10 @@ export default function Studio() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <Helmet>
+        <title>Design Studio — Progenx</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       {/* Remaining designs banner */}
       {user.tier === 'free' && (
         <div className="mb-6 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">

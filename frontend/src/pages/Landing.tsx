@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/hooks/useAuth'
 import { useState, useEffect, useRef } from 'react'
 import AuthModal from '@/components/AuthModal'
@@ -88,6 +89,11 @@ export default function Landing() {
 
   return (
     <>
+      <Helmet>
+        <title>Progenx — AI Bioengineering Design Tool | Design Microbes in Plain English</title>
+        <meta name="description" content="Design custom gene circuits, plasmid maps, and DNA sequences with AI. Real NCBI sequences, COBRApy metabolic modeling, safety scoring. Free for students and iGEM teams. No PhD required." />
+        <link rel="canonical" href="https://progenx.ai" />
+      </Helmet>
       <div className="flex flex-col">
         {/* ─── Hero (Dark) ─── */}
         <section className="relative overflow-hidden bg-[#080C14] min-h-[90vh] flex items-center">
