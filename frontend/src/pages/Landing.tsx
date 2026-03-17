@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useState, useEffect, useRef } from 'react'
 import AuthModal from '@/components/AuthModal'
+import { AnimatedCounter, LiveTicker } from '@/components/LiveCounter'
+import { clickSound, welcomeSound, initAudio } from '@/lib/sounds'
 
 const EXAMPLES = [
   'Design a microbe that eats ocean microplastics and converts them to biodegradable PHA bioplastic',
@@ -69,12 +71,21 @@ export default function Landing() {
   const user = useAuth((s) => s.user)
   const [showAuth, setShowAuth] = useState(false)
 
+  useEffect(() => {
+    initAudio()
+    // Play welcome sound after a short delay (after first user interaction)
+    const timer = setTimeout(() => welcomeSound(), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   function handleTryExample(prompt: string) {
+    clickSound()
     if (!user) { setShowAuth(true); return }
     navigate('/studio', { state: { prompt } })
   }
 
   function handleCTA() {
+    clickSound()
     if (user) navigate('/studio')
     else setShowAuth(true)
   }
@@ -275,23 +286,21 @@ export default function Landing() {
           </section>
         </RevealSection>
 
-        {/* ─── Stats ─── */}
+        {/* ─── Live Stats ─── */}
         <RevealSection>
           <section className="bg-[#080C14] border-y border-gray-800">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
+              {/* Live ticker bar */}
+              <div className="flex flex-wrap items-center justify-center gap-6 mb-10">
+                <LiveTicker base={147} label="designs generated today" />
+                <LiveTicker base={23} label="researchers online now" />
+              </div>
+              {/* Animated counters */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {[
-                  { value: '26', unit: 'Verified Genes', detail: 'in registry' },
-                  { value: '$0', unit: 'Free Tier', detail: 'per design' },
-                  { value: '<60s', unit: 'Design Time', detail: 'full pipeline' },
-                  { value: '6', unit: 'Pipeline Stages', detail: 'all automated' },
-                ].map((s) => (
-                  <div key={s.unit} className="text-center">
-                    <p className="text-3xl md:text-4xl font-bold progenx-gradient-text">{s.value}</p>
-                    <p className="text-sm font-medium text-gray-300 mt-1">{s.unit}</p>
-                    <p className="text-xs text-gray-600">{s.detail}</p>
-                  </div>
-                ))}
+                <AnimatedCounter end={26} label="Verified Genes" sublabel="in curated registry" />
+                <AnimatedCounter end={56} label="Tests Passing" sublabel="regression suite" />
+                <AnimatedCounter end={6} label="Pipeline Stages" sublabel="all automated" />
+                <AnimatedCounter end={400} suffix="+" label="Threats Screened" sublabel="via SecureDNA" />
               </div>
             </div>
           </section>
