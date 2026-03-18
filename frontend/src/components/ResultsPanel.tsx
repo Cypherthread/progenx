@@ -98,7 +98,7 @@ export default function ResultsPanel({ design }: Props) {
           <h3 className="text-sm font-medium mb-3">Gene Sequences (NCBI)</h3>
           <div className="space-y-2">
             {Object.entries(geneSeqs).map(([name, data]: [string, any]) => (
-              <div key={name} className="flex items-start justify-between text-sm border-b last:border-0 pb-2 last:pb-0">
+              <div key={name} className="flex items-start justify-between text-sm border-b border-gray-800 last:border-0 pb-2 last:pb-0">
                 <div>
                   <span className="font-medium">{name}</span>
                   <span className="text-muted-foreground text-xs ml-2">
@@ -108,11 +108,11 @@ export default function ResultsPanel({ design }: Props) {
                 </div>
                 <div className="text-right shrink-0 ml-3">
                   <span className={`text-xs px-1.5 py-0.5 rounded ${
-                    data.source === 'ncbi_registry' ? 'bg-green-100 text-green-700' :
-                    data.source === 'ncbi_search' ? 'bg-blue-100 text-blue-700' :
-                    data.source === 'unsupported_biology' ? 'bg-red-100 text-red-700' :
-                    data.conceptual_only ? 'bg-orange-100 text-orange-700' :
-                    'bg-gray-100 text-gray-600'
+                    data.source === 'ncbi_registry' ? 'bg-green-500/20 text-green-400' :
+                    data.source === 'ncbi_search' ? 'bg-blue-500/20 text-blue-400' :
+                    data.source === 'unsupported_biology' ? 'bg-red-500/20 text-red-400' :
+                    data.conceptual_only ? 'bg-orange-500/20 text-orange-400' :
+                    'bg-gray-800 text-gray-400'
                   }`}>
                     {data.source === 'ncbi_registry' ? 'Verified' :
                      data.source === 'ncbi_search' ? 'NCBI search' :
@@ -122,10 +122,10 @@ export default function ResultsPanel({ design }: Props) {
                   {data.length > 0 && <p className="text-xs text-muted-foreground mt-0.5">{data.length} {data.type === 'protein' ? 'aa' : 'bp'}</p>}
                   {data.confidence && data.confidence !== 'unknown' && (
                     <span className={`text-[10px] px-1 py-0.5 rounded mt-0.5 inline-block ${
-                      data.confidence === 'high' ? 'bg-green-50 text-green-700' :
-                      data.confidence === 'medium' ? 'bg-blue-50 text-blue-700' :
-                      data.confidence === 'low' ? 'bg-yellow-50 text-yellow-700' :
-                      'bg-red-50 text-red-700'
+                      data.confidence === 'high' ? 'bg-green-500/15 text-green-400' :
+                      data.confidence === 'medium' ? 'bg-blue-500/15 text-blue-400' :
+                      data.confidence === 'low' ? 'bg-yellow-500/15 text-yellow-400' :
+                      'bg-red-500/15 text-red-400'
                     }`} title={data.confidence_reason || ''}>
                       {data.confidence} confidence
                     </span>
@@ -200,8 +200,8 @@ export default function ResultsPanel({ design }: Props) {
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-3">
             Flux Balance Analysis
-            {fba.source === 'cobra_fba' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-green-100 text-green-700 rounded">COBRApy</span>}
-            {fba.source === 'heuristic_fallback' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded">Heuristic</span>}
+            {fba.source === 'cobra_fba' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded">COBRApy</span>}
+            {fba.source === 'heuristic_fallback' && <span className="text-xs ml-2 px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 rounded">Heuristic</span>}
           </h3>
           {fba.source !== 'no_model' ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">

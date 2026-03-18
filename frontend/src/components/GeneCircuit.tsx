@@ -5,8 +5,8 @@ interface Props {
 }
 
 const GENE_COLORS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444',
-  '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1',
+  '#60A5FA', '#34D399', '#FBBF24', '#A78BFA', '#F87171',
+  '#22D3EE', '#F472B6', '#A3E635', '#FB923C', '#818CF8',
 ]
 
 interface Gene {
@@ -36,23 +36,23 @@ export default function GeneCircuit({ circuitJson }: Props) {
   if (!circuit || !circuit.genes?.length) return null
 
   return (
-    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 space-y-4">
-      <h3 className="text-sm font-medium text-gray-200">Gene Circuit</h3>
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5 space-y-5">
+      <h3 className="text-sm font-semibold text-white">Gene Circuit</h3>
 
       {/* Linear construct diagram */}
-      <div className="overflow-x-auto">
-        <div className="flex items-center gap-0.5 min-w-fit py-2">
-          <div className="text-xs text-gray-500 font-mono mr-1">5'</div>
+      <div className="overflow-x-auto pb-2">
+        <div className="flex items-center gap-1 min-w-fit py-3 px-1">
+          <div className="text-xs text-gray-500 font-mono mr-2 font-bold">5'</div>
 
           {circuit.genes.map((gene, i) => {
             const color = GENE_COLORS[i % GENE_COLORS.length]
             const promoter = circuit.promoters?.[i]
             return (
-              <div key={i} className="flex items-center gap-0.5">
+              <div key={i} className="flex items-center gap-1">
                 {promoter && (
-                  <div className="flex flex-col items-center" title={`Promoter: ${promoter}`}>
-                    <span className="text-[9px] text-emerald-400 font-medium whitespace-nowrap">{promoter}</span>
-                    <svg width="16" height="16" viewBox="0 0 16 16">
+                  <div className="flex flex-col items-center mr-0.5" title={`Promoter: ${promoter}`}>
+                    <span className="text-[8px] text-emerald-400 font-medium whitespace-nowrap mb-0.5">{promoter}</span>
+                    <svg width="14" height="14" viewBox="0 0 16 16">
                       <path d="M4 12 L4 6 L12 6" fill="none" stroke="#34D399" strokeWidth="2" />
                       <path d="M9 3 L12 6 L9 9" fill="none" stroke="#34D399" strokeWidth="2" />
                     </svg>
@@ -64,23 +64,23 @@ export default function GeneCircuit({ circuitJson }: Props) {
                   title={`${gene.name}: ${gene.function}\nSource: ${gene.source_organism}`}
                 >
                   <div
-                    className="h-10 min-w-[80px] rounded-lg flex items-center justify-center px-3"
-                    style={{ backgroundColor: color + '15', border: `1.5px solid ${color}60` }}
+                    className="h-9 min-w-[72px] rounded-md flex items-center justify-center px-3"
+                    style={{ backgroundColor: color + '20', border: `1.5px solid ${color}` }}
                   >
-                    <span className="text-xs font-semibold" style={{ color }}>{gene.name}</span>
+                    <span className="text-xs font-bold tracking-wide" style={{ color }}>{gene.name}</span>
                   </div>
                   <div
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[6px] w-0 h-0"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[5px] w-0 h-0"
                     style={{
-                      borderTop: '7px solid transparent',
-                      borderBottom: '7px solid transparent',
-                      borderLeft: `7px solid ${color}60`,
+                      borderTop: '6px solid transparent',
+                      borderBottom: '6px solid transparent',
+                      borderLeft: `6px solid ${color}`,
                     }}
                   />
                 </div>
 
                 {i < circuit.genes.length - 1 && (
-                  <div className="w-4 h-0.5 bg-gray-700 mx-1" />
+                  <div className="w-3 h-px bg-gray-600 mx-0.5" />
                 )}
               </div>
             )
@@ -88,44 +88,47 @@ export default function GeneCircuit({ circuitJson }: Props) {
 
           {circuit.terminators?.[0] && (
             <div className="flex flex-col items-center ml-1" title={`Terminator: ${circuit.terminators[0]}`}>
-              <svg width="16" height="20" viewBox="0 0 16 20">
+              <svg width="14" height="18" viewBox="0 0 16 20">
                 <line x1="8" y1="18" x2="8" y2="4" stroke="#F87171" strokeWidth="2" />
                 <line x1="3" y1="4" x2="13" y2="4" stroke="#F87171" strokeWidth="2" />
               </svg>
-              <span className="text-[9px] text-red-400 font-medium">{circuit.terminators[0]}</span>
+              <span className="text-[8px] text-red-400 font-medium mt-0.5">{circuit.terminators[0]}</span>
             </div>
           )}
 
-          <div className="text-xs text-gray-500 font-mono ml-1">3'</div>
+          <div className="text-xs text-gray-500 font-mono ml-2 font-bold">3'</div>
         </div>
       </div>
 
       {/* Gene details */}
-      <div className="space-y-2.5">
-        {circuit.genes.map((gene, i) => (
-          <div key={i} className="flex items-start gap-3 text-sm">
-            <div
-              className="w-3 h-3 rounded-sm mt-0.5 shrink-0"
-              style={{ backgroundColor: GENE_COLORS[i % GENE_COLORS.length] }}
-            />
-            <div className="min-w-0">
-              <span className="font-medium text-gray-200">{gene.name}</span>
-              <span className="text-gray-400"> — {gene.function}</span>
-              <span className="text-xs text-gray-600 block">
-                Source: <em>{gene.source_organism}</em>
-              </span>
+      <div className="space-y-3">
+        {circuit.genes.map((gene, i) => {
+          const color = GENE_COLORS[i % GENE_COLORS.length]
+          return (
+            <div key={i} className="flex items-start gap-3">
+              <div
+                className="w-2.5 h-2.5 rounded-sm mt-1.5 shrink-0"
+                style={{ backgroundColor: color }}
+              />
+              <div className="min-w-0">
+                <span className="text-sm font-semibold text-white">{gene.name}</span>
+                <span className="text-sm text-gray-400"> — {gene.function}</span>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Source: <em className="text-gray-400">{gene.source_organism}</em>
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Regulatory elements */}
       {circuit.regulatory_elements?.length > 0 && (
-        <div className="pt-2 border-t border-gray-800">
-          <p className="text-xs font-medium text-gray-500 mb-1">Regulatory Elements</p>
+        <div className="pt-3 border-t border-gray-800">
+          <p className="text-xs font-medium text-gray-500 mb-2">Regulatory Elements</p>
           <div className="flex flex-wrap gap-1.5">
             {circuit.regulatory_elements.map((el, i) => (
-              <span key={i} className="text-xs px-2 py-0.5 bg-gray-800 text-gray-400 rounded-full">{el}</span>
+              <span key={i} className="text-xs px-2.5 py-1 bg-gray-800 text-gray-300 rounded-md border border-gray-700">{el}</span>
             ))}
           </div>
         </div>
