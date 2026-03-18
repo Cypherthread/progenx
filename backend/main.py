@@ -97,14 +97,22 @@ def startup():
             "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
         )
 
-    init_db()
+    try:
+        init_db()
+        print(f"[DB] Connected to {settings.DATABASE_URL.split('@')[1].split('/')[0] if '@' in settings.DATABASE_URL else 'local'}")
+    except Exception as e:
+        print(f"[DB] WARNING: Database init failed: {e}")
+        print(f"[DB] App will start but database operations may fail")
 
     # Enable WAL mode for SQLite (better concurrent read performance)
     if "sqlite" in settings.DATABASE_URL:
-        from sqlalchemy import text
-        with engine.connect() as conn:
-            conn.execute(text("PRAGMA journal_mode=WAL"))
-            conn.commit()
+        try:
+            from sqlalchemy import text
+            with engine.connect() as conn:
+                conn.execute(text("PRAGMA journal_mode=WAL"))
+                conn.commit()
+        except Exception:
+            pass
 
 
 @app.get("/api/health")
