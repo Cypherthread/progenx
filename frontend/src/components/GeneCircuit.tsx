@@ -5,8 +5,8 @@ interface Props {
 }
 
 const GENE_COLORS = [
-  '#2563eb', '#dc2626', '#16a34a', '#d97706', '#7c3aed',
-  '#0891b2', '#e11d48', '#65a30d', '#ea580c', '#8b5cf6',
+  '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444',
+  '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1',
 ]
 
 interface Gene {
@@ -36,79 +36,72 @@ export default function GeneCircuit({ circuitJson }: Props) {
   if (!circuit || !circuit.genes?.length) return null
 
   return (
-    <div className="bg-white border rounded-xl p-4 space-y-4">
-      <h3 className="text-sm font-medium">Gene Circuit</h3>
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 space-y-4">
+      <h3 className="text-sm font-medium text-gray-200">Gene Circuit</h3>
 
       {/* Linear construct diagram */}
       <div className="overflow-x-auto">
         <div className="flex items-center gap-0.5 min-w-fit py-2">
-          {/* 5' end */}
-          <div className="text-xs text-muted-foreground font-mono mr-1">5'</div>
+          <div className="text-xs text-gray-500 font-mono mr-1">5'</div>
 
           {circuit.genes.map((gene, i) => {
             const color = GENE_COLORS[i % GENE_COLORS.length]
             const promoter = circuit.promoters?.[i]
             return (
               <div key={i} className="flex items-center gap-0.5">
-                {/* Promoter arrow */}
                 {promoter && (
                   <div className="flex flex-col items-center" title={`Promoter: ${promoter}`}>
-                    <span className="text-[9px] text-green-600 font-medium whitespace-nowrap">{promoter}</span>
+                    <span className="text-[9px] text-emerald-400 font-medium whitespace-nowrap">{promoter}</span>
                     <svg width="16" height="16" viewBox="0 0 16 16">
-                      <path d="M4 12 L4 6 L12 6" fill="none" stroke="#16a34a" strokeWidth="2" />
-                      <path d="M9 3 L12 6 L9 9" fill="none" stroke="#16a34a" strokeWidth="2" />
+                      <path d="M4 12 L4 6 L12 6" fill="none" stroke="#34D399" strokeWidth="2" />
+                      <path d="M9 3 L12 6 L9 9" fill="none" stroke="#34D399" strokeWidth="2" />
                     </svg>
                   </div>
                 )}
 
-                {/* Gene block */}
                 <div
                   className="relative group cursor-default"
                   title={`${gene.name}: ${gene.function}\nSource: ${gene.source_organism}`}
                 >
                   <div
-                    className="h-10 min-w-[80px] rounded flex items-center justify-center px-2"
-                    style={{ backgroundColor: color + '20', border: `2px solid ${color}` }}
+                    className="h-10 min-w-[80px] rounded-lg flex items-center justify-center px-3"
+                    style={{ backgroundColor: color + '15', border: `1.5px solid ${color}60` }}
                   >
                     <span className="text-xs font-semibold" style={{ color }}>{gene.name}</span>
                   </div>
-                  {/* Arrow tip on right */}
                   <div
                     className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[6px] w-0 h-0"
                     style={{
-                      borderTop: '8px solid transparent',
-                      borderBottom: '8px solid transparent',
-                      borderLeft: `8px solid ${color}`,
+                      borderTop: '7px solid transparent',
+                      borderBottom: '7px solid transparent',
+                      borderLeft: `7px solid ${color}60`,
                     }}
                   />
                 </div>
 
-                {/* Connector line */}
                 {i < circuit.genes.length - 1 && (
-                  <div className="w-4 h-0.5 bg-gray-300 mx-1" />
+                  <div className="w-4 h-0.5 bg-gray-700 mx-1" />
                 )}
               </div>
             )
           })}
 
-          {/* Terminator */}
           {circuit.terminators?.[0] && (
             <div className="flex flex-col items-center ml-1" title={`Terminator: ${circuit.terminators[0]}`}>
               <svg width="16" height="20" viewBox="0 0 16 20">
-                <line x1="8" y1="18" x2="8" y2="4" stroke="#dc2626" strokeWidth="2" />
-                <line x1="3" y1="4" x2="13" y2="4" stroke="#dc2626" strokeWidth="2" />
+                <line x1="8" y1="18" x2="8" y2="4" stroke="#F87171" strokeWidth="2" />
+                <line x1="3" y1="4" x2="13" y2="4" stroke="#F87171" strokeWidth="2" />
               </svg>
-              <span className="text-[9px] text-red-600 font-medium">{circuit.terminators[0]}</span>
+              <span className="text-[9px] text-red-400 font-medium">{circuit.terminators[0]}</span>
             </div>
           )}
 
-          {/* 3' end */}
-          <div className="text-xs text-muted-foreground font-mono ml-1">3'</div>
+          <div className="text-xs text-gray-500 font-mono ml-1">3'</div>
         </div>
       </div>
 
-      {/* Gene details table */}
-      <div className="space-y-2">
+      {/* Gene details */}
+      <div className="space-y-2.5">
         {circuit.genes.map((gene, i) => (
           <div key={i} className="flex items-start gap-3 text-sm">
             <div
@@ -116,9 +109,9 @@ export default function GeneCircuit({ circuitJson }: Props) {
               style={{ backgroundColor: GENE_COLORS[i % GENE_COLORS.length] }}
             />
             <div className="min-w-0">
-              <span className="font-medium">{gene.name}</span>
-              <span className="text-muted-foreground"> — {gene.function}</span>
-              <span className="text-xs text-muted-foreground block">
+              <span className="font-medium text-gray-200">{gene.name}</span>
+              <span className="text-gray-400"> — {gene.function}</span>
+              <span className="text-xs text-gray-600 block">
                 Source: <em>{gene.source_organism}</em>
               </span>
             </div>
@@ -128,11 +121,11 @@ export default function GeneCircuit({ circuitJson }: Props) {
 
       {/* Regulatory elements */}
       {circuit.regulatory_elements?.length > 0 && (
-        <div className="pt-2 border-t">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Regulatory Elements</p>
+        <div className="pt-2 border-t border-gray-800">
+          <p className="text-xs font-medium text-gray-500 mb-1">Regulatory Elements</p>
           <div className="flex flex-wrap gap-1.5">
             {circuit.regulatory_elements.map((el, i) => (
-              <span key={i} className="text-xs px-2 py-0.5 bg-secondary rounded-full">{el}</span>
+              <span key={i} className="text-xs px-2 py-0.5 bg-gray-800 text-gray-400 rounded-full">{el}</span>
             ))}
           </div>
         </div>

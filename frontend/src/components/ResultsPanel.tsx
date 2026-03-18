@@ -29,9 +29,9 @@ export default function ResultsPanel({ design }: Props) {
   }
 
   function safetyColor(score: number) {
-    if (score >= 0.8) return 'text-green-600 bg-green-50 border-green-200'
-    if (score >= 0.5) return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-    return 'text-red-600 bg-red-50 border-red-200'
+    if (score >= 0.8) return 'text-green-400 bg-green-500/10 border-green-500/30'
+    if (score >= 0.5) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30'
+    return 'text-red-400 bg-red-500/10 border-red-500/30'
   }
 
   const fba = design.fba_results || {} as any
