@@ -16,5 +16,6 @@ dna-features-viewer
 matplotlib
 pillow
 stripe
+psycopg2-binary
 # Optional: ESM-2 protein variant scoring (Pro tier, needs ~5GB disk)
 # pip install torch transformers
