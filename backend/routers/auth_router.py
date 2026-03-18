@@ -52,6 +52,10 @@ def signup(req: SignupRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
+    # Sync to Airtable CRM (non-blocking)
+    from services.airtable_sync import sync_user_signup
+    sync_user_signup(user.id, user.email, user.name, user.tier)
+
     return AuthResponse(
         token=create_token(user.id),
         user_id=user.id,

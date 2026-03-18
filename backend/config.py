@@ -57,6 +57,12 @@ class Settings:
     # Smaller model (35M) is fast on CPU. Larger (650M) is more accurate but slower.
     ESM_MODEL = os.getenv("ESM_MODEL", "facebook/esm2_t12_35M_UR50D")
 
+    # Airtable CRM (optional, syncs users + designs for email campaigns)
+    AIRTABLE_API_TOKEN = os.getenv("AIRTABLE_API_TOKEN", "")
+    AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID", "")
+    AIRTABLE_USERS_TABLE = os.getenv("AIRTABLE_USERS_TABLE", "Users")
+    AIRTABLE_DESIGNS_TABLE = os.getenv("AIRTABLE_DESIGNS_TABLE", "Designs")
+
     # SecureDNA hazard screening (optional — run synthclient locally)
     # Register at: https://securedna.org/cert-request/
     # Docker: docker run -p 8080:80 ghcr.io/securedna/synthclient

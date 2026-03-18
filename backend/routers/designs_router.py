@@ -132,6 +132,21 @@ def create_design(
 
         user.designs_this_month += 1
 
+        # Sync to Airtable CRM (non-blocking)
+        from services.airtable_sync import sync_design_created, update_user_activity
+        gene_names = [g.get("name", "") for g in result.get("gene_circuit", {}).get("genes", [])]
+        sync_design_created(
+            design_id=design.id,
+            user_email=user.email,
+            design_name=result.get("design_name", ""),
+            prompt=req.prompt,
+            chassis=result.get("host_organism", ""),
+            genes=gene_names,
+            safety_score=safety["score"],
+            model_used=result.get("model_used", ""),
+        )
+        update_user_activity(user.email, user.designs_this_month)
+
         audit = AuditLog(
             user_id=user.id,
             action="generate_design",
