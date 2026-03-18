@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
@@ -87,53 +87,6 @@ def me(user: User = Depends(get_current_user)):
         designs_this_month=user.designs_this_month,
         monthly_limit=settings.FREE_TIER_MONTHLY_DESIGNS if user.tier == "free" else -1,
     )
-
-
-@router.post("/admin/promote")
-def promote_to_admin(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Promote current user to admin tier. Requires ADMIN_SECRET in request body.
-    This is a one-way operation — only the founder should know the secret."""
-    from fastapi import Request
-    from config import settings
-    import json
-
-    # This is intentionally NOT in the Pydantic model — read raw body
-    # The secret must be passed as {"secret": "..."} in the request body
-    return {"error": "Use the dedicated endpoint with secret"}
-
-
-@router.post("/admin/activate")
-async def activate_admin(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Activate admin tier for current user. Requires ADMIN_SECRET."""
-    from config import settings
-    import json
-
-    if not settings.ADMIN_SECRET:
-        raise HTTPException(status_code=403, detail="Admin system not configured")
-
-    try:
-        body = await request.json()
-        secret = body.get("secret", "")
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid request body")
-
-    if not secret or secret != settings.ADMIN_SECRET:
-        raise HTTPException(status_code=403, detail="Invalid admin secret")
-
-    user.tier = "admin"
-    db.commit()
-
-    return {
-        "message": "Account promoted to admin. Unlimited designs, all features enabled.",
-        "tier": "admin",
-    }
 
 
 @router.post("/api-key")
