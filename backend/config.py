@@ -22,9 +22,10 @@ class Settings:
     NCBI_EMAIL = os.getenv("NCBI_EMAIL", "progenx@example.com")
     NCBI_API_KEY = os.getenv("NCBI_API_KEY", "")  # optional, increases rate limit
 
-    # Ollama (free-tier LLM — local, zero cost)
+    # Free-tier LLM (Groq in cloud, Ollama local — OpenAI-compatible API)
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
     OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+    OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "ollama")  # "ollama" for local, real key for Groq/cloud
 
     # Evo 2 — NVIDIA hosted API (free tier at build.nvidia.com)
     EVO2_NVIDIA_API_KEY = os.getenv("EVO2_NVIDIA_API_KEY", "")

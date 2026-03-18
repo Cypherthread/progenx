@@ -64,7 +64,7 @@ def _llm_call(system: str, user_msg: str, user_tier: str = "free") -> str:
     try:
         client = OpenAI(
             base_url=settings.OLLAMA_BASE_URL,
-            api_key="ollama",
+            api_key=settings.OLLAMA_API_KEY,
             timeout=120.0,
         )
         response = client.chat.completions.create(
