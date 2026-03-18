@@ -1,5 +1,6 @@
 import type { DesignResponse } from '@/lib/api'
 import GeneCircuit from './GeneCircuit'
+import InteractivePlasmidMap from './InteractivePlasmidMap'
 import ShareButton from './ShareButton'
 
 interface Props {
@@ -315,22 +316,14 @@ export default function ResultsPanel({ design }: Props) {
         </div>
       )}
 
-      {/* Plasmid Map */}
-      {plasmid.png_base64 && (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Construct Map</h3>
-            <ExportBtn onClick={downloadPlasmidSvg} label="Download SVG" />
-          </div>
-          <img
-            src={`data:image/${plasmid.png_base64.startsWith('PHN2') ? 'svg+xml' : 'png'};base64,${plasmid.png_base64}`}
-            alt="Plasmid map"
-            className="w-full max-w-lg mx-auto"
-          />
-          {plasmid.total_length_bp && (
-            <p className="text-xs text-muted-foreground text-center mt-2">{plasmid.total_length_bp.toLocaleString()} bp total</p>
-          )}
-        </div>
+      {/* Interactive Plasmid Map */}
+      {plasmid.features?.length > 0 && (
+        <InteractivePlasmidMap
+          features={plasmid.features}
+          totalLength={plasmid.total_length_bp || 5000}
+          designName={design.design_name}
+          featureData={plasmid.feature_data}
+        />
       )}
 
       {/* FBA Results */}
