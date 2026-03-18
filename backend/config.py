@@ -44,6 +44,10 @@ class Settings:
     # Rate limiting (free tier)
     FREE_TIER_MONTHLY_DESIGNS = 5
 
+    # Admin secret — only the founder can promote accounts to admin
+    # Set in .env, never commit the value. Admin tier = unlimited + all features.
+    ADMIN_SECRET = os.getenv("ADMIN_SECRET", "")
+
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
     # Stripe (Pro tier payments)

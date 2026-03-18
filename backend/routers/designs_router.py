@@ -87,7 +87,7 @@ def create_design(
     try:
         # Priority queue: free tier limited to 2 concurrent generations.
         # Pro tier bypasses — always gets immediate processing.
-        if user.tier == "free":
+        if user.tier not in ("pro", "admin"):
             if not _free_tier_active.acquire(timeout=60):
                 raise HTTPException(
                     status_code=503,

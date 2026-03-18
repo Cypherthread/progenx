@@ -45,7 +45,7 @@ def _llm_call(system: str, user_msg: str, user_tier: str = "free") -> str:
     Falls back from Ollama -> Claude if Ollama is unavailable (and vice versa)."""
     errors = []
 
-    if user_tier == "pro" and settings.ANTHROPIC_API_KEY:
+    if user_tier in ("pro", "admin") and settings.ANTHROPIC_API_KEY:
         # Pro tier: try Claude first
         try:
             client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
@@ -301,7 +301,7 @@ def generate_design(
 
     user_msg = f"Design request: {prompt}\n\nReturn ONLY valid JSON."
 
-    if user_tier == "pro":
+    if user_tier in ("pro", "admin"):
         # Pro tier: run 3x self-consistency check for higher accuracy
         design = _self_consistency_check(system, user_msg, user_tier, n_runs=3)
     else:
@@ -344,7 +344,7 @@ def generate_design(
     # Step 2: Fetch real sequences from NCBI
     # Pass full gene dicts so NCBI client can filter by organism and validate function
     # Skip LLM function validation for free tier (saves Haiku API calls)
-    ncbi_results = fetch_genes_batch(genes, validate_function=(user_tier == "pro"))
+    ncbi_results = fetch_genes_batch(genes, validate_function=(user_tier in ("pro", "admin")))
 
     gene_sequences = {}
     codon_optimized = {}
@@ -379,7 +379,7 @@ def generate_design(
         }
 
         # ESM-2 variant scoring (protein sequences only, Pro tier)
-        if seq and ncbi.get("type") == "protein" and user_tier == "pro":
+        if seq and ncbi.get("type") == "protein" and user_tier in ("pro", "admin"):
             esm_result = score_variants(seq)
             if esm_result:
                 gene_sequences[name]["variant_predictions"] = esm_result
@@ -572,7 +572,7 @@ def refine_design(
     pathway_gene_names = [g["name"] for g in genes]
 
     # Pass full gene dicts for organism-filtered search + function validation
-    ncbi_results = fetch_genes_batch(genes, validate_function=(user_tier == "pro"))
+    ncbi_results = fetch_genes_batch(genes, validate_function=(user_tier in ("pro", "admin")))
     codon_optimized = {}
     total_bp = 0
 

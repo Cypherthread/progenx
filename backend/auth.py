@@ -90,6 +90,9 @@ def check_rate_limit(user: User, db: Session):
         user.month_reset = current_month
         db.commit()
 
+    if user.tier in ("pro", "admin"):
+        return  # Pro and admin have unlimited designs
+
     if user.tier == "free" and user.designs_this_month >= settings.FREE_TIER_MONTHLY_DESIGNS:
         raise HTTPException(
             status_code=429,
