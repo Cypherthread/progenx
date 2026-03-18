@@ -44,7 +44,7 @@ export const useDesign = create<DesignState>((set, get) => ({
       } else if (msg.includes('unavailable') || msg.includes('starting up')) {
         friendlyMsg = 'The design engine is starting up. Please try again in about 30 seconds.'
       } else if (msg.includes('unexpected response') || msg.includes('parse')) {
-        friendlyMsg = 'The AI returned an unexpected response. Please try again — this is usually a one-time issue.'
+        friendlyMsg = 'The AI returned an unexpected response. Please try again. This is usually a one-time issue.'
       }
       set({ error: friendlyMsg, generating: false })
     }

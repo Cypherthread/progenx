@@ -97,7 +97,7 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Progenx Pricing — Free & Pro Plans for Synthetic Biology Design</title>
+        <title>Progenx Pricing | Free & Pro Plans for Synthetic Biology Design</title>
         <meta name="description" content="Progenx pricing: Free tier with 5 designs/month, Pro at $29/month with unlimited AI-powered gene circuit design, NCBI validation, and metabolic modeling. No credit card for free tier." />
         <link rel="canonical" href="https://progenx.ai/pricing" />
       </Helmet>

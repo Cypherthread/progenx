@@ -125,7 +125,7 @@ export default function ResultsPanel({ design }: Props) {
       `Terminators: ${design.gene_circuit?.terminators?.join(', ')}`,
       `\n## Gene Sequences (NCBI)`,
       ...Object.entries(design.gene_sequences || {}).map(([name, d]: [string, any]) =>
-        `- **${name}** [${d.accession}] ${d.length} ${d.type === 'protein' ? 'aa' : 'bp'} — ${d.source} (${d.confidence || '?'} confidence)`
+        `- **${name}** [${d.accession}] ${d.length} ${d.type === 'protein' ? 'aa' : 'bp'} - ${d.source} (${d.confidence || '?'} confidence)`
       ),
       `\n## Codon-Optimized Sequences`,
       ...Object.entries(design.codon_optimized || {}).map(([name, d]: [string, any]) =>
@@ -166,7 +166,7 @@ export default function ResultsPanel({ design }: Props) {
     <div className="space-y-5">
       {/* Disclaimer Banner */}
       <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2.5 text-xs text-amber-300 font-medium">
-        {design.disclaimer || 'EDUCATIONAL/EXPERIMENTAL ONLY — NOT LAB-READY WITHOUT EXPERT REVIEW'}
+        {design.disclaimer || 'EDUCATIONAL/EXPERIMENTAL ONLY. NOT LAB-READY WITHOUT EXPERT REVIEW'}
       </div>
 
       {/* Conceptual Design Banner */}

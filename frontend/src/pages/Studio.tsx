@@ -70,7 +70,7 @@ export default function Studio() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <Helmet>
-        <title>Design Studio — Progenx</title>
+        <title>Design Studio | Progenx</title>
         <meta name="robots" content="noindex" />
       </Helmet>
       {/* Remaining designs banner */}
@@ -130,7 +130,7 @@ export default function Studio() {
                     onClick={() => navigate('/pricing')}
                     className="px-4 py-2 bg-cyan-600 text-white rounded-md text-sm font-medium hover:bg-cyan-500"
                   >
-                    Upgrade to Pro — Unlimited Designs
+                    Upgrade to Pro: Unlimited Designs
                   </button>
                 </div>
               ) : (

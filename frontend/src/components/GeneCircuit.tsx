@@ -112,7 +112,7 @@ export default function GeneCircuit({ circuitJson }: Props) {
               />
               <div className="min-w-0">
                 <span className="text-sm font-semibold text-white">{gene.name}</span>
-                <span className="text-sm text-gray-400"> — {gene.function}</span>
+                <span className="text-sm text-gray-400">: {gene.function}</span>
                 <p className="text-xs text-gray-500 mt-0.5">
                   Source: <em className="text-gray-400">{gene.source_organism}</em>
                 </p>

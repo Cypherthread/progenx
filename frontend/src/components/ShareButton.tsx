@@ -15,7 +15,7 @@ export default function ShareButton({ designId, designName, generationTime }: Pr
     try {
       await designs.share(designId)
 
-      const shareText = `I just designed "${designName}" — a custom engineered organism — in ${Math.round(generationTime)} seconds with Progenx! 🧬🔬\n\nDesign microbes, enzymes & genetic circuits in plain English. No PhD required.\n\n#Progenx #SynBio #BioEngineering`
+      const shareText = `I just designed "${designName}" in ${Math.round(generationTime)} seconds with Progenx! 🧬🔬\n\nDesign microbes, enzymes & genetic circuits in plain English. No PhD required.\n\n#Progenx #SynBio #BioEngineering`
 
       if (navigator.share) {
         await navigator.share({

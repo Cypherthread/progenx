@@ -18,7 +18,7 @@ const EXAMPLES = [
 const PIPELINE_STEPS = [
   {
     title: 'Real Gene Circuits',
-    desc: 'AI selects verified genes from NCBI GenBank — real proteins, real accessions, no hallucinated biology.',
+    desc: 'AI selects verified genes from NCBI GenBank. Real proteins, real accessions, no hallucinated biology.',
   },
   {
     title: 'Codon Optimization',
@@ -30,7 +30,7 @@ const PIPELINE_STEPS = [
   },
   {
     title: 'Construct Maps',
-    desc: 'Circular plasmid maps with real bp positions — genes, promoters, terminators, ori, markers, kill switches.',
+    desc: 'Circular plasmid maps with real bp positions: genes, promoters, terminators, ori, markers, kill switches.',
   },
   {
     title: 'Safety Scoring',
@@ -90,7 +90,7 @@ export default function Landing() {
   return (
     <>
       <Helmet>
-        <title>Progenx — AI Bioengineering Design Tool | Design Microbes in Plain English</title>
+        <title>Progenx | AI Bioengineering Design Tool | Design Microbes in Plain English</title>
         <meta name="description" content="Design custom gene circuits, plasmid maps, and DNA sequences with AI. Real NCBI sequences, COBRApy metabolic modeling, safety scoring. Free for students and iGEM teams. No PhD required." />
         <link rel="canonical" href="https://progenx.ai" />
       </Helmet>
@@ -101,7 +101,7 @@ export default function Landing() {
           <div className="absolute inset-0">
             <img
               src="/images/hero-dna.png"
-              alt="Progenx AI bioengineering design platform — glowing DNA helix visualization"
+              alt="Progenx AI bioengineering design platform. Glowing DNA helix visualization"
               className="w-full h-full object-cover opacity-40"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-[#080C14]/60 via-transparent to-[#080C14]" />
@@ -128,7 +128,7 @@ export default function Landing() {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-8">
                 <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse" />
-                <span className="text-xs font-medium text-cyan-300">Free to use — no credit card</span>
+                <span className="text-xs font-medium text-cyan-300">Free to use, no credit card</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 text-white">
@@ -138,7 +138,7 @@ export default function Landing() {
 
               <p className="text-lg md:text-xl text-gray-400 leading-relaxed mb-10 max-w-2xl">
                 Stop spending weeks on NCBI searches, manual circuit sketches, and
-                guesswork assembly plans. Describe your organism in one sentence —
+                guesswork assembly plans. Describe your organism in one sentence.
                 get verified gene circuits, real DNA sequences, metabolic simulations,
                 and safety scores back in under a minute.
               </p>
@@ -148,7 +148,7 @@ export default function Landing() {
                   onClick={handleCTA}
                   className="cta-glow px-8 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
                 >
-                  Start Designing — Free
+                  Start Designing Free
                 </button>
                 <button
                   onClick={() => navigate('/pricing')}
@@ -160,7 +160,7 @@ export default function Landing() {
 
               <p className="text-xs text-gray-600 mt-6">
                 5 designs/month free. 26 verified gene accessions from NCBI. 3 chassis with genome-scale FBA models.
-                Computational predictions — lab validation required.
+                Computational predictions. Lab validation required.
               </p>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function Landing() {
                 </div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <p className="text-white font-semibold text-lg">Watch: "Design a plastic-eating microbe" in 60 seconds</p>
-                  <p className="text-gray-400 text-sm mt-1">Full pipeline demo — gene circuit, NCBI sequences, FBA simulation, plasmid map</p>
+                  <p className="text-gray-400 text-sm mt-1">Full pipeline demo: gene circuit, NCBI sequences, FBA simulation, plasmid map</p>
                 </div>
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function Landing() {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
               <div className="text-center mb-14">
                 <h2 className="text-3xl font-bold mb-3 text-white">The Full Pipeline</h2>
-                <p className="text-gray-500 max-w-xl mx-auto">Every design goes through six verified stages — no shortcuts, no fake biology</p>
+                <p className="text-gray-500 max-w-xl mx-auto">Every design goes through six verified stages. No shortcuts, no fake biology</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {PIPELINE_STEPS.map((f, i) => (
@@ -326,7 +326,7 @@ export default function Landing() {
               onClick={handleCTA}
               className="px-10 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
             >
-              Start Designing — Free
+              Start Designing Free
             </button>
           </div>
         </section>
@@ -366,7 +366,7 @@ export default function Landing() {
                     const form = e.target as HTMLFormElement
                     const data = new FormData(form)
                     const subject = encodeURIComponent(`Progenx: ${data.get('subject')}`)
-                    const body = encodeURIComponent(`${data.get('message')}\n\n— ${data.get('email')}`)
+                    const body = encodeURIComponent(`${data.get('message')}\n\nFrom: ${data.get('email')}`)
                     window.location.href = `mailto:hello@progenx.ai?subject=${subject}&body=${body}`
                     form.reset()
                   }}
@@ -434,7 +434,7 @@ export default function Landing() {
             </div>
             <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-xs text-gray-700">
-                EDUCATIONAL/EXPERIMENTAL ONLY — NOT LAB-READY WITHOUT EXPERT REVIEW.
+                EDUCATIONAL/EXPERIMENTAL ONLY. NOT LAB-READY WITHOUT EXPERT REVIEW.
                 Designs are computational predictions. Lab implementation requires institutional biosafety review.
               </p>
               <p className="text-xs text-gray-700 shrink-0">
