@@ -359,12 +359,47 @@ export default function ResultsPanel({ design }: Props) {
         </div>
       )}
 
-      {/* Quick stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Metric label="Yield (theoretical max)" value={design.simulated_yield || 'N/A'} />
-        <Metric label="Synthesis Cost" value={design.estimated_cost} />
-        <Metric label="Construct Size" value={`${design.dna_sequence.length.toLocaleString()} bp`} />
-        <Metric label="Target Product" value={design.target_product || 'N/A'} />
+      {/* Quick stats */}
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-800">
+          <div className="p-4 text-center">
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Target Product</p>
+            <p className="text-sm font-semibold text-white">{design.target_product || 'N/A'}</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Construct Size</p>
+            <p className="text-sm font-semibold text-white">{design.dna_sequence.length.toLocaleString()} bp</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Synthesis Cost</p>
+            <p className="text-sm font-semibold text-white">
+              {design.estimated_cost ? design.estimated_cost.split('(')[0].trim() : 'N/A'}
+            </p>
+            <p className="text-[9px] text-gray-600">2026 pricing</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Yield Estimate</p>
+            {fba.source === 'no_model' || !fba.estimated_titer_g_per_L ? (
+              <>
+                <p className="text-sm font-semibold text-gray-500">No model</p>
+                <p className="text-[9px] text-gray-600">Unsupported chassis</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-white">{fba.estimated_titer_g_per_L} g/L</p>
+                <p className="text-[9px] text-gray-600">theoretical max</p>
+              </>
+            )}
+          </div>
+        </div>
+        {fba.source === 'no_model' && (
+          <div className="px-4 py-2.5 border-t border-gray-800 bg-gray-800/20">
+            <p className="text-[11px] text-gray-500 text-center">
+              Metabolic modeling requires E. coli or P. putida as the chassis organism.
+              {design.host_organism && ` ${design.host_organism} does not have a genome-scale model yet.`}
+            </p>
+          </div>
+        )}
       </div>
       </>
       )}
