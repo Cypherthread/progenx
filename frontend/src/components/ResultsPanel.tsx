@@ -4,6 +4,7 @@ import { toast } from './Toast'
 import GeneCircuit from './GeneCircuit'
 import InteractivePlasmidMap from './InteractivePlasmidMap'
 import ShareButton from './ShareButton'
+import { track } from '@/hooks/useAnalytics'
 
 interface Props {
   design: DesignResponse
@@ -20,6 +21,7 @@ function downloadFile(content: string, filename: string, type = 'text/plain') {
 }
 
 function downloadDataUrl(dataUrl: string, filename: string) {
+  if (!dataUrl.startsWith('data:')) return
   const a = document.createElement('a')
   a.href = dataUrl
   a.download = filename
@@ -55,6 +57,7 @@ export default function ResultsPanel({ design }: Props) {
   }, [design.id])
 
   function downloadFasta() {
+    track('feature_use', { page: 'studio', element: 'export_fasta' })
     downloadFile(design.fasta_content, `${slug}.fasta`)
     toast('FASTA file downloaded')
   }
@@ -127,6 +130,7 @@ export default function ResultsPanel({ design }: Props) {
   }
 
   function downloadFullReport() {
+    track('feature_use', { page: 'studio', element: 'export_full_report' })
     const fba = design.fba_results || {} as any
     const lines = [
       `# ${design.design_name}`,
@@ -166,6 +170,7 @@ export default function ResultsPanel({ design }: Props) {
   }
 
   function downloadDesignJSON() {
+    track('feature_use', { page: 'studio', element: 'export_json' })
     downloadFile(JSON.stringify(design, null, 2), `${slug}_data.json`, 'application/json'); toast('JSON data downloaded')
   }
 
@@ -184,11 +189,31 @@ export default function ResultsPanel({ design }: Props) {
   const plasmid = design.plasmid_map_data || {} as any
 
   const tabs = [
-    { id: 'overview' as const, label: 'Overview' },
-    { id: 'map' as const, label: 'Construct Map' },
-    { id: 'files' as const, label: 'DNA Files' },
-    { id: 'safety' as const, label: 'Safety' },
-    { id: 'assembly' as const, label: 'Build Plan' },
+    { id: 'overview' as const, label: 'Overview', icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+    )},
+    { id: 'map' as const, label: 'Map', icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/>
+      </svg>
+    )},
+    { id: 'files' as const, label: 'Files', icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+    )},
+    { id: 'safety' as const, label: 'Safety', icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    )},
+    { id: 'assembly' as const, label: 'Build', icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+      </svg>
+    )},
   ]
 
   return (
@@ -213,27 +238,36 @@ export default function ResultsPanel({ design }: Props) {
             {design.host_organism} | Built in {design.generation_time_sec}s
           </p>
         </div>
-        <ShareButton designId={design.id} designName={design.design_name} generationTime={design.generation_time_sec} />
+        <ShareButton designId={design.id} designName={design.design_name} isPublic={design.is_public} />
       </div>
 
-      {/* Tab navigation */}
-      <div className="flex items-center gap-1 p-1 bg-gray-900/80 border border-gray-800 rounded-lg overflow-x-auto">
+      {/* Tab navigation — segmented control */}
+      <div className="flex items-center gap-0.5 p-1 bg-gray-900/80 border border-gray-800/80 rounded-xl overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => { setActiveTab(tab.id); panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+            onClick={() => { setActiveTab(tab.id); track('feature_use', { page: 'studio', element: `tab_${tab.id}` }); panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+            className={`tab-segment flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                ? 'tab-segment-active bg-gray-800 text-white'
+                : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/40'
             }`}
           >
+            <span className={activeTab === tab.id ? 'text-cyan-400' : 'text-gray-600'}>{tab.icon}</span>
             {tab.label}
           </button>
         ))}
-        {/* Export dropdown */}
-        <div className="ml-auto flex items-center gap-1 pl-2 border-l border-gray-700">
-          <ExportBtn onClick={downloadFullReport} label="Export All" />
+        {/* Export action */}
+        <div className="ml-auto flex items-center gap-1 pl-2 border-l border-gray-800/60">
+          <button
+            onClick={downloadFullReport}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-gray-400 bg-gray-800/40 hover:bg-gray-800 hover:text-gray-200 rounded-lg border border-gray-700/50 transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export All
+          </button>
         </div>
       </div>
 
@@ -246,22 +280,25 @@ export default function ResultsPanel({ design }: Props) {
         <p className="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed">{design.organism_summary}</p>
       </div>
 
-      {/* Safety Score */}
+      {/* Safety Score with gauge */}
       <div className={`rounded-xl p-4 border ${safetyColor(design.safety_score)}`}>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium">Safety Score</h3>
-          <span className="text-lg font-bold">{Math.round(design.safety_score * 100)}%</span>
+        <div className="flex items-start gap-4">
+          <SafetyGauge score={design.safety_score} />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium mb-1">Safety Score</h3>
+            <p className="text-sm opacity-80 mb-2">{design.dual_use_assessment}</p>
+            {design.safety_flags.length > 0 && (
+              <ul className="text-xs space-y-1 mt-2">
+                {design.safety_flags.map((flag, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 opacity-70"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>{flag}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-        <p className="text-sm mb-2">{design.dual_use_assessment}</p>
-        {design.safety_flags.length > 0 && (
-          <ul className="text-xs space-y-1 mt-2">
-            {design.safety_flags.map((flag, i) => (
-              <li key={i} className="flex items-start gap-1">
-                <span className="mt-0.5">&#9888;</span><span>{flag}</span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       {/* Gene Circuit (visual) */}
@@ -274,11 +311,11 @@ export default function ResultsPanel({ design }: Props) {
             <h3 className="text-sm font-semibold text-white">Parts Used in This Design</h3>
             <p className="text-xs text-gray-500 mt-0.5">Each part is a real protein from NCBI. Click an accession to view it on NCBI.</p>
           </div>
-          <div className="divide-y divide-gray-800">
-            {Object.entries(geneSeqs).map(([name, data]: [string, any]) => {
+          <div className="divide-y divide-gray-800/60">
+            {Object.entries(geneSeqs).map(([name, data]: [string, any], idx) => {
               const opt = codonOpt[name]
               return (
-                <div key={name} className="p-4 hover:bg-gray-800/20 transition-colors">
+                <div key={name} className={`p-4 hover:bg-gray-800/30 transition-colors ${idx % 2 === 1 ? 'bg-gray-800/10' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -361,33 +398,33 @@ export default function ResultsPanel({ design }: Props) {
 
       {/* Quick stats */}
       <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-800">
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-800/60 divide-y md:divide-y-0 divide-gray-800/60">
           <div className="p-4 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Target Product</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">Target Product</p>
             <p className="text-sm font-semibold text-white">{design.target_product || 'N/A'}</p>
           </div>
           <div className="p-4 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Construct Size</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">Construct Size</p>
             <p className="text-sm font-semibold text-white">{design.dna_sequence.length.toLocaleString()} bp</p>
           </div>
           <div className="p-4 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Synthesis Cost</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">Synthesis Cost</p>
             <p className="text-sm font-semibold text-white">
               {design.estimated_cost ? design.estimated_cost.split('(')[0].trim() : 'N/A'}
             </p>
-            <p className="text-[9px] text-gray-600">2026 pricing</p>
+            <p className="text-[9px] text-gray-600 mt-0.5">2026 pricing</p>
           </div>
           <div className="p-4 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Yield Estimate</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">Yield Estimate</p>
             {fba.source === 'no_model' || !fba.estimated_titer_g_per_L ? (
               <>
                 <p className="text-sm font-semibold text-gray-500">No model</p>
-                <p className="text-[9px] text-gray-600">Unsupported chassis</p>
+                <p className="text-[9px] text-gray-600 mt-0.5">Unsupported chassis</p>
               </>
             ) : (
               <>
                 <p className="text-sm font-semibold text-white">{fba.estimated_titer_g_per_L} g/L</p>
-                <p className="text-[9px] text-gray-600">theoretical max</p>
+                <p className="text-[9px] text-gray-600 mt-0.5">theoretical max</p>
               </>
             )}
           </div>
@@ -421,35 +458,70 @@ export default function ResultsPanel({ design }: Props) {
       <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
         <h3 className="text-sm font-medium text-white mb-3">Download Your Design Files</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <button onClick={downloadFasta} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={downloadFasta} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">FASTA</p>
             <p className="text-[10px] text-gray-500">DNA sequences</p>
           </button>
           {design.genbank_content && (
-          <button onClick={downloadGenBank} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={downloadGenBank} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">GenBank</p>
             <p className="text-[10px] text-gray-500">Opens in SnapGene</p>
           </button>
           )}
-          <button onClick={downloadPlasmidSvg} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={downloadPlasmidSvg} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">Plasmid SVG</p>
             <p className="text-[10px] text-gray-500">Vector map</p>
           </button>
           {(assembly.primers?.length ?? 0) > 0 && (
-          <button onClick={downloadPrimersCSV} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={downloadPrimersCSV} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">Primers CSV</p>
             <p className="text-[10px] text-gray-500">Ready to order</p>
           </button>
           )}
-          <button onClick={downloadFullReport} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={downloadFullReport} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">Full Report</p>
             <p className="text-[10px] text-gray-500">Everything in one doc</p>
           </button>
-          <button onClick={downloadDesignJSON} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={downloadDesignJSON} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">JSON</p>
             <p className="text-[10px] text-gray-500">For developers</p>
           </button>
-          <button onClick={() => { navigator.clipboard.writeText(design.dna_sequence); toast('DNA sequence copied to clipboard') }} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={() => { navigator.clipboard.writeText(design.dna_sequence); toast('DNA sequence copied to clipboard') }} className="group p-3 bg-gray-800/30 border border-gray-700/60 rounded-lg hover:border-cyan-500/30 hover:bg-gray-800/50 transition-all text-center">
+            <div className="flex justify-center mb-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-cyan-400 transition-colors">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+            </div>
             <p className="text-sm font-medium text-white">Copy DNA</p>
             <p className="text-[10px] text-gray-500">To clipboard</p>
           </button>
@@ -501,22 +573,25 @@ export default function ResultsPanel({ design }: Props) {
       {/* ─── SAFETY TAB ─── */}
       {activeTab === 'safety' && (
       <>
-      {/* Safety Score */}
+      {/* Safety Score with gauge */}
       <div className={`rounded-xl p-4 border ${safetyColor(design.safety_score)}`}>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium">Safety Score</h3>
-          <span className="text-lg font-bold">{Math.round(design.safety_score * 100)}%</span>
+        <div className="flex items-start gap-4">
+          <SafetyGauge score={design.safety_score} />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium mb-1">Safety Score</h3>
+            <p className="text-sm opacity-80 mb-2">{design.dual_use_assessment}</p>
+            {design.safety_flags.length > 0 && (
+              <ul className="text-xs space-y-1 mt-2">
+                {design.safety_flags.map((flag, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 opacity-70"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>{flag}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-        <p className="text-sm mb-2">{design.dual_use_assessment}</p>
-        {design.safety_flags.length > 0 && (
-          <ul className="text-xs space-y-1 mt-2">
-            {design.safety_flags.map((flag, i) => (
-              <li key={i} className="flex items-start gap-1">
-                <span className="mt-0.5">&#9888;</span><span>{flag}</span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       {/* Gene confidence breakdown */}
@@ -576,7 +651,7 @@ export default function ResultsPanel({ design }: Props) {
           </div>
           )}
           {fba.model_used && fba.model_used !== 'heuristic_fallback' && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-500">
               Model: {fba.model_used} ({fba.model_genes} genes, {fba.model_reactions} reactions) |
               Burden: {fba.metabolic_burden_estimate} | {fba.heterologous_genes} heterologous genes
             </p>
@@ -592,26 +667,26 @@ export default function ResultsPanel({ design }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
             {assembly.origin_of_replication && (
               <div className="bg-gray-800/50 rounded-lg p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Origin</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Origin</p>
                 <p className="text-sm font-medium">{assembly.origin_of_replication.name}</p>
-                <p className="text-xs text-muted-foreground">{assembly.origin_of_replication.copy_number}</p>
-                <p className="text-xs text-muted-foreground mt-1">{assembly.origin_of_replication.rationale}</p>
+                <p className="text-xs text-gray-500">{assembly.origin_of_replication.copy_number}</p>
+                <p className="text-xs text-gray-500 mt-1">{assembly.origin_of_replication.rationale}</p>
               </div>
             )}
             {assembly.selection_marker && (
               <div className="bg-gray-800/50 rounded-lg p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selection</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Selection</p>
                 <p className="text-sm font-medium">{assembly.selection_marker.name}</p>
-                <p className="text-xs text-muted-foreground mt-1">{assembly.selection_marker.rationale}</p>
+                <p className="text-xs text-gray-500 mt-1">{assembly.selection_marker.rationale}</p>
               </div>
             )}
             {assembly.assembly_method && (
               <div className="bg-gray-800/50 rounded-lg p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Assembly</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Assembly</p>
                 <p className="text-sm font-medium">{assembly.assembly_method.name}</p>
-                <p className="text-xs text-muted-foreground">{assembly.assembly_method.description}</p>
+                <p className="text-xs text-gray-500">{assembly.assembly_method.description}</p>
                 {assembly.assembly_method.steps && (
-                  <ol className="text-xs text-muted-foreground mt-1 list-decimal list-inside space-y-0.5">
+                  <ol className="text-xs text-gray-500 mt-1 list-decimal list-inside space-y-0.5">
                     {assembly.assembly_method.steps.map((s: string, i: number) => <li key={i}>{s}</li>)}
                   </ol>
                 )}
@@ -626,13 +701,13 @@ export default function ResultsPanel({ design }: Props) {
             )}
           </div>
           {assembly.rbs_notes && (
-            <div className="text-xs text-muted-foreground mt-2">
+            <div className="text-xs text-gray-500 mt-2">
               <strong>RBS:</strong> {assembly.rbs_notes.strategy}
               <br /><em>{assembly.rbs_notes.tool_note}</em>
             </div>
           )}
           {(assembly.primers?.length ?? 0) > 0 && (
-            <div className="mt-3 pt-3 border-t border-gray-100">
+            <div className="mt-3 pt-3 border-t border-gray-800">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Suggested Primers</p>
                 <ExportBtn onClick={downloadPrimersCSV} label="CSV" />
@@ -643,18 +718,18 @@ export default function ResultsPanel({ design }: Props) {
                     <p className="text-xs font-medium mb-1">{p.gene}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <p className="text-[10px] text-muted-foreground">Forward (Tm {p.forward?.tm}°C)</p>
+                        <p className="text-[10px] text-gray-500">Forward (Tm {p.forward?.tm}°C)</p>
                         <p className="text-[10px] font-mono break-all">{p.forward?.sequence}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-muted-foreground">Reverse (Tm {p.reverse?.tm}°C)</p>
+                        <p className="text-[10px] text-gray-500">Reverse (Tm {p.reverse?.tm}°C)</p>
                         <p className="text-[10px] font-mono break-all">{p.reverse?.sequence}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1">
+              <p className="text-[10px] text-gray-500 mt-1">
                 SantaLucia (1998) nearest-neighbor model. 500 nM primer, 50 mM Na+. Verify with NEB Tm Calculator before ordering.
               </p>
             </div>
@@ -676,8 +751,38 @@ export default function ResultsPanel({ design }: Props) {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3">
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
       <p className="text-sm font-medium mt-1 break-words">{value || 'N/A'}</p>
+    </div>
+  )
+}
+
+function SafetyGauge({ score }: { score: number }) {
+  const pct = Math.round(score * 100)
+  // Semicircle arc: radius=36, circumference of semicircle = pi * r = ~113
+  const radius = 36
+  const circumference = Math.PI * radius
+  const offset = circumference - (score * circumference)
+  const color = score >= 0.8 ? '#4ade80' : score >= 0.5 ? '#facc15' : '#f87171'
+
+  return (
+    <div className="shrink-0 flex flex-col items-center" style={{ width: 80 }}>
+      <svg width="80" height="48" viewBox="0 0 80 48">
+        {/* Track */}
+        <path
+          d="M 4 44 A 36 36 0 0 1 76 44"
+          className="safety-gauge-track"
+        />
+        {/* Fill */}
+        <path
+          d="M 4 44 A 36 36 0 0 1 76 44"
+          className="safety-gauge-fill"
+          stroke={color}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <span className="text-lg font-bold -mt-2" style={{ color }}>{pct}%</span>
     </div>
   )
 }

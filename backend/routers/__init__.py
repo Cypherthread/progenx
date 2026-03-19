@@ -1,3 +1,3 @@
-from routers import auth_router, designs_router, challenges_router
+from routers import auth_router, designs_router, challenges_router, analytics_router, billing_router
 
-__all__ = ["auth_router", "designs_router", "challenges_router"]
+__all__ = ["auth_router", "designs_router", "challenges_router", "analytics_router", "billing_router"]

@@ -5,6 +5,7 @@ import AuthModal from './AuthModal'
 
 export default function Header() {
   const { user, logout } = useAuth()
+  const location = useLocation()
   const [showAuth, setShowAuth] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -24,8 +25,8 @@ export default function Header() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src="/images/logo-progenx.png" alt="Progenx" className="h-12 sm:h-14" />
+          <Link to="/" className="flex items-center gap-2 shrink-0 transition-transform duration-200 hover:scale-105">
+            <img src="/images/logo-progenx.png" alt="Progenx" className="h-10 sm:h-12 lg:h-14" />
           </Link>
 
           {/* Desktop nav — centered */}
@@ -35,15 +36,26 @@ export default function Header() {
               { to: '/explore', label: 'Explore' },
               { to: '/history', label: 'My Designs' },
               { to: '/pricing', label: 'Pricing' },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
-              >
-                {label}
-              </Link>
-            ))}
+              ...(user?.tier === 'admin' ? [{ to: '/analytics', label: 'Analytics' }] : []),
+            ].map(({ to, label }) => {
+              const isActive = location.pathname === to || (to !== '/' && location.pathname.startsWith(to))
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`relative px-4 py-2 text-sm rounded-lg hover:bg-white/5 transition-all ${
+                    to === '/analytics'
+                      ? isActive ? 'text-purple-300' : 'text-purple-400 hover:text-purple-300'
+                      : isActive ? 'text-white' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {label}
+                  {isActive && (
+                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/50" />
+                  )}
+                </Link>
+              )
+            })}
           </nav>
 
           {/* Right side */}
@@ -61,7 +73,7 @@ export default function Header() {
                 </span>
                 <Link
                   to="/account"
-                  className="hidden md:flex items-center relative"
+                  className="hidden md:flex items-center relative group/avatar"
                   title={user.tier === 'free' ? 'Account' : `${user.tier.charAt(0).toUpperCase() + user.tier.slice(1)} Account`}
                 >
                   {/* Crown for pro/admin */}
@@ -70,10 +82,10 @@ export default function Header() {
                       <path d="M2 12L5 4L9 8L12 2L15 8L19 4L22 12H2Z" fill={user.tier === 'admin' ? '#A78BFA' : '#FBBF24'} stroke={user.tier === 'admin' ? '#7C3AED' : '#D97706'} strokeWidth="1" />
                     </svg>
                   )}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                    user.tier === 'admin' ? 'bg-purple-500/20 border-2 border-purple-500/50' :
-                    user.tier === 'pro' ? 'bg-amber-500/20 border-2 border-amber-500/50' :
-                    'bg-gray-800 border border-gray-700'
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    user.tier === 'admin' ? 'bg-purple-500/20 border-2 border-purple-500/50 group-hover/avatar:ring-2 group-hover/avatar:ring-purple-400/30' :
+                    user.tier === 'pro' ? 'bg-amber-500/20 border-2 border-amber-500/50 group-hover/avatar:ring-2 group-hover/avatar:ring-amber-400/30' :
+                    'bg-gray-800 border border-gray-700 group-hover/avatar:ring-2 group-hover/avatar:ring-cyan-400/20'
                   }`}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`w-4 h-4 ${
                       user.tier === 'admin' ? 'text-purple-400' :
@@ -89,7 +101,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => setShowAuth(true)}
-                className="hidden md:inline px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors"
+                className="hidden md:inline px-4 py-2 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors shadow-sm shadow-cyan-500/20"
               >
                 Sign in
               </button>
@@ -98,7 +110,7 @@ export default function Header() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-white/5 text-gray-400"
+              className="md:hidden p-2.5 rounded-lg hover:bg-white/5 text-gray-400"
               aria-label="Menu"
             >
               {mobileOpen ? (
@@ -115,23 +127,35 @@ export default function Header() {
         </div>
 
         {/* Mobile menu */}
-        {mobileOpen && (
-          <div className="md:hidden border-t border-gray-800/50 bg-[#0A0E18]/98 backdrop-blur-xl px-4 py-3 space-y-0.5">
+        <div
+          className={`md:hidden border-t border-gray-800/50 bg-[#0A0E18]/98 backdrop-blur-xl overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="px-4 py-3 space-y-1">
             {[
               { to: '/studio', label: 'Design Studio' },
               { to: '/explore', label: 'Explore' },
               { to: '/history', label: 'My Designs' },
               { to: '/pricing', label: 'Pricing' },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setMobileOpen(false)}
-                className="block py-2.5 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg"
-              >
-                {label}
-              </Link>
-            ))}
+              ...(user?.tier === 'admin' ? [{ to: '/analytics', label: 'Analytics' }] : []),
+            ].map(({ to, label }) => {
+              const isActive = location.pathname === to || (to !== '/' && location.pathname.startsWith(to))
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block py-3 px-3 text-sm hover:bg-white/5 rounded-lg transition-colors ${
+                    to === '/analytics'
+                      ? isActive ? 'text-purple-300 bg-purple-500/5' : 'text-purple-400 hover:text-purple-300'
+                      : isActive ? 'text-white bg-white/5' : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  {label}
+                </Link>
+              )
+            })}
             <div className="pt-2 border-t border-gray-800/50 mt-2">
               {user ? (
                 <div className="flex items-center justify-between px-3 py-2">
@@ -152,7 +176,7 @@ export default function Header() {
               )}
             </div>
           </div>
-        )}
+        </div>
       </header>
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}

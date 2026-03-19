@@ -147,6 +147,26 @@ function ArcDial({
           strokeWidth="5"
           strokeLinecap="round"
         />
+        {/* Tick marks at 0%, 25%, 50%, 75%, 100% */}
+        {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
+          const tickAngle = startAngle + pct * (endAngle - startAngle)
+          const tickRad = (tickAngle - 90) * Math.PI / 180
+          const innerR = r - 4
+          const outerR = r + 4
+          const tx1 = cx + innerR * Math.cos(tickRad)
+          const ty1 = cy + innerR * Math.sin(tickRad)
+          const tx2 = cx + outerR * Math.cos(tickRad)
+          const ty2 = cy + outerR * Math.sin(tickRad)
+          return (
+            <line
+              key={pct}
+              x1={tx1} y1={ty1} x2={tx2} y2={ty2}
+              stroke="#374151"
+              strokeWidth={pct === 0.5 ? 1.5 : 1}
+              opacity={pct === 0.5 ? 0.6 : 0.35}
+            />
+          )
+        })}
         {/* Active arc */}
         <path
           d={`M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${ex} ${ey}`}
@@ -193,10 +213,10 @@ export default function Sliders({
             <button
               key={env.value}
               onClick={() => setEnvironment(env.value)}
-              className={`relative p-3 rounded-xl text-left transition-all duration-200 ${
+              className={`relative p-3 rounded-xl text-left transition-all duration-300 ${
                 environment === env.value
-                  ? 'bg-cyan-500/10 border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/5'
-                  : 'bg-gray-900/50 border border-gray-800 hover:border-gray-700 hover:bg-gray-900/80'
+                  ? 'bg-cyan-500/10 border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/5 ring-1 ring-inset ring-cyan-400/10'
+                  : 'bg-gray-900/50 border border-gray-800 hover:border-gray-700 hover:bg-gray-900/80 active:border-cyan-500/30 active:bg-cyan-500/5'
               }`}
             >
               <div className="flex items-center gap-2.5">

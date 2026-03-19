@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 
 interface Feature {
   start: number
@@ -33,6 +33,12 @@ const TYPE_COLORS: Record<string, string> = {
 export default function InteractivePlasmidMap({ features, totalLength, designName, featureData }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }, [])
 
   const cx = 250
   const cy = 250
@@ -99,7 +105,17 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
         )}
       </div>
 
-      <div className="relative mx-auto" style={{ maxWidth: 520 }}>
+      <div className="relative mx-auto" style={{ maxWidth: 520 }} onMouseMove={handleMouseMove}>
+        {/* Floating tooltip for hovered feature */}
+        {hoveredIdx !== null && tooltipPos && (
+          <div
+            className="absolute z-10 pointer-events-none px-2.5 py-1.5 bg-gray-900/95 border border-gray-700 rounded-lg shadow-lg text-xs text-white font-medium whitespace-nowrap transition-opacity duration-150"
+            style={{ left: tooltipPos.x + 12, top: tooltipPos.y - 8, transform: 'translateY(-100%)' }}
+          >
+            {features[hoveredIdx].label}
+            <span className="text-gray-500 ml-1.5">{features[hoveredIdx].type}</span>
+          </div>
+        )}
         <svg viewBox="0 0 500 500" className="w-full">
           {/* Glow filter */}
           <defs>
@@ -179,7 +195,7 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
                   strokeLinecap="round"
                   opacity={dimmed ? 0.25 : isActive ? 1 : 0.8}
                   filter={isActive ? 'url(#glowStrong)' : undefined}
-                  className="transition-all duration-200"
+                  className="transition-all duration-300 ease-out"
                 />
 
                 {/* Direction arrow for genes */}
@@ -224,10 +240,16 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
             )
           })}
 
-          {/* Center info with gradient background */}
+          {/* Center info with gradient background and subtle glow */}
+          <circle cx={cx} cy={cy} r={70} fill="url(#centerGlow)" opacity="0.4" />
           <circle cx={cx} cy={cy} r={52} fill="url(#centerGradient)" />
           <circle cx={cx} cy={cy} r={52} fill="none" stroke="#1E293B" strokeWidth="1" />
           <defs>
+            <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.12" />
+              <stop offset="70%" stopColor="#06B6D4" stopOpacity="0.03" />
+              <stop offset="100%" stopColor="#06B6D4" stopOpacity="0" />
+            </radialGradient>
             <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#111827" />
               <stop offset="100%" stopColor="#0B1120" />
@@ -270,7 +292,7 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 mt-3 pt-3 border-t border-gray-800">
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-3 pt-3 border-t border-gray-800">
         {[
           { label: 'Genes', color: '#60A5FA' },
           { label: 'Promoters', color: '#34D399' },
@@ -279,10 +301,14 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
           { label: 'Marker', color: '#FBBF24' },
           { label: 'Origin', color: '#9CA3AF' },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-[10px] text-gray-500">{item.label}</span>
-          </div>
+          <span
+            key={item.label}
+            className="inline-flex items-center gap-1.5 text-[10px] text-gray-400 px-2 py-0.5 rounded-full border"
+            style={{ borderColor: item.color + '30', backgroundColor: item.color + '08' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+            {item.label}
+          </span>
         ))}
       </div>
     </div>

@@ -66,10 +66,10 @@ export default function PlasmidMap({ mapJson }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-xl border p-4">
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
       <svg viewBox="0 0 400 400" className="w-full max-w-md mx-auto" style={{ maxHeight: 400 }}>
         {/* Backbone circle */}
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#d1d5db" strokeWidth="3" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#374151" strokeWidth="3" />
 
         {/* Gene arcs */}
         {genes.map((gene: any, i: number) => {
@@ -122,7 +122,7 @@ export default function PlasmidMap({ mapJson }: Props) {
         {genes.map((gene: any, i: number) => (
           <div key={i} className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: gene.color }} />
-            <span className="text-xs text-muted-foreground">{gene.name}</span>
+            <span className="text-xs text-gray-500">{gene.name}</span>
           </div>
         ))}
       </div>

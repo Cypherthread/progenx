@@ -42,7 +42,7 @@ export default function GeneCircuit({ circuitJson }: Props) {
       {/* Linear construct diagram */}
       <div className="overflow-x-auto pb-2">
         <div className="flex items-center gap-1 min-w-fit py-3 px-1">
-          <div className="text-xs text-gray-500 font-mono mr-2 font-bold">5'</div>
+          <div className="text-[10px] text-gray-500 font-mono font-bold mr-2 px-1.5 py-0.5 bg-gray-800/60 border border-gray-700/50 rounded">5'</div>
 
           {circuit.genes.map((gene, i) => {
             const color = GENE_COLORS[i % GENE_COLORS.length]
@@ -65,7 +65,7 @@ export default function GeneCircuit({ circuitJson }: Props) {
                 >
                   <div
                     className="h-9 min-w-[72px] rounded-md flex items-center justify-center px-3"
-                    style={{ backgroundColor: color + '20', border: `1.5px solid ${color}` }}
+                    style={{ backgroundColor: color + '20', border: `1.5px solid ${color}`, boxShadow: `0 1px 4px ${color}30` }}
                   >
                     <span className="text-xs font-bold tracking-wide" style={{ color }}>{gene.name}</span>
                   </div>
@@ -96,7 +96,7 @@ export default function GeneCircuit({ circuitJson }: Props) {
             </div>
           )}
 
-          <div className="text-xs text-gray-500 font-mono ml-2 font-bold">3'</div>
+          <div className="text-[10px] text-gray-500 font-mono font-bold ml-2 px-1.5 py-0.5 bg-gray-800/60 border border-gray-700/50 rounded">3'</div>
         </div>
       </div>
 
@@ -105,7 +105,7 @@ export default function GeneCircuit({ circuitJson }: Props) {
         {circuit.genes.map((gene, i) => {
           const color = GENE_COLORS[i % GENE_COLORS.length]
           return (
-            <div key={i} className="flex items-start gap-3">
+            <div key={i} className="flex items-start gap-3 pl-3 py-1" style={{ borderLeft: `2px solid ${color}` }}>
               <div
                 className="w-2.5 h-2.5 rounded-sm mt-1.5 shrink-0"
                 style={{ backgroundColor: color }}

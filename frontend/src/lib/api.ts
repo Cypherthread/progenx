@@ -1,3 +1,5 @@
+import { track } from '@/hooks/useAnalytics'
+
 const API_BASE = import.meta.env.PROD
   ? 'https://progenx-api.onrender.com/api'
   : '/api'
@@ -12,7 +14,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers['Authorization'] = `Bearer ${token}`
   }
 
+  const start = performance.now()
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+  const elapsed = Math.round(performance.now() - start)
+
+  // Track slow API calls (>2s) and errors for the analytics dashboard
+  if ((elapsed > 2000 || !res.ok) && !path.includes('/analytics')) {
+    if (!res.ok) {
+      track('error', { page: window.location.pathname, element: 'api_error', value: `${res.status} ${path}`, metadata: { path, status: res.status, ms: elapsed } })
+    } else {
+      track('web_vital', { element: 'slow_api', value: String(elapsed), metadata: { path, ms: elapsed } })
+    }
+  }
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ detail: res.statusText }))
@@ -53,8 +66,17 @@ export const billing = {
 
 // Explore (public gallery)
 export const explore = {
-  list: () => request<DesignResponse[]>('/designs/explore'),
-  get: (id: string) => request<DesignResponse>(`/designs/explore/${id}`),
+  list: (sort: 'bumps' | 'newest' = 'bumps') =>
+    request<DesignResponse[]>(`/designs/explore?sort=${sort}`),
+  get: (id: string) =>
+    request<ExploreDesignDetail>(`/designs/explore/${id}`),
+  bump: (id: string) =>
+    request<{ bumped: boolean; bump_count: number }>(`/designs/explore/${id}/bump`, { method: 'POST' }),
+  comment: (id: string, text: string) =>
+    request<ExploreComment>(`/designs/explore/${id}/comment`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    }),
 }
 
 // Stats (public, no auth)
@@ -107,6 +129,7 @@ export interface DesignResponse {
   generation_time_sec: number
   model_used: string
   is_public: boolean
+  bump_count: number
   disclaimer: string
   is_conceptual?: boolean
   conceptual_banner?: string
@@ -198,4 +221,14 @@ export interface ChatMessage {
 
 export interface Challenge {
   id: string; title: string; prompt: string; category: string; difficulty: string; impact: string
+}
+
+export interface ExploreComment {
+  id: string; text: string; author: string; created_at?: string
+}
+
+export interface ExploreDesignDetail {
+  design: DesignResponse
+  bump_count: number
+  comments: ExploreComment[]
 }

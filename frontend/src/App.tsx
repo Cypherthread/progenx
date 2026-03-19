@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
 import ToastContainer from '@/components/Toast'
+import CookieConsent from '@/components/CookieConsent'
 import Landing from '@/pages/Landing'
 import Studio from '@/pages/Studio'
 import History from '@/pages/History'
@@ -11,6 +12,7 @@ import Pricing from '@/pages/Pricing'
 import Account from '@/pages/Account'
 import Terms from '@/pages/Terms'
 import Privacy from '@/pages/Privacy'
+import Analytics from '@/pages/Analytics'
 
 export default function App() {
   const loadUser = useAuth((s) => s.loadUser)
@@ -32,9 +34,11 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/analytics" element={<Analytics />} />
         </Routes>
       </main>
       <ToastContainer />
+      <CookieConsent />
     </div>
   )
 }

@@ -11,32 +11,47 @@ const CATEGORY_ICONS: Record<string, string> = {
   health: '💊',
   energy: '⚡',
   sustainability: '♻️',
+  materials: '🧪',
+  bioremediation: '🌊',
+  food: '🍃',
 }
 
 export default function DailyChallenge({ onSelect }: Props) {
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [allChallenges, setAllChallenges] = useState<Challenge[]>([])
   const [showAll, setShowAll] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
-    challenges.daily().then(setChallenge).catch(() => {})
+    challenges.daily()
+      .then(setChallenge)
+      .catch(() => setLoadError(true))
   }, [])
 
   async function loadAll() {
     if (allChallenges.length === 0) {
-      const all = await challenges.all()
-      setAllChallenges(all)
+      try {
+        const all = await challenges.all()
+        setAllChallenges(all)
+      } catch {
+        return
+      }
     }
     setShowAll(!showAll)
   }
 
-  if (!challenge) return null
+  if (loadError || !challenge) return null
+
+  function difficultyStyle(d: string) {
+    if (d === 'beginner') return 'bg-green-500/20 text-green-400'
+    if (d === 'intermediate') return 'bg-yellow-500/20 text-yellow-400'
+    return 'bg-red-500/20 text-red-400'
+  }
 
   return (
     <div className="space-y-3">
       {/* Featured challenge */}
       <div className="relative overflow-hidden rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 to-transparent">
-        {/* Decorative corner */}
         <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-500/5 rounded-bl-[40px]" />
 
         <div className="p-4 relative">
@@ -44,11 +59,7 @@ export default function DailyChallenge({ onSelect }: Props) {
             <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
               Today's Challenge
             </span>
-            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-              challenge.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
-              challenge.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
-              'bg-red-500/20 text-red-400'
-            }`}>
+            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${difficultyStyle(challenge.difficulty)}`}>
               {challenge.difficulty}
             </span>
           </div>
@@ -79,28 +90,23 @@ export default function DailyChallenge({ onSelect }: Props) {
         {showAll ? 'Hide challenges' : 'Browse all challenges'}
       </button>
 
-      {/* All challenges grid */}
-      {showAll && (
-        <div className="grid grid-cols-1 gap-1.5 max-h-60 overflow-y-auto pr-1">
+      {/* All challenges list — shows 3 at a time */}
+      {showAll && allChallenges.length > 0 && (
+        <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
           {allChallenges.map((c) => (
             <button
               key={c.id}
               onClick={() => onSelect(c.prompt)}
-              className="text-left p-3 border border-gray-800 rounded-lg bg-gray-900/30 hover:border-cyan-500/20 hover:bg-gray-900/60 transition-all group"
+              className="w-full text-left p-3 border border-gray-800 rounded-xl bg-gray-900/30 hover:border-cyan-500/20 hover:bg-gray-900/60 active:border-cyan-500/40 active:bg-cyan-500/10 transition-all group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm shrink-0">{CATEGORY_ICONS[c.category] || '🧬'}</span>
-                  <p className="text-xs font-medium text-gray-300 group-hover:text-white truncate">{c.title}</p>
-                </div>
-                <span className={`text-[9px] px-1.5 py-0.5 rounded-full shrink-0 ml-2 ${
-                  c.difficulty === 'beginner' ? 'bg-green-500/15 text-green-400' :
-                  c.difficulty === 'intermediate' ? 'bg-yellow-500/15 text-yellow-400' :
-                  'bg-red-500/15 text-red-400'
-                }`}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-sm shrink-0">{CATEGORY_ICONS[c.category] || '🧬'}</span>
+                <p className="text-sm font-medium text-gray-300 group-hover:text-white">{c.title}</p>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full shrink-0 ml-auto ${difficultyStyle(c.difficulty)}`}>
                   {c.difficulty}
                 </span>
               </div>
+              <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{c.impact}</p>
             </button>
           ))}
         </div>

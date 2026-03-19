@@ -4,7 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
 from database import engine, init_db
-from routers import auth_router, designs_router, challenges_router, billing_router
+from routers import auth_router, designs_router, challenges_router, billing_router, analytics_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -16,8 +16,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -30,6 +30,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://progenx-api.onrender.com; font-src 'self'"
         if request.url.scheme == "https":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
@@ -51,6 +52,11 @@ def _check_login_rate(ip: str) -> bool:
     """Returns True if the IP is allowed to attempt login."""
     now = time.time()
     with _login_lock:
+        # Cleanup old entries to prevent unbounded memory growth
+        stale_ips = [k for k, attempts in _login_attempts.items() if all(t < now - 60 for t in attempts)]
+        for k in stale_ips:
+            del _login_attempts[k]
+
         attempts = _login_attempts.get(ip, [])
         # Remove old attempts outside the window
         attempts = [t for t in attempts if now - t < LOGIN_WINDOW]
@@ -85,6 +91,7 @@ app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"])
 app.include_router(designs_router.router, prefix="/api/designs", tags=["designs"])
 app.include_router(challenges_router.router, prefix="/api/challenges", tags=["challenges"])
 app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"])
+app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
 
 
 @app.on_event("startup")

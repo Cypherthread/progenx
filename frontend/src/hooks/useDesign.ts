@@ -67,7 +67,15 @@ export const useDesign = create<DesignState>((set, get) => ({
       const chat = await designs.chat(current.id)
       set({ chatMessages: chat })
     } catch (e: any) {
-      set({ error: e.message, refining: false })
+      const msg = e.message || 'Refinement failed'
+      let friendlyMsg = msg
+      if (msg.includes('unavailable') || msg.includes('Connection')) {
+        friendlyMsg = 'Design engine is warming up. Try again in a moment.'
+      } else if (msg.includes('parse') || msg.includes('unexpected')) {
+        friendlyMsg = 'The AI had trouble with that refinement. Try rephrasing your request.'
+      }
+      set({ error: friendlyMsg, refining: false })
+      toast(friendlyMsg, 'error')
     }
   },
 

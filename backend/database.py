@@ -46,22 +46,27 @@ def _migrate_sqlite():
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Get existing columns for users table
-        cursor.execute("PRAGMA table_info(users)")
-        existing_cols = {row[1] for row in cursor.fetchall()}
-
         # Columns that should exist (added in updates)
         migrations = {
             "users": {
                 "stripe_customer_id": "TEXT DEFAULT ''",
                 "stripe_subscription_id": "TEXT DEFAULT ''",
             },
+            "designs": {
+                "bump_count": "INTEGER DEFAULT 0",
+                "is_public": "BOOLEAN DEFAULT 0",
+            },
         }
 
-        # Allowlist of safe column names — prevents any injection risk
-        SAFE_COLUMN_NAMES = {"stripe_customer_id", "stripe_subscription_id"}
+        # Allowlist of safe table and column names
+        SAFE_TABLES = {"users", "designs"}
+        SAFE_COLUMN_NAMES = {"stripe_customer_id", "stripe_subscription_id", "bump_count", "is_public"}
 
         for table, columns in migrations.items():
+            if table not in SAFE_TABLES:
+                continue
+            cursor.execute(f"PRAGMA table_info({table})")
+            existing_cols = {row[1] for row in cursor.fetchall()}
             for col_name, col_type in columns.items():
                 if col_name not in existing_cols and col_name in SAFE_COLUMN_NAMES:
                     try:

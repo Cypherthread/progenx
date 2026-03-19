@@ -64,7 +64,33 @@ export default function Privacy() {
           <p>You have the right to access, rectify, delete, port, or object to processing of your data. Contact <a href="mailto:legal@progenx.ai" className="text-cyan-400 hover:text-cyan-300">legal@progenx.ai</a> to exercise these rights. California residents: we do not sell your data.</p>
 
           <h2 className="text-lg font-semibold text-white mt-8">7. Cookies & Tracking</h2>
-          <p>We use only essential JWT-based authentication. No persistent tracking cookies or third-party analytics at launch.</p>
+          <p>We use JWT-based authentication tokens stored in localStorage (essential, no consent required). In addition, we operate a first-party analytics system. <strong className="text-white">No third-party analytics services</strong> (Google Analytics, Mixpanel, etc.) are used.</p>
+
+          <p className="font-medium text-gray-300 mt-4 mb-2">What we collect (with your consent):</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li><strong className="text-white">Page views</strong> — which pages you visit and when</li>
+            <li><strong className="text-white">Scroll depth</strong> — how far you scroll on each page (25%, 50%, 75%, 100%)</li>
+            <li><strong className="text-white">Clicks</strong> — which buttons and links you interact with</li>
+            <li><strong className="text-white">Time on page</strong> — how long you spend on each page</li>
+            <li><strong className="text-white">Performance monitoring</strong> — Core Web Vitals (LCP, FID, CLS) and slow API response detection</li>
+            <li><strong className="text-white">UX signals</strong> — rage click detection (repeated clicks in the same area, indicating frustration)</li>
+            <li><strong className="text-white">Attribution</strong> — UTM parameters and referrer URL when you arrive from an external link</li>
+            <li><strong className="text-white">Session identifiers</strong> — a random ID generated per browser tab, not persistent across tabs or sessions</li>
+            <li><strong className="text-white">User linking</strong> — when logged in, analytics events are associated with your user ID</li>
+          </ul>
+
+          <p className="font-medium text-gray-300 mt-4 mb-2">Collected without consent (essential / safety):</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li><strong className="text-white">Error tracking</strong> — JavaScript errors and unhandled promise rejections (helps us fix bugs)</li>
+            <li><strong className="text-white">API failure logging</strong> — failed backend requests (helps us maintain reliability)</li>
+          </ul>
+
+          <p className="mt-4"><strong className="text-white">Consent:</strong> Analytics data (except error tracking) is only collected after you accept the cookie consent banner. You can withdraw consent at any time via the "Cookie Settings" link in the footer, which will stop future analytics collection.</p>
+          <p className="mt-2"><strong className="text-white">Data retention:</strong> Analytics data is retained for 90 days and then automatically deleted.</p>
+          <p className="mt-2"><strong className="text-white">No third-party sharing:</strong> Analytics data is never shared with or sold to third parties.</p>
+
+          <h2 className="text-lg font-semibold text-white mt-8">7a. Do Not Sell My Personal Information (CCPA)</h2>
+          <p>We do not sell, rent, or trade your personal information to third parties for monetary or other valuable consideration. This applies to all users, including California residents under the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA). If you wish to exercise any rights under CCPA, contact <a href="mailto:legal@progenx.ai" className="text-cyan-400 hover:text-cyan-300">legal@progenx.ai</a>.</p>
 
           <h2 className="text-lg font-semibold text-white mt-8">8. Children's Privacy</h2>
           <p>The Platform is not directed to children under 18.</p>

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { auth, type UserProfile } from '@/lib/api'
+import { track } from '@/hooks/useAnalytics'
 
 interface AuthState {
   user: UserProfile | null
@@ -10,6 +11,7 @@ interface AuthState {
   signup: (email: string, password: string, name: string) => Promise<void>
   logout: () => void
   loadUser: () => Promise<void>
+  clearError: () => void
 }
 
 export const useAuth = create<AuthState>((set) => ({
@@ -43,6 +45,7 @@ export const useAuth = create<AuthState>((set) => ({
         user: { id: res.user_id, email: res.email, name: res.name, tier: res.tier, designs_this_month: 0, monthly_limit: 5 },
         loading: false,
       })
+      track('funnel_step', { value: 'signup_complete' })
     } catch (e: any) {
       set({ error: e.message, loading: false })
     }
@@ -52,6 +55,8 @@ export const useAuth = create<AuthState>((set) => ({
     localStorage.removeItem('pf_token')
     set({ user: null, token: null })
   },
+
+  clearError: () => set({ error: null }),
 
   loadUser: async () => {
     const token = localStorage.getItem('pf_token')

@@ -39,7 +39,7 @@ export function AnimatedCounter({ end, duration = 2000, prefix = '', suffix = ''
         if (!el || started) return
         const obs = new IntersectionObserver(([e]) => {
           if (e.isIntersecting) { setStarted(true); obs.disconnect() }
-        }, { threshold: 0.5 })
+        }, { threshold: 0.1 })
         obs.observe(el)
       }}
     >

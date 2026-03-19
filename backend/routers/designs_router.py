@@ -1,13 +1,14 @@
+import html
 import json
 import time
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Any
 
 from database import get_db
-from models import User, Design, ChatMessage, AuditLog, DesignVersion
+from models import User, Design, ChatMessage, AuditLog, DesignVersion, Bump, DesignComment
 from auth import get_current_user, check_rate_limit
 from services.llm_orchestrator import generate_design, refine_design
 from services.safety_scorer import score_safety
@@ -22,14 +23,14 @@ router = APIRouter()
 
 
 class DesignRequest(BaseModel):
-    prompt: str
+    prompt: str = Field(..., max_length=10000)
     environment: str = "ocean"
     safety_level: float = 0.7
     complexity: float = 0.5
 
 
 class RefineRequest(BaseModel):
-    message: str
+    message: str = Field(..., max_length=5000)
 
 
 class DesignResponse(BaseModel):
@@ -56,6 +57,7 @@ class DesignResponse(BaseModel):
     model_used: str
     is_public: bool
     disclaimer: str
+    bump_count: int = 0
     is_conceptual: bool = False
     conceptual_banner: str = ""
     non_registry_genes: list[str] = []
@@ -306,27 +308,106 @@ def get_versions(design_id: str, user: User = Depends(get_current_user), db: Ses
 
 
 @router.get("/explore")
-def explore_designs(db: Session = Depends(get_db)):
-    """Public gallery of published designs. No auth required."""
-    designs = (
-        db.query(Design)
-        .filter(Design.is_public == True, Design.status == "complete")
-        .order_by(Design.created_at.desc())
-        .limit(50)
-        .all()
-    )
+def explore_designs(sort: str = "bumps", db: Session = Depends(get_db)):
+    """Public gallery sorted by bumps (default) or newest."""
+    query = db.query(Design).filter(Design.is_public == True, Design.status == "complete")
+    if sort == "newest":
+        query = query.order_by(Design.created_at.desc())
+    else:
+        query = query.order_by(Design.bump_count.desc(), Design.created_at.desc())
+    designs = query.limit(50).all()
     return [_design_response(d) for d in designs]
 
 
 @router.get("/explore/{design_id}")
 def get_public_design(design_id: str, db: Session = Depends(get_db)):
-    """Get a single public design. No auth required."""
+    """Get a single public design with comments. No auth required."""
     design = db.query(Design).filter(
         Design.id == design_id, Design.is_public == True, Design.status == "complete"
     ).first()
     if not design:
         raise HTTPException(status_code=404, detail="Design not found or not public")
-    return _design_response(design)
+    comments = (
+        db.query(DesignComment, User.name, User.email)
+        .join(User, DesignComment.user_id == User.id)
+        .filter(DesignComment.design_id == design_id)
+        .order_by(DesignComment.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return {
+        "design": _design_response(design),
+        "bump_count": design.bump_count or 0,
+        "comments": [
+            {
+                "id": c.id,
+                "text": c.text,
+                "author": name or email.split("@")[0],
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+            }
+            for c, name, email in comments
+        ],
+    }
+
+
+@router.post("/explore/{design_id}/bump")
+def bump_design(
+    design_id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Bump a public design. One bump per user per design."""
+    design = db.query(Design).filter(
+        Design.id == design_id, Design.is_public == True
+    ).first()
+    if not design:
+        raise HTTPException(status_code=404, detail="Design not found")
+
+    # Check if already bumped
+    existing = db.query(Bump).filter(
+        Bump.design_id == design_id, Bump.user_id == user.id
+    ).first()
+    if existing:
+        # Un-bump (toggle)
+        db.delete(existing)
+        design.bump_count = max(0, (design.bump_count or 0) - 1)
+        db.commit()
+        return {"bumped": False, "bump_count": design.bump_count}
+
+    bump = Bump(design_id=design_id, user_id=user.id)
+    db.add(bump)
+    design.bump_count = (design.bump_count or 0) + 1
+    db.commit()
+    return {"bumped": True, "bump_count": design.bump_count}
+
+
+@router.post("/explore/{design_id}/comment")
+def comment_on_design(
+    design_id: str,
+    req: dict,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Add a comment to a public design."""
+    text = req.get("text", "").strip()
+    if not text or len(text) > 2000:
+        raise HTTPException(status_code=400, detail="Comment must be 1-2000 characters")
+    text = html.escape(text)
+
+    design = db.query(Design).filter(
+        Design.id == design_id, Design.is_public == True
+    ).first()
+    if not design:
+        raise HTTPException(status_code=404, detail="Design not found")
+
+    comment = DesignComment(design_id=design_id, user_id=user.id, text=text)
+    db.add(comment)
+    db.commit()
+    return {
+        "id": comment.id,
+        "text": text,
+        "author": user.name or user.email.split("@")[0],
+    }
 
 
 @router.get("/history")
@@ -422,6 +503,7 @@ def _design_response(design: Design) -> DesignResponse:
         generation_time_sec=design.generation_time_sec,
         model_used=design.model_used,
         is_public=design.is_public,
+        bump_count=design.bump_count or 0,
         disclaimer=settings.DISCLAIMER,
         is_conceptual=is_conceptual,
         conceptual_banner=conceptual_banner,

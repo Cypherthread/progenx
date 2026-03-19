@@ -61,6 +61,7 @@ class Design(Base):
     model_used = Column(String, default="")
     status = Column(String, default="pending")
     is_public = Column(Boolean, default=False)
+    bump_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -93,6 +94,27 @@ class ApiKey(Base):
     is_active = Column(Boolean, default=True)
 
 
+class Bump(Base):
+    """One bump per user per design. Bumps = community endorsement."""
+    __tablename__ = "bumps"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    design_id = Column(String, ForeignKey("designs.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class DesignComment(Base):
+    """Community comments on public designs."""
+    __tablename__ = "design_comments"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    design_id = Column(String, ForeignKey("designs.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    text = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class DesignVersion(Base):
     """Stores snapshots of a design before each refinement (Pro tier)."""
     __tablename__ = "design_versions"
@@ -108,6 +130,20 @@ class DesignVersion(Base):
     fba_results = Column(Text, default="{}")
     assembly_plan = Column(Text, default="{}")
     safety_score = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class AnalyticsEvent(Base):
+    __tablename__ = "analytics_events"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    session_id = Column(String, nullable=False, index=True)
+    user_id = Column(String, default="")  # empty for anonymous
+    event_type = Column(String, nullable=False)  # page_view, click, scroll_depth, funnel_step, time_on_page, drop_off
+    page = Column(String, default="")
+    element = Column(String, default="")  # button id, section name, tab name
+    value = Column(String, default="")  # scroll percentage, time in seconds, etc.
+    metadata_ = Column("metadata", Text, default="{}")  # JSON for extra context (column named "metadata" in DB)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

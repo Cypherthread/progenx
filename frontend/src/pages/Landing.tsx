@@ -5,6 +5,8 @@ import { useState, useEffect, useRef } from 'react'
 import AuthModal from '@/components/AuthModal'
 import { AnimatedCounter, LiveStat } from '@/components/LiveCounter'
 import { stats as statsApi } from '@/lib/api'
+import { useAnalytics, track } from '@/hooks/useAnalytics'
+import { openCookieSettings } from '@/components/CookieConsent'
 
 const EXAMPLES = [
   'Design a microbe that eats ocean microplastics and converts them to biodegradable PHA bioplastic',
@@ -68,6 +70,7 @@ function RevealSection({ children, className = '' }: { children: React.ReactNode
 }
 
 export default function Landing() {
+  useAnalytics('landing')
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
   const [showAuth, setShowAuth] = useState(false)
@@ -78,11 +81,14 @@ export default function Landing() {
   }, [])
 
   function handleTryExample(prompt: string) {
+    track('click', { page: 'landing', element: 'example_prompt', value: prompt.slice(0, 60) })
     if (!user) { setShowAuth(true); return }
     navigate('/studio', { state: { prompt } })
   }
 
   function handleCTA() {
+    track('click', { page: 'landing', element: 'cta_start_designing' })
+    track('funnel_step', { page: 'landing', value: 'cta_click' })
     if (user) navigate('/studio')
     else setShowAuth(true)
   }
@@ -124,19 +130,19 @@ export default function Landing() {
             ))}
           </div>
 
-          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-32">
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 lg:py-36">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-8">
                 <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse" />
                 <span className="text-xs font-medium text-cyan-300">Free to use, no credit card</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 text-white">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] mb-6 text-white" style={{ letterSpacing: '-0.02em' }}>
                 Design Microbes{' '}
                 <span className="progenx-gradient-text">in Plain English</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-gray-400 leading-relaxed mb-10 max-w-2xl">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed mb-10 max-w-2xl">
                 Stop spending weeks on NCBI searches, manual circuit sketches, and
                 guesswork assembly plans. Describe your organism in one sentence.
                 get verified gene circuits, real DNA sequences, metabolic simulations,
@@ -146,13 +152,13 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleCTA}
-                  className="cta-glow px-8 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
+                  className="cta-glow px-8 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-all duration-200 shadow-lg shadow-cyan-500/25"
                 >
                   Start Designing Free
                 </button>
                 <button
                   onClick={() => navigate('/pricing')}
-                  className="px-8 py-4 border border-gray-700 bg-white/5 rounded-xl text-base font-medium text-gray-300 hover:bg-white/10 transition-colors"
+                  className="px-8 py-4 border border-gray-700 rounded-xl text-base font-medium text-gray-400 hover:text-gray-200 hover:border-gray-500 transition-all duration-200"
                 >
                   View Plans
                 </button>
@@ -166,8 +172,11 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ─── Gradient divider ─── */}
+        <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+
         {/* ─── Audience Bar ─── */}
-        <section className="bg-[#0B1120] border-y border-gray-800">
+        <section className="bg-[#0B1120] border-b border-gray-800/50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-600">Built for</p>
@@ -186,13 +195,16 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#0B1120] to-[#0B1120]" />
+
         {/* ─── How It Works ─── */}
         <RevealSection>
-          <section className="bg-[#0B1120] py-20 md:py-24">
+          <section className="bg-[#0B1120] py-16 sm:py-24">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-14">
-                <h2 className="text-3xl font-bold mb-3 text-white">Three Steps to a Real Design</h2>
-                <p className="text-gray-500 max-w-xl mx-auto">From plain English to lab-ready output in under a minute</p>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 text-white">Three Steps to a Real Design</h2>
+                <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto">From plain English to lab-ready output in under a minute</p>
               </div>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
@@ -200,7 +212,7 @@ export default function Landing() {
                   { step: '02', title: 'AI + Real Biology', desc: 'Claude designs the gene circuit. NCBI provides real sequences. COBRApy simulates metabolic performance.' },
                   { step: '03', title: 'Download & Build', desc: 'Get plasmid maps, FASTA + GenBank files, assembly plans with primers, safety scores, and vendor links.' },
                 ].map((item) => (
-                  <div key={item.step} className="relative p-6 rounded-2xl border border-gray-800 bg-gray-900/50 hover:border-cyan-900/50 transition-all">
+                  <div key={item.step} className="relative p-6 rounded-2xl border border-gray-800 bg-gray-900/50 hover:border-cyan-900/50 transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-cyan-500/5">
                     <span className="text-5xl font-bold text-gray-800/50 absolute top-4 right-5">{item.step}</span>
                     <div className="relative">
                       <h3 className="font-semibold text-lg mb-2 text-white">{item.title}</h3>
@@ -213,13 +225,16 @@ export default function Landing() {
           </section>
         </RevealSection>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#0B1120] to-[#080C14]" />
+
         {/* ─── Demo Video Section ─── */}
         <RevealSection>
-          <section className="bg-[#080C14] py-20 md:py-24">
+          <section className="bg-[#080C14] py-16 sm:py-24">
             <div className="max-w-5xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold mb-3 text-white">See It in Action</h2>
-                <p className="text-gray-500 max-w-xl mx-auto">From a single sentence to a complete bioengineering design</p>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 text-white">See It in Action</h2>
+                <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto">From a single sentence to a complete bioengineering design</p>
               </div>
               {/* Video placeholder — replace with real demo recording */}
               <div className="relative aspect-video rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/50 group cursor-pointer"
@@ -242,18 +257,22 @@ export default function Landing() {
           </section>
         </RevealSection>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#080C14] to-[#080C14]" />
+
         {/* ─── Pipeline Features ─── */}
         <RevealSection>
-          <section className="bg-[#080C14] border-y border-gray-800">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          <section className="bg-[#080C14]">
+            <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
               <div className="text-center mb-14">
-                <h2 className="text-3xl font-bold mb-3 text-white">The Full Pipeline</h2>
-                <p className="text-gray-500 max-w-xl mx-auto">Every design goes through six verified stages. No shortcuts, no fake biology</p>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 text-white">The Full Pipeline</h2>
+                <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto">Every design goes through six verified stages. No shortcuts, no fake biology</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {PIPELINE_STEPS.map((f, i) => (
-                  <div key={f.title} className="p-5 bg-gray-900/30 rounded-xl border border-gray-800 hover:border-cyan-800/40 hover:bg-gray-900/60 transition-all group">
-                    <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-3 text-sm font-bold group-hover:bg-cyan-500/20 transition-colors">
+                  <div key={f.title} className="p-5 bg-gray-900/30 rounded-xl border border-gray-800 border-l-2 border-l-cyan-500/40 hover:border-cyan-800/40 hover:border-l-cyan-400/60 hover:bg-gray-900/60 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-300 will-change-transform group">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 text-cyan-400 flex items-center justify-center mb-3 text-sm font-bold group-hover:from-cyan-500/30 group-hover:to-cyan-600/20 transition-all duration-300 ring-1 ring-cyan-500/20">
                       {i + 1}
                     </div>
                     <h3 className="font-semibold mb-1.5 text-white">{f.title}</h3>
@@ -262,27 +281,38 @@ export default function Landing() {
                 ))}
               </div>
             </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
           </section>
         </RevealSection>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#080C14] to-[#0B1120]" />
+
         {/* ─── Example Prompts ─── */}
         <RevealSection>
-          <section className="bg-[#0B1120] py-20 md:py-24">
+          <section className="bg-[#0B1120] py-16 sm:py-24">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-14">
-                <h2 className="text-3xl font-bold mb-3 text-white">Try an Example</h2>
-                <p className="text-gray-500">Click any prompt to start designing</p>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 text-white">Try an Example</h2>
+                <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto">Click any prompt to start designing</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {EXAMPLES.map((prompt) => (
                   <button
                     key={prompt}
                     onClick={() => handleTryExample(prompt)}
-                    className="text-left p-4 bg-gray-900/30 border border-gray-800 rounded-xl hover:border-cyan-700/40 hover:bg-gray-900/60 transition-all group"
+                    className="text-left p-4 bg-gray-900/30 border border-gray-800 rounded-xl hover:border-cyan-700/40 hover:bg-gray-900/60 transition-all duration-300 group flex items-start gap-3"
                   >
-                    <p className="text-sm text-gray-400 group-hover:text-cyan-300 transition-colors leading-relaxed">
+                    <p className="text-sm text-gray-400 group-hover:text-cyan-300 transition-colors duration-200 leading-relaxed flex-1">
                       "{prompt}"
                     </p>
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-4 h-4 text-gray-700 group-hover:text-cyan-400 opacity-0 group-hover:opacity-100 translate-x-0 group-hover:translate-x-1 transition-all duration-200 mt-0.5 shrink-0"
+                    >
+                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                    </svg>
                   </button>
                 ))}
               </div>
@@ -290,54 +320,71 @@ export default function Landing() {
           </section>
         </RevealSection>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#0B1120] to-[#080C14]" />
+
         {/* ─── Platform Stats (all real, all verifiable) ─── */}
         <RevealSection>
-          <section className="bg-[#080C14] border-y border-gray-800">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
+          <section className="bg-[#080C14]">
+            <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
               {/* Live platform stats — real numbers from the database */}
-              <div className="flex flex-wrap items-center justify-center gap-6 mb-10">
+              <div className="flex flex-wrap items-center justify-center gap-6 mb-12">
                 <LiveStat value={liveStats.designs} label={liveStats.designs === 1 ? 'design generated' : 'designs generated'} />
                 <LiveStat value={liveStats.users} label={liveStats.users === 1 ? 'researcher signed up' : 'researchers signed up'} />
               </div>
               {/* Verified facts — each number is traceable to source code */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <AnimatedCounter end={26} label="Verified Genes" sublabel="curated NCBI accessions" />
-                <AnimatedCounter end={56} label="Regression Tests" sublabel="passing on every deploy" />
-                <AnimatedCounter end={6} label="Pipeline Stages" sublabel="automated end-to-end" />
-                <AnimatedCounter end={3} label="Chassis Organisms" sublabel="with genome-scale models" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[
+                  { end: 26, label: 'Verified Genes', sublabel: 'curated NCBI accessions' },
+                  { end: 56, label: 'Regression Tests', sublabel: 'passing on every deploy' },
+                  { end: 6, label: 'Pipeline Stages', sublabel: 'automated end-to-end' },
+                  { end: 3, label: 'Chassis Organisms', sublabel: 'with genome-scale models' },
+                ].map((stat) => (
+                  <div key={stat.label} className="backdrop-blur-sm bg-white/[0.02] border border-white/[0.05] rounded-xl p-5 transition-all duration-300 hover:bg-white/[0.04] hover:border-white/[0.08]">
+                    <AnimatedCounter end={stat.end} label={stat.label} sublabel={stat.sublabel} />
+                  </div>
+                ))}
               </div>
             </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
           </section>
         </RevealSection>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#080C14] to-[#0B1120]" />
+
         {/* ─── Final CTA ─── */}
-        <section className="relative overflow-hidden bg-[#0B1120] py-20 md:py-24">
+        <section className="relative overflow-hidden bg-[#0B1120] py-16 sm:py-24">
           <div className="absolute inset-0 opacity-20">
             <img src="/images/hero-dna.png" alt="Progenx DNA helix background" className="w-full h-full object-cover" />
           </div>
           <div className="relative max-w-3xl mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4 text-white">
               The bioeconomy needs better tools
             </h2>
-            <p className="text-lg text-gray-400 mb-8 max-w-xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-400 mb-10 max-w-xl mx-auto">
               5 free designs per month. Real sequences from NCBI. Metabolic modeling from COBRApy. No credit card required.
             </p>
             <button
               onClick={handleCTA}
-              className="px-10 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-cyan-500/20"
+              className="cta-glow px-10 py-4 progenx-gradient text-white rounded-xl text-base font-semibold hover:opacity-90 transition-all duration-200 shadow-lg shadow-cyan-500/25"
             >
               Start Designing Free
             </button>
           </div>
         </section>
 
+        {/* ─── Gradient transition ─── */}
+        <div className="h-16 sm:h-24 bg-gradient-to-b from-[#0B1120] to-[#0B1120]" />
+
         {/* ─── Contact ─── */}
         <RevealSection>
-          <section id="contact" className="bg-[#0B1120] py-20 md:py-24 border-t border-gray-800">
+          <section id="contact" className="bg-[#0B1120] py-16 sm:py-24">
             <div className="max-w-2xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold mb-3 text-white">Get in Touch</h2>
-                <p className="text-gray-500">Questions, partnerships, enterprise inquiries, or just say hi.</p>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 text-white">Get in Touch</h2>
+                <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto">Questions, partnerships, enterprise inquiries, or just say hi.</p>
               </div>
               <div className="grid sm:grid-cols-2 gap-8">
                 {/* Direct contact */}
@@ -395,7 +442,7 @@ export default function Landing() {
                   />
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-all duration-200"
                   >
                     Send Message
                   </button>
@@ -406,11 +453,12 @@ export default function Landing() {
         </RevealSection>
 
         {/* ─── Footer ─── */}
-        <footer className="bg-[#060A12] text-gray-500 py-12 border-t border-gray-800">
+        <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/15 to-transparent" />
+        <footer className="bg-[#060A12] text-gray-500 py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div className="grid md:grid-cols-4 gap-10 mb-12">
               <div className="md:col-span-2">
-                <img src="/images/logo-progenx.png" alt="Progenx" className="h-8 mb-3" />
+                <img src="/images/logo-progenx.png" alt="Progenx" className="h-8 mb-4" />
                 <p className="text-sm leading-relaxed max-w-sm text-gray-600">
                   AI-powered bioengineering design platform. Describe custom microbes,
                   enzymes, and genetic circuits in plain English. Get real gene circuits,
@@ -418,27 +466,28 @@ export default function Landing() {
                 </p>
               </div>
               <div>
-                <h4 className="text-gray-300 text-sm font-semibold mb-3">Product</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><button onClick={handleCTA} className="hover:text-cyan-400 transition-colors">Studio</button></li>
-                  <li><button onClick={() => navigate('/pricing')} className="hover:text-cyan-400 transition-colors">Pricing</button></li>
+                <h4 className="text-gray-300 text-sm font-semibold mb-4">Product</h4>
+                <ul className="space-y-2.5 text-sm">
+                  <li><button onClick={handleCTA} className="hover:text-cyan-400 transition-all duration-200">Studio</button></li>
+                  <li><button onClick={() => navigate('/pricing')} className="hover:text-cyan-400 transition-all duration-200">Pricing</button></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-gray-300 text-sm font-semibold mb-3">Company</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="#contact" className="hover:text-cyan-400 transition-colors">Contact</a></li>
-                  <li><button onClick={() => navigate('/terms')} className="hover:text-cyan-400 transition-colors">Terms of Service</button></li>
-                  <li><button onClick={() => navigate('/privacy')} className="hover:text-cyan-400 transition-colors">Privacy Policy</button></li>
+                <h4 className="text-gray-300 text-sm font-semibold mb-4">Company</h4>
+                <ul className="space-y-2.5 text-sm">
+                  <li><a href="#contact" className="hover:text-cyan-400 transition-all duration-200">Contact</a></li>
+                  <li><button onClick={() => navigate('/terms')} className="hover:text-cyan-400 transition-all duration-200">Terms of Service</button></li>
+                  <li><button onClick={() => navigate('/privacy')} className="hover:text-cyan-400 transition-all duration-200">Privacy Policy</button></li>
+                  <li><button onClick={openCookieSettings} className="hover:text-cyan-400 transition-all duration-200">Cookie Settings</button></li>
                 </ul>
               </div>
             </div>
-            <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-gray-700">
+            <div className="border-t border-gray-800/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-xs text-gray-700/70 leading-relaxed max-w-lg">
                 EDUCATIONAL/EXPERIMENTAL ONLY. NOT LAB-READY WITHOUT EXPERT REVIEW.
                 Designs are computational predictions. Lab implementation requires institutional biosafety review.
               </p>
-              <p className="text-xs text-gray-700 shrink-0">
+              <p className="text-xs text-gray-700/70 shrink-0">
                 &copy; {new Date().getFullYear()} Progenx
               </p>
             </div>

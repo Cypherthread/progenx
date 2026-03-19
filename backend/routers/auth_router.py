@@ -150,15 +150,30 @@ def delete_account(
     db: Session = Depends(get_db),
 ):
     """Delete user account and all associated data (GDPR right to erasure)."""
-    from models import Design, ChatMessage, AuditLog
+    from models import (
+        Design, ChatMessage, AuditLog, AnalyticsEvent,
+        Bump, DesignComment, DesignVersion, ApiKey,
+    )
 
     # Delete all user data in order (foreign key constraints)
     designs = db.query(Design).filter(Design.user_id == user.id).all()
-    for design in designs:
-        db.query(ChatMessage).filter(ChatMessage.design_id == design.id).delete()
-    db.query(Design).filter(Design.user_id == user.id).delete()
-    db.query(AuditLog).filter(AuditLog.user_id == user.id).delete()
-    db.query(User).filter(User.id == user.id).delete()
+    design_ids = [d.id for d in designs]
+
+    # Delete child records of designs first
+    if design_ids:
+        db.query(ChatMessage).filter(ChatMessage.design_id.in_(design_ids)).delete(synchronize_session=False)
+        db.query(DesignComment).filter(DesignComment.design_id.in_(design_ids)).delete(synchronize_session=False)
+        db.query(DesignVersion).filter(DesignVersion.design_id.in_(design_ids)).delete(synchronize_session=False)
+        db.query(Bump).filter(Bump.design_id.in_(design_ids)).delete(synchronize_session=False)
+
+    # Delete user-level records
+    db.query(Bump).filter(Bump.user_id == user.id).delete(synchronize_session=False)
+    db.query(DesignComment).filter(DesignComment.user_id == user.id).delete(synchronize_session=False)
+    db.query(ApiKey).filter(ApiKey.user_id == user.id).delete(synchronize_session=False)
+    db.query(AnalyticsEvent).filter(AnalyticsEvent.user_id == user.id).delete(synchronize_session=False)
+    db.query(AuditLog).filter(AuditLog.user_id == user.id).delete(synchronize_session=False)
+    db.query(Design).filter(Design.user_id == user.id).delete(synchronize_session=False)
+    db.query(User).filter(User.id == user.id).delete(synchronize_session=False)
     db.commit()
 
     return {"deleted": True, "message": "Account and all associated data deleted."}
