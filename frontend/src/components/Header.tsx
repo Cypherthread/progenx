@@ -32,6 +32,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-1">
             {[
               { to: '/studio', label: 'Design Studio' },
+              { to: '/explore', label: 'Explore' },
               { to: '/history', label: 'My Designs' },
               { to: '/pricing', label: 'Pricing' },
             ].map(({ to, label }) => (
@@ -94,6 +95,7 @@ export default function Header() {
           <div className="md:hidden border-t border-gray-800/50 bg-[#0A0E18]/98 backdrop-blur-xl px-4 py-3 space-y-0.5">
             {[
               { to: '/studio', label: 'Design Studio' },
+              { to: '/explore', label: 'Explore' },
               { to: '/history', label: 'My Designs' },
               { to: '/pricing', label: 'Pricing' },
             ].map(({ to, label }) => (

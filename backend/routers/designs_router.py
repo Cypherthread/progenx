@@ -305,6 +305,30 @@ def get_versions(design_id: str, user: User = Depends(get_current_user), db: Ses
     ]
 
 
+@router.get("/explore")
+def explore_designs(db: Session = Depends(get_db)):
+    """Public gallery of published designs. No auth required."""
+    designs = (
+        db.query(Design)
+        .filter(Design.is_public == True, Design.status == "complete")
+        .order_by(Design.created_at.desc())
+        .limit(50)
+        .all()
+    )
+    return [_design_response(d) for d in designs]
+
+
+@router.get("/explore/{design_id}")
+def get_public_design(design_id: str, db: Session = Depends(get_db)):
+    """Get a single public design. No auth required."""
+    design = db.query(Design).filter(
+        Design.id == design_id, Design.is_public == True, Design.status == "complete"
+    ).first()
+    if not design:
+        raise HTTPException(status_code=404, detail="Design not found or not public")
+    return _design_response(design)
+
+
 @router.get("/history")
 def list_designs(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     designs = (

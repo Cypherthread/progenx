@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { designs } from '@/lib/api'
+import { toast } from './Toast'
 
 interface Props {
   designId: string
@@ -8,41 +9,46 @@ interface Props {
 }
 
 export default function ShareButton({ designId, designName, generationTime }: Props) {
-  const [shared, setShared] = useState(false)
-  const [copying, setCopying] = useState(false)
+  const [published, setPublished] = useState(false)
 
-  async function handleShare() {
+  async function handlePublish() {
     try {
-      await designs.share(designId)
-
-      const shareText = `I just designed "${designName}" in ${Math.round(generationTime)} seconds with Progenx! 🧬🔬\n\nDesign microbes, enzymes & genetic circuits in plain English. No PhD required.\n\n#Progenx #SynBio #BioEngineering`
-
-      if (navigator.share) {
-        await navigator.share({
-          title: `Progenx: ${designName}`,
-          text: shareText,
-        })
+      const result = await designs.share(designId)
+      setPublished(result.is_public)
+      if (result.is_public) {
+        toast('Design published to Explore gallery')
       } else {
-        await navigator.clipboard.writeText(shareText)
-        setCopying(true)
-        setTimeout(() => setCopying(false), 2000)
+        toast('Design removed from gallery', 'info')
       }
-      setShared(true)
     } catch {
-      // user cancelled share
+      toast('Could not publish design', 'error')
     }
   }
 
+  async function handleCopyLink() {
+    const url = `${window.location.origin}/explore`
+    await navigator.clipboard.writeText(url)
+    toast('Link copied to clipboard')
+  }
+
   return (
-    <button
-      onClick={handleShare}
-      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-        shared
-          ? 'bg-green-100 text-green-700'
-          : 'bg-accent text-white hover:opacity-90'
-      }`}
-    >
-      {copying ? 'Copied!' : shared ? 'Shared!' : 'Share Design'}
-    </button>
+    <div className="flex gap-2">
+      <button
+        onClick={handlePublish}
+        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          published
+            ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+            : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-cyan-500/30 hover:text-white'
+        }`}
+      >
+        {published ? 'Published' : 'Publish'}
+      </button>
+      <button
+        onClick={handleCopyLink}
+        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-400 border border-gray-700 hover:border-cyan-500/30 hover:text-white transition-all"
+      >
+        Share Link
+      </button>
+    </div>
   )
 }

@@ -51,6 +51,12 @@ export const billing = {
     request<{ portal_url: string }>('/billing/portal', { method: 'POST' }),
 }
 
+// Explore (public gallery)
+export const explore = {
+  list: () => request<DesignResponse[]>('/designs/explore'),
+  get: (id: string) => request<DesignResponse>(`/designs/explore/${id}`),
+}
+
 // Stats (public, no auth)
 export const stats = {
   get: () => request<{ users: number; designs: number }>('/stats'),

@@ -6,6 +6,7 @@ import ToastContainer from '@/components/Toast'
 import Landing from '@/pages/Landing'
 import Studio from '@/pages/Studio'
 import History from '@/pages/History'
+import Explore from '@/pages/Explore'
 import Pricing from '@/pages/Pricing'
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/studio" element={<Studio />} />
           <Route path="/history" element={<History />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/pricing" element={<Pricing />} />
         </Routes>
       </main>

@@ -41,10 +41,17 @@ export default function ResultsPanel({ design }: Props) {
   const panelRef = useRef<HTMLDivElement>(null)
   const slug = design.design_name.replace(/\s+/g, '_')
 
-  // Auto-scroll to results when design completes
+  // Auto-scroll to results when a new design appears
+  const lastSeenId = useRef<string | null>(null)
   useEffect(() => {
-    panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    toast('Design complete. All files ready to download.', 'success')
+    if (design.id && design.id !== lastSeenId.current) {
+      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Only toast for genuinely new designs (not history navigation)
+      if (lastSeenId.current !== null) {
+        toast('Design complete. All files ready to download.', 'success')
+      }
+      lastSeenId.current = design.id
+    }
   }, [design.id])
 
   function downloadFasta() {
