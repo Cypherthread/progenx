@@ -1,17 +1,25 @@
+import secrets
+import hashlib
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import User
 from auth import hash_password, verify_password, create_token, get_current_user
+from config import settings
 
 router = APIRouter()
+
+# Password reset tokens: {token_hash: {email, expires_at}}
+_reset_tokens: dict[str, dict] = {}
 
 
 class SignupRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=8, max_length=128)
     name: str = ""
 
 
@@ -55,6 +63,13 @@ def signup(req: SignupRequest, db: Session = Depends(get_db)):
     # Sync to Airtable CRM (non-blocking)
     from services.airtable_sync import sync_user_signup
     sync_user_signup(user.id, user.email, user.name, user.tier)
+
+    # Send welcome email (non-blocking — don't break signup if email fails)
+    try:
+        from services.email_service import send_welcome
+        send_welcome(user.email, user.name)
+    except Exception as e:
+        print(f"[EMAIL] Welcome email failed for {user.email}: {e}")
 
     return AuthResponse(
         token=create_token(user.id),
@@ -144,12 +159,89 @@ def list_api_keys(
     ]
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+
+@router.post("/forgot-password")
+def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Request a password reset link. Always returns 200 to prevent email enumeration."""
+    user = db.query(User).filter(User.email == req.email).first()
+
+    if user:
+        # Generate a secure token
+        token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+        # Store with 30-minute expiry
+        _reset_tokens[token_hash] = {
+            "email": user.email,
+            "expires_at": datetime.utcnow() + timedelta(minutes=30),
+        }
+
+        # Build reset URL and send email
+        reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+        try:
+            from services.email_service import send_password_reset
+            send_password_reset(user.email, reset_url)
+        except Exception as e:
+            print(f"[EMAIL] Password reset email failed for {user.email}: {e}")
+
+    # Always return the same response (prevent email enumeration)
+    return {"message": "If that email exists, we sent a reset link."}
+
+
+@router.post("/reset-password")
+def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Reset password using a valid token."""
+    if len(req.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
+    # Look up token
+    token_hash = hashlib.sha256(req.token.encode()).hexdigest()
+    token_data = _reset_tokens.get(token_hash)
+
+    if not token_data:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link.")
+
+    if datetime.utcnow() > token_data["expires_at"]:
+        # Clean up expired token
+        del _reset_tokens[token_hash]
+        raise HTTPException(status_code=400, detail="Reset link has expired. Please request a new one.")
+
+    # Find user and update password
+    user = db.query(User).filter(User.email == token_data["email"]).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link.")
+
+    user.hashed_password = hash_password(req.password)
+    db.commit()
+
+    # Delete used token
+    del _reset_tokens[token_hash]
+
+    # Send confirmation email
+    try:
+        from services.email_service import send_password_changed
+        send_password_changed(user.email, user.name)
+    except Exception:
+        pass
+
+    return {"message": "Password reset successfully."}
+
+
 @router.delete("/account")
 def delete_account(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Delete user account and all associated data (GDPR right to erasure)."""
+    email, name = user.email, user.name
     from models import (
         Design, ChatMessage, AuditLog, AnalyticsEvent,
         Bump, DesignComment, DesignVersion, ApiKey,
@@ -175,5 +267,12 @@ def delete_account(
     db.query(Design).filter(Design.user_id == user.id).delete(synchronize_session=False)
     db.query(User).filter(User.id == user.id).delete(synchronize_session=False)
     db.commit()
+
+    # Send deletion confirmation (to their email, even though account is gone)
+    try:
+        from services.email_service import send_account_deleted
+        send_account_deleted(email, name)
+    except Exception:
+        pass
 
     return {"deleted": True, "message": "Account and all associated data deleted."}

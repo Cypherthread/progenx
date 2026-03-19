@@ -93,6 +93,8 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     # Handle subscription events
+    from services.email_service import send_upgrade_confirmation, send_subscription_canceled, send_payment_failed
+
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
         user_id = session.get("metadata", {}).get("user_id")
@@ -102,6 +104,10 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 user.tier = "pro"
                 user.stripe_subscription_id = session.get("subscription")
                 db.commit()
+                try:
+                    send_upgrade_confirmation(user.email, user.name)
+                except Exception:
+                    pass
 
     elif event["type"] in (
         "customer.subscription.deleted",
@@ -116,6 +122,14 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             user.tier = "free"
             user.stripe_subscription_id = None
             db.commit()
+            try:
+                end_date = subscription.get("current_period_end", "")
+                if end_date:
+                    from datetime import datetime
+                    end_date = datetime.fromtimestamp(end_date).strftime("%B %d, %Y")
+                send_subscription_canceled(user.email, user.name, end_date or "end of billing period")
+            except Exception:
+                pass
 
     elif event["type"] == "customer.subscription.updated":
         subscription = event["data"]["object"]
@@ -130,5 +144,17 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             elif status in ("canceled", "unpaid", "past_due"):
                 user.tier = "free"
             db.commit()
+
+    elif event["type"] == "invoice.payment_failed":
+        invoice = event["data"]["object"]
+        customer_id = invoice.get("customer")
+        user = db.query(User).filter(
+            User.stripe_customer_id == customer_id
+        ).first()
+        if user:
+            try:
+                send_payment_failed(user.email, user.name)
+            except Exception:
+                pass
 
     return {"received": True}

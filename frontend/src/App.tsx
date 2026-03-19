@@ -13,6 +13,7 @@ import Account from '@/pages/Account'
 import Terms from '@/pages/Terms'
 import Privacy from '@/pages/Privacy'
 import Analytics from '@/pages/Analytics'
+import ResetPassword from '@/pages/ResetPassword'
 
 export default function App() {
   const loadUser = useAuth((s) => s.loadUser)
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </main>
       <ToastContainer />

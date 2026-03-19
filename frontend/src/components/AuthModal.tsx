@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { auth as authApi } from '@/lib/api'
 
 interface Props {
   onClose: () => void
@@ -7,19 +8,32 @@ interface Props {
 
 export default function AuthModal({ onClose }: Props) {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotError, setForgotError] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const { login, signup, loading, error, clearError } = useAuth()
   const emailRef = useRef<HTMLInputElement>(null)
+  const forgotEmailRef = useRef<HTMLInputElement>(null)
 
   // Focus email input on open and mode switch
   useEffect(() => {
-    emailRef.current?.focus()
-  }, [mode])
+    if (showForgot) {
+      forgotEmailRef.current?.focus()
+    } else {
+      emailRef.current?.focus()
+    }
+  }, [mode, showForgot])
 
   function switchMode() {
     setMode(mode === 'login' ? 'signup' : 'login')
+    setShowForgot(false)
+    setForgotSent(false)
+    setForgotError('')
     clearError()
   }
 
@@ -32,6 +46,20 @@ export default function AuthModal({ onClose }: Props) {
     }
     if (!useAuth.getState().error) {
       onClose()
+    }
+  }
+
+  async function handleForgotSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setForgotLoading(true)
+    setForgotError('')
+    try {
+      await authApi.forgotPassword(forgotEmail)
+      setForgotSent(true)
+    } catch (err: any) {
+      setForgotError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setForgotLoading(false)
     }
   }
 
@@ -51,93 +79,179 @@ export default function AuthModal({ onClose }: Props) {
           </svg>
         </button>
 
-        <h2 className="text-xl font-semibold text-white mb-1">
-          {mode === 'login' ? 'Welcome back' : 'Create your account'}
-        </h2>
-        <p className="text-sm text-gray-500 mb-6">
-          {mode === 'login'
-            ? 'Sign in to access your designs'
-            : 'Start designing custom organisms for free'}
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'signup' && (
-            <div>
-              <label className="text-sm font-medium text-gray-300 block mb-1">Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-                className={inputClass}
-                placeholder="Your name"
-              />
-            </div>
-          )}
-          <div>
-            <label className="text-sm font-medium text-gray-300 block mb-1">Email</label>
-            <input
-              ref={emailRef}
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              className={inputClass}
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-300 block mb-1">Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              className={inputClass}
-              placeholder="Min 6 characters"
-            />
-          </div>
-
-          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${error ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="flex items-start gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-red-400 shrink-0 mt-0.5">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
+        {showForgot ? (
+          /* ── Forgot Password Form ── */
+          <>
+            <button
+              onClick={() => { setShowForgot(false); setForgotSent(false); setForgotError('') }}
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300 transition-colors mb-4"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <p className="text-sm text-red-400">{error}</p>
-            </div>
-          </div>
+              Back to sign in
+            </button>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading && (
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-20" />
-                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
+            <h2 className="text-xl font-semibold text-white mb-1">Reset your password</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Enter your email and we'll send you a reset link.
+            </p>
+
+            {forgotSent ? (
+              <div className="flex items-start gap-3 px-4 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-cyan-300">Check your email</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    If an account exists for <span className="text-white">{forgotEmail}</span>, we sent a password reset link. Check your inbox (and spam folder).
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotSubmit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 block mb-1">Email</label>
+                  <input
+                    ref={forgotEmailRef}
+                    type="email"
+                    required
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    autoComplete="email"
+                    className={inputClass}
+                    placeholder="you@example.com"
+                  />
+                </div>
+
+                {forgotError && (
+                  <div className="flex items-start gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-red-400 shrink-0 mt-0.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
+                    </svg>
+                    <p className="text-sm text-red-400">{forgotError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {forgotLoading && (
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-20" />
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                  )}
+                  {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+                </button>
+              </form>
             )}
-            {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
+          </>
+        ) : (
+          /* ── Login / Signup Form ── */
+          <>
+            <h2 className="text-xl font-semibold text-white mb-1">
+              {mode === 'login' ? 'Welcome back' : 'Create your account'}
+            </h2>
+            <p className="text-sm text-gray-500 mb-6">
+              {mode === 'login'
+                ? 'Sign in to access your designs'
+                : 'Start designing custom organisms for free'}
+            </p>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-          <button
-            onClick={switchMode}
-            className="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
-          >
-            {mode === 'login' ? 'Sign up' : 'Sign in'}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
-              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === 'signup' && (
+                <div>
+                  <label className="text-sm font-medium text-gray-300 block mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoComplete="name"
+                    className={inputClass}
+                    placeholder="Your name"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="text-sm font-medium text-gray-300 block mb-1">Email</label>
+                <input
+                  ref={emailRef}
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  className={inputClass}
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300 block mb-1">Password</label>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  className={inputClass}
+                  placeholder="Min 6 characters"
+                />
+                {mode === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => { setShowForgot(true); setForgotEmail(email); setForgotSent(false); setForgotError(''); clearError() }}
+                    className="text-xs text-gray-500 hover:text-cyan-400 transition-colors mt-1.5 inline-block"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${error ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="flex items-start gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-red-400 shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
+                  </svg>
+                  <p className="text-sm text-red-400">{error}</p>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading && (
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-20" />
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                )}
+                {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-gray-500 mt-4">
+              {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+              <button
+                onClick={switchMode}
+                className="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
+              >
+                {mode === 'login' ? 'Sign up' : 'Sign in'}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
+                  <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </p>
+          </>
+        )}
       </div>
     </div>
   )

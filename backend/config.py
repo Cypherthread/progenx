@@ -48,6 +48,10 @@ class Settings:
 
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
+    # Resend (transactional email)
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+    FROM_EMAIL = os.getenv("FROM_EMAIL", "Progenx <hello@progenx.ai>")
+
     # Stripe (Pro tier payments)
     STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
     STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")

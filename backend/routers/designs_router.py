@@ -134,6 +134,17 @@ def create_design(
 
         user.designs_this_month += 1
 
+        # Send limit warning emails (free tier only)
+        if user.tier == "free":
+            try:
+                from services.email_service import send_design_limit_warning, send_design_limit_reached
+                if user.designs_this_month == user.monthly_limit:
+                    send_design_limit_reached(user.email, user.name)
+                elif user.designs_this_month == user.monthly_limit - 1:
+                    send_design_limit_warning(user.email, user.name, user.designs_this_month, user.monthly_limit)
+            except Exception:
+                pass
+
         # Sync to Airtable CRM (non-blocking)
         from services.airtable_sync import sync_design_created, update_user_activity
         gene_names = [g.get("name", "") for g in result.get("gene_circuit", {}).get("genes", [])]
