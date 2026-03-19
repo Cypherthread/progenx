@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 interface Props {
   environment: string
   setEnvironment: (v: string) => void
@@ -55,6 +57,112 @@ const ENVIRONMENTS = [
   },
 ]
 
+// Arc dial component
+function ArcDial({
+  value,
+  onChange,
+  label,
+  color,
+  displayValue,
+  min = 0,
+  max = 1,
+  leftLabel,
+  rightLabel,
+}: {
+  value: number
+  onChange: (v: number) => void
+  label: string
+  color: string
+  displayValue: string
+  min?: number
+  max?: number
+  leftLabel: string
+  rightLabel: string
+}) {
+  const normalized = (value - min) / (max - min)
+  const startAngle = -130
+  const endAngle = 130
+  const currentAngle = startAngle + normalized * (endAngle - startAngle)
+  const cx = 60
+  const cy = 55
+  const r = 38
+
+  function angleToXY(angle: number): [number, number] {
+    const rad = (angle - 90) * Math.PI / 180
+    return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)]
+  }
+
+  const [sx, sy] = angleToXY(startAngle)
+  const [ex, ey] = angleToXY(currentAngle)
+  const [fx, fy] = angleToXY(endAngle)
+  const largeArc = (currentAngle - startAngle) > 180 ? 1 : 0
+  const trackLargeArc = (endAngle - startAngle) > 180 ? 1 : 0
+
+  // Handle click/drag on the arc
+  const handleInteraction = useCallback((e: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    const x = clientX - rect.left - (rect.width / 2)
+    const y = clientY - rect.top - (rect.height * 0.46)
+    let angle = Math.atan2(y, x) * 180 / Math.PI + 90
+    if (angle < -180) angle += 360
+    if (angle > 180) angle -= 360
+    const clamped = Math.max(startAngle, Math.min(endAngle, angle))
+    const newNorm = (clamped - startAngle) / (endAngle - startAngle)
+    const stepped = Math.round(newNorm * 20) / 20
+    onChange(min + stepped * (max - min))
+  }, [onChange, min, max])
+
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col items-center">
+      <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">{label}</label>
+      <svg
+        viewBox="0 0 120 80"
+        className="w-full max-w-[140px] cursor-pointer select-none"
+        onClick={handleInteraction}
+        onMouseDown={(e) => {
+          const move = (ev: MouseEvent) => handleInteraction({ currentTarget: e.currentTarget, clientX: ev.clientX, clientY: ev.clientY } as any)
+          const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up) }
+          document.addEventListener('mousemove', move)
+          document.addEventListener('mouseup', up)
+        }}
+      >
+        {/* Track (background arc) */}
+        <path
+          d={`M ${sx} ${sy} A ${r} ${r} 0 ${trackLargeArc} 1 ${fx} ${fy}`}
+          fill="none"
+          stroke="#1F2937"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        {/* Active arc */}
+        <path
+          d={`M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${ex} ${ey}`}
+          fill="none"
+          stroke={color}
+          strokeWidth="5"
+          strokeLinecap="round"
+          style={{ filter: `drop-shadow(0 0 4px ${color}40)` }}
+        />
+        {/* Thumb dot */}
+        <circle cx={ex} cy={ey} r="6" fill={color} stroke="#0B1120" strokeWidth="2" style={{ filter: `drop-shadow(0 0 6px ${color}60)` }} />
+        {/* Center value */}
+        <text x={cx} y={cy + 2} textAnchor="middle" dominantBaseline="central"
+          fontSize="14" fontWeight="700" fill="white"
+          style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+          {displayValue}
+        </text>
+      </svg>
+      <div className="flex justify-between w-full px-1 -mt-1">
+        <span className="text-[9px] text-gray-600">{leftLabel}</span>
+        <span className="text-[9px] text-gray-600">{rightLabel}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function Sliders({
   environment,
   setEnvironment,
@@ -67,7 +175,7 @@ export default function Sliders({
     <div className="space-y-5">
       {/* Environment selector */}
       <div>
-        <label className="text-xs font-semibold uppercase tracking-widest text-gray-500 block mb-2.5">
+        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 block mb-2.5">
           Target Environment
         </label>
         <div className="grid grid-cols-2 gap-2">
@@ -100,57 +208,26 @@ export default function Sliders({
         </div>
       </div>
 
-      {/* Safety + Complexity */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-              Safety
-            </label>
-            <span className={`text-xs font-bold tabular-nums ${
-              safetyLevel >= 0.7 ? 'text-green-400' : safetyLevel >= 0.4 ? 'text-yellow-400' : 'text-red-400'
-            }`}>
-              {Math.round(safetyLevel * 100)}%
-            </span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={safetyLevel}
-            onChange={(e) => setSafetyLevel(parseFloat(e.target.value))}
-            className="w-full accent-cyan-500 h-1.5"
-          />
-          <div className="flex justify-between text-[9px] text-gray-600 mt-1">
-            <span>Minimal</span>
-            <span>Maximum</span>
-          </div>
-        </div>
-
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-              Complexity
-            </label>
-            <span className="text-xs font-bold tabular-nums text-cyan-400">
-              {complexity <= 0.33 ? 'Simple' : complexity <= 0.66 ? 'Medium' : 'Advanced'}
-            </span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={complexity}
-            onChange={(e) => setComplexity(parseFloat(e.target.value))}
-            className="w-full accent-cyan-500 h-1.5"
-          />
-          <div className="flex justify-between text-[9px] text-gray-600 mt-1">
-            <span>Fewer genes</span>
-            <span>More genes</span>
-          </div>
-        </div>
+      {/* Arc dials */}
+      <div className="grid grid-cols-2 gap-3">
+        <ArcDial
+          value={safetyLevel}
+          onChange={setSafetyLevel}
+          label="Safety"
+          color={safetyLevel >= 0.7 ? '#34D399' : safetyLevel >= 0.4 ? '#FBBF24' : '#F87171'}
+          displayValue={`${Math.round(safetyLevel * 100)}%`}
+          leftLabel="Minimal"
+          rightLabel="Maximum"
+        />
+        <ArcDial
+          value={complexity}
+          onChange={setComplexity}
+          label="Complexity"
+          color="#22D3EE"
+          displayValue={complexity <= 0.33 ? 'Low' : complexity <= 0.66 ? 'Med' : 'High'}
+          leftLabel="Simple"
+          rightLabel="Advanced"
+        />
       </div>
     </div>
   )
