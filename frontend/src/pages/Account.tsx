@@ -6,7 +6,7 @@ import { billing } from '@/lib/api'
 import { toast } from '@/components/Toast'
 import { useAnalytics } from '@/hooks/useAnalytics'
 
-const API_BASE = import.meta.env.PROD ? 'https://progenx-api.onrender.com' : ''
+const API_BASE = import.meta.env.PROD ? 'https://api.progenx.ai' : ''
 
 const SAFE_REDIRECT_HOSTS = ['checkout.stripe.com', 'billing.stripe.com']
 function isSafeRedirect(url: string): boolean {

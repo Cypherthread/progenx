@@ -8,7 +8,7 @@ import type { ConsentState } from '@/components/CookieConsent'
 // ---------------------------------------------------------------------------
 
 const API_BASE = import.meta.env.PROD
-  ? 'https://progenx-api.onrender.com/api'
+  ? 'https://api.progenx.ai/api'
   : '/api'
 
 const FLUSH_INTERVAL_MS = 10_000

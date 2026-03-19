@@ -1,7 +1,7 @@
 import { track } from '@/hooks/useAnalytics'
 
 const API_BASE = import.meta.env.PROD
-  ? 'https://progenx-api.onrender.com/api'
+  ? 'https://api.progenx.ai/api'
   : '/api'
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {

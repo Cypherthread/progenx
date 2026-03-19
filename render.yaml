@@ -2,8 +2,9 @@ services:
   - type: web
     name: progenx-api
     runtime: python
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
@@ -12,18 +13,28 @@ services:
       - key: NCBI_EMAIL
         sync: false
       - key: OLLAMA_BASE_URL
-        value: http://localhost:11434/v1
+        sync: false
       - key: OLLAMA_MODEL
-        value: llama3.1:8b
+        sync: false
+      - key: OLLAMA_API_KEY
+        sync: false
       - key: DATABASE_URL
-        value: sqlite:////data/progenx.db
+        sync: false
       - key: CORS_ORIGINS
         sync: false
       - key: FRONTEND_URL
         sync: false
-    disk:
-      name: progenx-data
-      mountPath: /data
-      sizeGB: 1
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRO_PRICE_ID
+        sync: false
+      - key: AIRTABLE_API_TOKEN
+        sync: false
+      - key: AIRTABLE_BASE_ID
+        sync: false
+    customDomains:
+      - domain: api.progenx.ai
     healthCheckPath: /api/health
-    plan: starter
+    plan: free
