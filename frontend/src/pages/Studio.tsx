@@ -177,18 +177,28 @@ export default function Studio() {
               <ChatRefinement messages={chatMessages} />
             </ResultsErrorBoundary>
           ) : !generating && !error ? (
-            <div className="flex items-center justify-center min-h-[400px] border border-dashed border-gray-700 rounded-xl bg-gray-900/30">
+            <div className="flex items-center justify-center min-h-[400px] border border-gray-800/50 rounded-xl bg-gray-900/20">
               <div className="text-center p-8">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8 text-gray-500">
-                    <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" />
-                    <path d="M12 3v18M3 12h18" />
-                  </svg>
+                {/* Animated DNA blob */}
+                <div className="relative w-24 h-24 mx-auto mb-6">
+                  <div className="dna-blob absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/10" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg viewBox="0 0 40 40" className="w-10 h-10 text-cyan-500/40" style={{ animation: 'helixRotate 12s linear infinite' }}>
+                      <path d="M10 5 Q20 10 30 5 Q20 15 10 20 Q20 25 30 20 Q20 30 10 35" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M30 5 Q20 10 10 5 Q20 15 30 20 Q20 25 10 20 Q20 30 30 35" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
+                      <circle cx="10" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
+                      <circle cx="30" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
+                      <circle cx="10" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
+                      <circle cx="30" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
+                      <circle cx="10" cy="35" r="1.5" fill="currentColor" opacity="0.6" />
+                      <circle cx="30" cy="35" r="1.5" fill="currentColor" opacity="0.6" />
+                    </svg>
+                  </div>
                 </div>
-                <h3 className="font-semibold mb-2 text-gray-200">Your design will appear here</h3>
-                <p className="text-sm text-gray-500 max-w-sm">
-                  Enter a prompt on the left and hit Generate. You'll get a complete organism
-                  design with real gene circuits, DNA sequences, plasmid maps, and safety analysis.
+                <h3 className="font-semibold mb-2 text-gray-200 text-lg">Your design will appear here</h3>
+                <p className="text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+                  Describe your idea above and hit Generate.
+                  You'll get a complete design with real genes, safety checks, and downloadable files in under 60 seconds.
                 </p>
               </div>
             </div>
