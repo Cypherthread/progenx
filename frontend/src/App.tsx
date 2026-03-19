@@ -9,6 +9,8 @@ import History from '@/pages/History'
 import Explore from '@/pages/Explore'
 import Pricing from '@/pages/Pricing'
 import Account from '@/pages/Account'
+import Terms from '@/pages/Terms'
+import Privacy from '@/pages/Privacy'
 
 export default function App() {
   const loadUser = useAuth((s) => s.loadUser)
@@ -28,6 +30,8 @@ export default function App() {
           <Route path="/explore" element={<Explore />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
         </Routes>
       </main>
       <ToastContainer />

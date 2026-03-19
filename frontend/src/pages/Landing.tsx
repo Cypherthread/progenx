@@ -428,7 +428,8 @@ export default function Landing() {
                 <h4 className="text-gray-300 text-sm font-semibold mb-3">Company</h4>
                 <ul className="space-y-2 text-sm">
                   <li><a href="#contact" className="hover:text-cyan-400 transition-colors">Contact</a></li>
-                  <li><a href="mailto:hello@progenx.ai" className="hover:text-cyan-400 transition-colors">hello@progenx.ai</a></li>
+                  <li><button onClick={() => navigate('/terms')} className="hover:text-cyan-400 transition-colors">Terms of Service</button></li>
+                  <li><button onClick={() => navigate('/privacy')} className="hover:text-cyan-400 transition-colors">Privacy Policy</button></li>
                 </ul>
               </div>
             </div>

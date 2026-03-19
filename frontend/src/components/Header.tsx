@@ -57,9 +57,14 @@ export default function Header() {
                 </span>
                 <Link
                   to="/account"
-                  className="text-xs text-gray-500 hover:text-cyan-400 transition-colors hidden md:inline"
+                  className="hidden md:flex items-center gap-1.5 text-xs text-gray-500 hover:text-cyan-400 transition-colors"
                 >
-                  Account
+                  <div className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
                 </Link>
               </>
             ) : (
