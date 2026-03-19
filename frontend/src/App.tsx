@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
+import ToastContainer from '@/components/Toast'
 import Landing from '@/pages/Landing'
 import Studio from '@/pages/Studio'
 import History from '@/pages/History'
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/pricing" element={<Pricing />} />
         </Routes>
       </main>
+      <ToastContainer />
     </div>
   )
 }

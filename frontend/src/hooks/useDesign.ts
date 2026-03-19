@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { designs, type DesignResponse, type ChatMessage } from '@/lib/api'
 import { useAuth } from './useAuth'
+import { toast } from '@/components/Toast'
 
 interface DesignState {
   current: DesignResponse | null

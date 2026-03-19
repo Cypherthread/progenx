@@ -99,3 +99,32 @@
 .cta-glow:hover::before {
   filter: blur(20px);
 }
+
+/* Toast slide-in */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Smooth scroll for tab switches */
+html { scroll-behavior: smooth; }
+
+/* Auto-resize textarea */
+.auto-resize {
+  field-sizing: content;
+  min-height: 120px;
+  max-height: 300px;
+}
+
+/* Mobile sticky bar */
+@media (max-width: 1023px) {
+  .mobile-sticky-bottom {
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    background: rgba(11, 17, 32, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(107, 114, 128, 0.2);
+    padding: 12px 16px;
+  }
+}

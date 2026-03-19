@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { DesignResponse } from '@/lib/api'
+import { toast } from './Toast'
 import GeneCircuit from './GeneCircuit'
 import InteractivePlasmidMap from './InteractivePlasmidMap'
 import ShareButton from './ShareButton'
@@ -37,15 +38,24 @@ function ExportBtn({ onClick, label }: { onClick: () => void; label: string }) {
 }
 
 export default function ResultsPanel({ design }: Props) {
+  const panelRef = useRef<HTMLDivElement>(null)
   const slug = design.design_name.replace(/\s+/g, '_')
+
+  // Auto-scroll to results when design completes
+  useEffect(() => {
+    panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    toast('Design complete. All files ready to download.', 'success')
+  }, [design.id])
 
   function downloadFasta() {
     downloadFile(design.fasta_content, `${slug}.fasta`)
+    toast('FASTA file downloaded')
   }
 
   function downloadGenBank() {
     if (!design.genbank_content) return
     downloadFile(design.genbank_content, `${slug}.gb`)
+    toast('GenBank file downloaded')
   }
 
   function downloadPlasmidSvg() {
@@ -71,7 +81,7 @@ export default function ResultsPanel({ design }: Props) {
       if (p.forward) rows.push(`${p.gene},Forward,${p.forward.sequence},${p.forward.length},${p.forward.tm},${(p.forward.gc * 100).toFixed(1)}`)
       if (p.reverse) rows.push(`${p.gene},Reverse,${p.reverse.sequence},${p.reverse.length},${p.reverse.tm},${(p.reverse.gc * 100).toFixed(1)}`)
     }
-    downloadFile(rows.join('\n'), `${slug}_primers.csv`)
+    downloadFile(rows.join('\n'), `${slug}_primers.csv`); toast('Primers CSV downloaded')
   }
 
   function downloadAssemblyPlan() {
@@ -106,7 +116,7 @@ export default function ResultsPanel({ design }: Props) {
         if (p.reverse) lines.push(`Reverse: ${p.reverse.sequence} (Tm ${p.reverse.tm}°C, ${p.reverse.length}bp)`)
       }
     }
-    downloadFile(lines.join('\n'), `${slug}_assembly.md`)
+    downloadFile(lines.join('\n'), `${slug}_assembly.md`); toast('Assembly plan downloaded')
   }
 
   function downloadFullReport() {
@@ -145,11 +155,11 @@ export default function ResultsPanel({ design }: Props) {
       `\n---`,
       `${design.disclaimer}`,
     ]
-    downloadFile(lines.join('\n'), `${slug}_full_report.md`)
+    downloadFile(lines.join('\n'), `${slug}_full_report.md`); toast('Full report downloaded')
   }
 
   function downloadDesignJSON() {
-    downloadFile(JSON.stringify(design, null, 2), `${slug}_data.json`, 'application/json')
+    downloadFile(JSON.stringify(design, null, 2), `${slug}_data.json`, 'application/json'); toast('JSON data downloaded')
   }
 
   function safetyColor(score: number) {
@@ -175,7 +185,7 @@ export default function ResultsPanel({ design }: Props) {
   ]
 
   return (
-    <div className="space-y-4">
+    <div ref={panelRef} className="space-y-4">
       {/* Disclaimer */}
       <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2 text-[11px] text-amber-300/80">
         For learning and testing ideas only. Not lab-ready without expert review.
@@ -204,7 +214,7 @@ export default function ResultsPanel({ design }: Props) {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => { setActiveTab(tab.id); panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-cyan-600 text-white shadow-sm'
@@ -393,7 +403,7 @@ export default function ResultsPanel({ design }: Props) {
             <p className="text-sm font-medium text-white">JSON</p>
             <p className="text-[10px] text-gray-500">For developers</p>
           </button>
-          <button onClick={() => { navigator.clipboard.writeText(design.dna_sequence); }} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+          <button onClick={() => { navigator.clipboard.writeText(design.dna_sequence); toast('DNA sequence copied to clipboard') }} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
             <p className="text-sm font-medium text-white">Copy DNA</p>
             <p className="text-[10px] text-gray-500">To clipboard</p>
           </button>
