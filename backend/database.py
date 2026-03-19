@@ -34,6 +34,40 @@ def init_db():
     # Auto-migrate: add missing columns to existing tables
     if "sqlite" in settings.DATABASE_URL:
         _migrate_sqlite()
+    elif "postgresql" in settings.DATABASE_URL:
+        _migrate_postgresql()
+
+
+def _migrate_postgresql():
+    """Add missing columns to existing PostgreSQL tables."""
+    from sqlalchemy import text
+
+    migrations = {
+        "designs": {
+            "bump_count": "INTEGER DEFAULT 0",
+            "is_public": "BOOLEAN DEFAULT FALSE",
+        },
+        "users": {
+            "stripe_customer_id": "TEXT DEFAULT ''",
+            "stripe_subscription_id": "TEXT DEFAULT ''",
+            "bump_count": "INTEGER DEFAULT 0",
+        },
+    }
+
+    try:
+        with engine.connect() as conn:
+            for table, columns in migrations.items():
+                for col_name, col_type in columns.items():
+                    try:
+                        conn.execute(text(
+                            f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"
+                        ))
+                        conn.commit()
+                        print(f"[DB] Migrated: added {table}.{col_name}")
+                    except Exception:
+                        conn.rollback()
+    except Exception as e:
+        print(f"[DB] PostgreSQL migration check failed (non-fatal): {e}")
 
 
 def _migrate_sqlite():
