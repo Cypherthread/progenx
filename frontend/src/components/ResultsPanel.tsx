@@ -267,91 +267,95 @@ export default function ResultsPanel({ design }: Props) {
       {/* Gene Circuit (visual) */}
       <GeneCircuit circuitJson={JSON.stringify(design.gene_circuit)} />
 
-      {/* NCBI Sequence Provenance */}
+      {/* Gene Parts Table */}
       {Object.keys(geneSeqs).length > 0 && (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-          <h3 className="text-sm font-medium mb-3">Gene Sequences (NCBI)</h3>
-          <div className="space-y-2">
-            {Object.entries(geneSeqs).map(([name, data]: [string, any]) => (
-              <div key={name} className="flex items-start justify-between text-sm border-b border-gray-800 last:border-0 pb-2 last:pb-0">
-                <div>
-                  <span className="font-medium">{name}</span>
-                  <span className="text-muted-foreground text-xs ml-2">
-                    {data.accession && `[${data.accession}]`}
-                  </span>
-                  <p className="text-xs text-muted-foreground">{data.description || data.function || ''}</p>
-                </div>
-                <div className="text-right shrink-0 ml-3">
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${
-                    data.source === 'ncbi_registry' ? 'bg-green-500/20 text-green-400' :
-                    data.source === 'ncbi_search' ? 'bg-blue-500/20 text-blue-400' :
-                    data.source === 'unsupported_biology' ? 'bg-red-500/20 text-red-400' :
-                    data.conceptual_only ? 'bg-orange-500/20 text-orange-400' :
-                    'bg-gray-800 text-gray-400'
-                  }`}>
-                    {data.source === 'ncbi_registry' ? 'Verified' :
-                     data.source === 'ncbi_search' ? 'NCBI search' :
-                     data.source === 'unsupported_biology' ? 'No known parts' :
-                     data.conceptual_only ? 'Conceptual only' : 'pending'}
-                  </span>
-                  {data.length > 0 && <p className="text-xs text-muted-foreground mt-0.5">{data.length} {data.type === 'protein' ? 'aa' : 'bp'}</p>}
-                  {data.confidence && data.confidence !== 'unknown' && (
-                    <span className={`text-[10px] px-1 py-0.5 rounded mt-0.5 inline-block ${
-                      data.confidence === 'high' ? 'bg-green-500/15 text-green-400' :
-                      data.confidence === 'medium' ? 'bg-blue-500/15 text-blue-400' :
-                      data.confidence === 'low' ? 'bg-yellow-500/15 text-yellow-400' :
-                      'bg-red-500/15 text-red-400'
-                    }`} title={data.confidence_reason || ''}>
-                      {data.confidence} confidence
-                    </span>
-                  )}
-                  {data.function_validation && !data.function_validation.match && (
-                    <p className="text-[10px] text-red-600 mt-0.5">Function mismatch ({(data.function_validation.score * 100).toFixed(0)}%)</p>
-                  )}
-                </div>
-                {data.warning && (
-                  <p className="text-xs text-red-400 mt-1 w-full">{data.warning}</p>
-                )}
-                {data.variant_predictions?.beneficial_mutations?.length > 0 && (
-                  <div className="w-full mt-1.5 pt-1.5 border-t border-gray-100">
-                    <p className="text-[10px] text-emerald-700 font-medium mb-0.5">
-                      ESM-2 predicted improvements ({data.variant_predictions.total_beneficial} found):
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {data.variant_predictions.beneficial_mutations.slice(0, 5).map((m: any) => (
-                        <span key={m.notation} className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded font-mono" title={`Score: +${m.score}`}>
-                          {m.notation}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-gray-800">
+            <h3 className="text-sm font-semibold text-white">Parts Used in This Design</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Each part is a real protein from NCBI. Click an accession to view it on NCBI.</p>
+          </div>
+          <div className="divide-y divide-gray-800">
+            {Object.entries(geneSeqs).map(([name, data]: [string, any]) => {
+              const opt = codonOpt[name]
+              return (
+                <div key={name} className="p-4 hover:bg-gray-800/20 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-bold text-white">{name}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          data.source === 'ncbi_registry' ? 'bg-green-500/20 text-green-400' :
+                          data.source === 'ncbi_search' ? 'bg-blue-500/20 text-blue-400' :
+                          data.conceptual_only ? 'bg-orange-500/20 text-orange-400' :
+                          'bg-gray-800 text-gray-400'
+                        }`}>
+                          {data.source === 'ncbi_registry' ? 'Verified' :
+                           data.source === 'ncbi_search' ? 'Search' :
+                           data.conceptual_only ? 'Conceptual' : '?'}
                         </span>
-                      ))}
-                      {data.variant_predictions.beneficial_mutations.length > 5 && (
-                        <span className="text-[10px] text-gray-400">
-                          +{data.variant_predictions.beneficial_mutations.length - 5} more
-                        </span>
+                        {data.confidence && data.confidence !== 'unknown' && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                            data.confidence === 'high' ? 'bg-green-500/10 text-green-400' :
+                            data.confidence === 'medium' ? 'bg-cyan-500/10 text-cyan-400' :
+                            'bg-yellow-500/10 text-yellow-400'
+                          }`}>{data.confidence}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-400">{data.description || data.function || ''}</p>
+                      {data.accession && (
+                        <a
+                          href={`https://www.ncbi.nlm.nih.gov/protein/${data.accession}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-cyan-500 hover:text-cyan-400 mt-1 inline-block"
+                        >
+                          {data.accession} on NCBI &rarr;
+                        </a>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0 space-y-1">
+                      {data.length > 0 && (
+                        <p className="text-xs text-gray-400">{data.length} {data.type === 'protein' ? 'aa' : 'bp'}</p>
+                      )}
+                      {opt && (
+                        <div className="text-[10px] text-gray-500 space-y-0.5">
+                          <p>{opt.length_bp?.toLocaleString()} bp optimized</p>
+                          <p>GC {((opt.gc_content || 0) * 100).toFixed(1)}% | CAI {opt.cai_score ?? '?'}</p>
+                        </div>
                       )}
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+                  {data.warning && (
+                    <p className="text-xs text-red-400 mt-2 flex items-start gap-1">
+                      <span className="shrink-0">&#9888;</span>{data.warning}
+                    </p>
+                  )}
+                  {data.variant_predictions?.beneficial_mutations?.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-gray-800">
+                      <p className="text-[10px] text-emerald-400 font-medium mb-1">
+                        ESM-2 predicted {data.variant_predictions.total_beneficial} possible improvements:
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {data.variant_predictions.beneficial_mutations.slice(0, 6).map((m: any) => (
+                          <span key={m.notation} className="text-[10px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded font-mono" title={`Score: +${m.score}`}>
+                            {m.notation}
+                          </span>
+                        ))}
+                        {data.variant_predictions.beneficial_mutations.length > 6 && (
+                          <span className="text-[10px] text-gray-600">+{data.variant_predictions.beneficial_mutations.length - 6} more</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
-        </div>
-      )}
-
-      {/* Codon Optimization */}
-      {Object.keys(codonOpt).length > 0 && (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-          <h3 className="text-sm font-medium mb-3">Codon-Optimized Sequences</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-            {Object.entries(codonOpt).map(([name, data]: [string, any]) => (
-              <div key={name} className="bg-gray-800/50 rounded-lg p-2 text-center">
-                <p className="text-xs font-medium">{name}</p>
-                <p className="text-sm font-bold">{data.length_bp?.toLocaleString()} bp</p>
-                {data.cai_score != null && <p className="text-[10px] text-muted-foreground">CAI: {data.cai_score}</p>}
-                <p className="text-[10px] text-muted-foreground">GC: {((data.gc_content || 0) * 100).toFixed(1)}%</p>
-              </div>
-            ))}
+          <div className="p-3 border-t border-gray-800 bg-gray-800/20">
+            <p className="text-[11px] text-gray-500 text-center">
+              Optimized for {design.host_organism} | {Object.keys(codonOpt).length} genes codon-optimized
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground">Optimized for {design.host_organism}</p>
         </div>
       )}
 
