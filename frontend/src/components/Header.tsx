@@ -50,11 +50,15 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                {user.tier === 'free' && (
-                  <span className="text-[10px] text-gray-600 hidden sm:inline tabular-nums">
-                    {user.designs_this_month}/{user.monthly_limit}
-                  </span>
-                )}
+                <span className="text-[10px] hidden sm:inline tabular-nums mr-1">
+                  {user.tier === 'free' ? (
+                    <span className="text-gray-600">{user.designs_this_month}/{user.monthly_limit}</span>
+                  ) : (
+                    <span className={user.tier === 'admin' ? 'text-purple-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                      {user.tier === 'admin' ? 'Admin' : 'Pro'}
+                    </span>
+                  )}
+                </span>
                 <Link
                   to="/account"
                   className="hidden md:flex items-center relative"
