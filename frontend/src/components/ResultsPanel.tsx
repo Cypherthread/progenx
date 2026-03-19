@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { DesignResponse } from '@/lib/api'
 import GeneCircuit from './GeneCircuit'
 import InteractivePlasmidMap from './InteractivePlasmidMap'
@@ -157,17 +158,27 @@ export default function ResultsPanel({ design }: Props) {
     return 'text-red-400 bg-red-500/10 border-red-500/30'
   }
 
+  const [activeTab, setActiveTab] = useState<'overview' | 'map' | 'files' | 'safety' | 'assembly'>('overview')
+
   const fba = design.fba_results || {} as any
   const assembly = design.assembly_plan || {} as any
   const geneSeqs = design.gene_sequences || {}
   const codonOpt = design.codon_optimized || {}
   const plasmid = design.plasmid_map_data || {} as any
 
+  const tabs = [
+    { id: 'overview' as const, label: 'Overview' },
+    { id: 'map' as const, label: 'Construct Map' },
+    { id: 'files' as const, label: 'DNA Files' },
+    { id: 'safety' as const, label: 'Safety' },
+    { id: 'assembly' as const, label: 'Build Plan' },
+  ]
+
   return (
-    <div className="space-y-5">
-      {/* Disclaimer Banner */}
-      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2.5 text-xs text-amber-300 font-medium">
-        {design.disclaimer || 'EDUCATIONAL/EXPERIMENTAL ONLY. NOT LAB-READY WITHOUT EXPERT REVIEW'}
+    <div className="space-y-4">
+      {/* Disclaimer */}
+      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2 text-[11px] text-amber-300/80">
+        For learning and testing ideas only. Not lab-ready without expert review.
       </div>
 
       {/* Conceptual Design Banner */}
@@ -182,29 +193,40 @@ export default function ResultsPanel({ design }: Props) {
         <div>
           <h2 className="text-xl font-semibold text-white">{design.design_name}</h2>
           <p className="text-sm text-gray-500 mt-1">
-            {design.host_organism} | {design.generation_time_sec}s | {design.model_used}
+            {design.host_organism} | Built in {design.generation_time_sec}s
           </p>
         </div>
         <ShareButton designId={design.id} designName={design.design_name} generationTime={design.generation_time_sec} />
       </div>
 
-      {/* Export bar */}
-      <div className="flex flex-wrap items-center gap-2 p-3 bg-gray-900/80 border border-gray-800 rounded-lg">
-        <span className="text-xs font-medium text-gray-400 mr-1">Export:</span>
-        <ExportBtn onClick={downloadFasta} label="FASTA" />
-        {design.genbank_content && <ExportBtn onClick={downloadGenBank} label="GenBank" />}
-        <ExportBtn onClick={downloadPlasmidSvg} label="Plasmid SVG" />
-        {(assembly.primers?.length ?? 0) > 0 && <ExportBtn onClick={downloadPrimersCSV} label="Primers CSV" />}
-        <ExportBtn onClick={downloadAssemblyPlan} label="Assembly Plan" />
-        <ExportBtn onClick={downloadFullReport} label="Full Report" />
-        <ExportBtn onClick={downloadDesignJSON} label="JSON" />
-        <ExportBtn onClick={() => navigator.clipboard.writeText(design.dna_sequence)} label="Copy DNA" />
+      {/* Tab navigation */}
+      <div className="flex items-center gap-1 p-1 bg-gray-900/80 border border-gray-800 rounded-lg overflow-x-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+              activeTab === tab.id
+                ? 'bg-cyan-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+        {/* Export dropdown */}
+        <div className="ml-auto flex items-center gap-1 pl-2 border-l border-gray-700">
+          <ExportBtn onClick={downloadFullReport} label="Export All" />
+        </div>
       </div>
 
+      {/* ─── OVERVIEW TAB ─── */}
+      {activeTab === 'overview' && (
+      <>
       {/* Summary */}
       <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-        <h3 className="text-sm font-medium mb-2">Organism Summary</h3>
-        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{design.organism_summary}</p>
+        <h3 className="text-sm font-medium mb-2 text-white">What this organism does</h3>
+        <p className="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed">{design.organism_summary}</p>
       </div>
 
       {/* Safety Score */}
@@ -316,8 +338,18 @@ export default function ResultsPanel({ design }: Props) {
         </div>
       )}
 
-      {/* Interactive Plasmid Map */}
-      {plasmid.features?.length > 0 && (
+      {/* Quick stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Metric label="Yield (theoretical max)" value={design.simulated_yield || 'N/A'} />
+        <Metric label="Synthesis Cost" value={design.estimated_cost} />
+        <Metric label="Construct Size" value={`${design.dna_sequence.length.toLocaleString()} bp`} />
+        <Metric label="Target Product" value={design.target_product || 'N/A'} />
+      </div>
+      </>
+      )}
+
+      {/* ─── MAP TAB ─── */}
+      {activeTab === 'map' && plasmid.features?.length > 0 && (
         <InteractivePlasmidMap
           features={plasmid.features}
           totalLength={plasmid.total_length_bp || 5000}
@@ -326,6 +358,146 @@ export default function ResultsPanel({ design }: Props) {
         />
       )}
 
+      {/* ─── FILES TAB ─── */}
+      {activeTab === 'files' && (
+      <>
+      {/* Export options */}
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+        <h3 className="text-sm font-medium text-white mb-3">Download Your Design Files</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button onClick={downloadFasta} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">FASTA</p>
+            <p className="text-[10px] text-gray-500">DNA sequences</p>
+          </button>
+          {design.genbank_content && (
+          <button onClick={downloadGenBank} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">GenBank</p>
+            <p className="text-[10px] text-gray-500">Opens in SnapGene</p>
+          </button>
+          )}
+          <button onClick={downloadPlasmidSvg} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">Plasmid SVG</p>
+            <p className="text-[10px] text-gray-500">Vector map</p>
+          </button>
+          {(assembly.primers?.length ?? 0) > 0 && (
+          <button onClick={downloadPrimersCSV} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">Primers CSV</p>
+            <p className="text-[10px] text-gray-500">Ready to order</p>
+          </button>
+          )}
+          <button onClick={downloadFullReport} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">Full Report</p>
+            <p className="text-[10px] text-gray-500">Everything in one doc</p>
+          </button>
+          <button onClick={downloadDesignJSON} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">JSON</p>
+            <p className="text-[10px] text-gray-500">For developers</p>
+          </button>
+          <button onClick={() => { navigator.clipboard.writeText(design.dna_sequence); }} className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-cyan-500/30 transition-colors text-center">
+            <p className="text-sm font-medium text-white">Copy DNA</p>
+            <p className="text-[10px] text-gray-500">To clipboard</p>
+          </button>
+        </div>
+      </div>
+
+      {/* DNA sequence preview */}
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+        <h3 className="text-sm font-medium text-white mb-2">Construct Sequence</h3>
+        <pre className="text-xs font-mono bg-gray-800/50 p-3 rounded-lg overflow-x-auto max-h-32 text-gray-400">
+          {design.dna_sequence.match(/.{1,80}/g)?.join('\n') || 'No sequence'}
+        </pre>
+      </div>
+
+      {/* Codon optimization details */}
+      {Object.keys(codonOpt).length > 0 && (
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+          <h3 className="text-sm font-medium text-white mb-3">Codon-Optimized Sequences</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+            {Object.entries(codonOpt).map(([name, data]: [string, any]) => (
+              <div key={name} className="bg-gray-800/50 rounded-lg p-2 text-center">
+                <p className="text-xs font-medium text-white">{name}</p>
+                <p className="text-sm font-bold text-white">{data.length_bp?.toLocaleString()} bp</p>
+                {data.cai_score != null && <p className="text-[10px] text-gray-500">CAI: {data.cai_score}</p>}
+                <p className="text-[10px] text-gray-500">GC: {((data.gc_content || 0) * 100).toFixed(1)}%</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-500">Optimized for {design.host_organism}</p>
+        </div>
+      )}
+
+      {/* Vendor links */}
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+        <h3 className="text-sm font-medium text-white mb-1">Ready to Order Synthesis?</h3>
+        <p className="text-xs text-gray-500 mb-3">
+          Sequences go through additional biosecurity screening before synthesis.
+        </p>
+        <div className="flex gap-2">
+          <a href="https://www.twistbioscience.com" target="_blank" rel="noopener noreferrer"
+            className="px-4 py-2 border border-gray-700 rounded-lg text-xs font-medium text-gray-300 hover:bg-gray-800 hover:border-gray-600">Twist Bioscience</a>
+          <a href="https://www.idtdna.com" target="_blank" rel="noopener noreferrer"
+            className="px-4 py-2 border border-gray-700 rounded-lg text-xs font-medium text-gray-300 hover:bg-gray-800 hover:border-gray-600">IDT</a>
+        </div>
+      </div>
+      </>
+      )}
+
+      {/* ─── SAFETY TAB ─── */}
+      {activeTab === 'safety' && (
+      <>
+      {/* Safety Score */}
+      <div className={`rounded-xl p-4 border ${safetyColor(design.safety_score)}`}>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium">Safety Score</h3>
+          <span className="text-lg font-bold">{Math.round(design.safety_score * 100)}%</span>
+        </div>
+        <p className="text-sm mb-2">{design.dual_use_assessment}</p>
+        {design.safety_flags.length > 0 && (
+          <ul className="text-xs space-y-1 mt-2">
+            {design.safety_flags.map((flag, i) => (
+              <li key={i} className="flex items-start gap-1">
+                <span className="mt-0.5">&#9888;</span><span>{flag}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Gene confidence breakdown */}
+      {Object.keys(geneSeqs).length > 0 && (
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+          <h3 className="text-sm font-medium text-white mb-3">Gene Verification Status</h3>
+          <div className="space-y-2">
+            {Object.entries(geneSeqs).map(([name, data]: [string, any]) => (
+              <div key={name} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-800 last:border-0">
+                <span className="font-medium text-white">{name}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${
+                    data.source === 'ncbi_registry' ? 'bg-green-500/20 text-green-400' :
+                    data.source === 'ncbi_search' ? 'bg-blue-500/20 text-blue-400' :
+                    'bg-gray-800 text-gray-400'
+                  }`}>
+                    {data.source === 'ncbi_registry' ? 'Verified' : data.source === 'ncbi_search' ? 'Found' : 'Unverified'}
+                  </span>
+                  {data.confidence && data.confidence !== 'unknown' && (
+                    <span className={`text-[10px] px-1 py-0.5 rounded ${
+                      data.confidence === 'high' ? 'bg-green-500/15 text-green-400' :
+                      data.confidence === 'medium' ? 'bg-blue-500/15 text-blue-400' :
+                      'bg-yellow-500/15 text-yellow-400'
+                    }`}>{data.confidence}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      </>
+      )}
+
+      {/* ─── BUILD PLAN TAB ─── */}
+      {activeTab === 'assembly' && (
+      <>
       {/* FBA Results */}
       {fba.summary && (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
@@ -434,54 +606,12 @@ export default function ResultsPanel({ design }: Props) {
         </div>
       )}
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Metric label="Simulated Yield" value={design.simulated_yield} />
-        <Metric label="Synthesis Cost" value={design.estimated_cost} />
-        <Metric label="Construct Size" value={`${design.dna_sequence.length.toLocaleString()} bp`} />
-        <Metric label="Target Product" value={design.target_product || 'N/A'} />
-      </div>
+      </>
+      )}
 
-      {/* DNA Sequence + FASTA download */}
-      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium">Codon-Optimized Construct Sequence</h3>
-          <div className="flex gap-2">
-            <button onClick={downloadFasta} className="px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium hover:opacity-90">
-              FASTA
-            </button>
-            {design.genbank_content && (
-              <button onClick={downloadGenBank} className="px-3 py-1.5 bg-emerald-600 text-white rounded-md text-xs font-medium hover:opacity-90">
-                GenBank
-              </button>
-            )}
-            <button onClick={() => navigator.clipboard.writeText(design.dna_sequence)} className="px-3 py-1.5 border rounded-md text-xs font-medium hover:bg-secondary">
-              Copy
-            </button>
-          </div>
-        </div>
-        <pre className="text-xs font-mono bg-gray-800/50 p-3 rounded-lg overflow-x-auto max-h-32">
-          {design.dna_sequence.match(/.{1,80}/g)?.join('\n') || 'No sequence'}
-        </pre>
-      </div>
-
-      {/* Vendor links */}
-      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-        <h3 className="text-sm font-medium mb-1">Ready to Build?</h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Sequences undergo additional IGSC biosecurity screening before synthesis.
-        </p>
-        <div className="flex gap-2">
-          <a href="https://www.twistbioscience.com" target="_blank" rel="noopener noreferrer"
-            className="px-4 py-2 border rounded-md text-xs font-medium hover:bg-white">Twist Bioscience</a>
-          <a href="https://www.idtdna.com" target="_blank" rel="noopener noreferrer"
-            className="px-4 py-2 border rounded-md text-xs font-medium hover:bg-white">IDT</a>
-        </div>
-      </div>
-
-      {/* Disclaimer (bottom) */}
-      <div className="text-xs text-muted-foreground bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg">
-        <strong>DISCLAIMER:</strong> {design.disclaimer}
+      {/* Bottom disclaimer on all tabs */}
+      <div className="text-[11px] text-gray-600 text-center pt-2">
+        For learning and testing ideas only. Not lab-ready without expert review.
       </div>
     </div>
   )

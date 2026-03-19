@@ -119,28 +119,41 @@ export default function Studio() {
 
         {/* Right: Results */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Error display */}
+          {/* Error display with contextual actions */}
           {error && (
-            <div className="p-4 border border-red-500/30 rounded-xl bg-red-500/10">
-              <h3 className="font-semibold text-red-400 mb-1">Design failed</h3>
-              <p className="text-sm text-red-300/80">{error}</p>
-              {error.includes('limit') || error.includes('429') ? (
-                <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={() => navigate('/pricing')}
-                    className="px-4 py-2 bg-cyan-600 text-white rounded-md text-sm font-medium hover:bg-cyan-500"
-                  >
-                    Upgrade to Pro: Unlimited Designs
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => useDesign.setState({ error: null })}
-                  className="mt-3 px-4 py-2 border border-gray-700 text-gray-300 rounded-md text-sm hover:bg-gray-800"
-                >
-                  Dismiss
-                </button>
-              )}
+            <div className="p-5 border border-red-500/20 rounded-xl bg-red-500/5">
+              <h3 className="font-semibold text-red-400 mb-2">Let's fix this</h3>
+              <p className="text-sm text-gray-300 leading-relaxed">{error}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(error.includes('limit') || error.includes('5 free') || error.includes('month')) ? (
+                  <>
+                    <button onClick={() => navigate('/pricing')} className="px-4 py-2.5 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-500">
+                      Upgrade to Pro
+                    </button>
+                    <button onClick={() => useDesign.setState({ error: null })} className="px-4 py-2.5 border border-gray-700 text-gray-400 rounded-lg text-sm hover:bg-gray-800">
+                      Maybe later
+                    </button>
+                  </>
+                ) : (error.includes('building blocks') || error.includes('rephrasing')) ? (
+                  <>
+                    <button onClick={() => { useDesign.setState({ error: null }); setSelectedPrompt('Design a microbe that eats ocean microplastics') }} className="px-4 py-2.5 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-500">
+                      Try an example instead
+                    </button>
+                    <button onClick={() => useDesign.setState({ error: null })} className="px-4 py-2.5 border border-gray-700 text-gray-400 rounded-lg text-sm hover:bg-gray-800">
+                      Edit my idea
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => useDesign.setState({ error: null })} className="px-4 py-2.5 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-500">
+                      Try again
+                    </button>
+                    <button onClick={() => useDesign.setState({ error: null })} className="px-4 py-2.5 border border-gray-700 text-gray-400 rounded-lg text-sm hover:bg-gray-800">
+                      Dismiss
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -207,12 +220,12 @@ function ProgressSteps() {
   }, [])
 
   const steps = [
-    { label: 'Designing gene circuit', desc: 'AI selecting real genes and regulatory elements' },
-    { label: 'Fetching NCBI sequences', desc: 'Retrieving verified protein sequences from GenBank' },
-    { label: 'Optimizing codons', desc: 'Tuning DNA sequences for the target chassis organism' },
-    { label: 'Running metabolic simulation', desc: 'COBRApy flux balance analysis for yield prediction' },
-    { label: 'Planning assembly', desc: 'Selecting ori, markers, kill switch, and designing primers' },
-    { label: 'Generating construct map', desc: 'Building circular plasmid visualization' },
+    { label: 'Picking the right building blocks', desc: 'Selecting real genes and control elements for your design' },
+    { label: 'Finding verified parts', desc: 'Pulling real protein sequences from trusted databases' },
+    { label: 'Tuning the DNA for your organism', desc: 'Optimizing the code so it works in the target species' },
+    { label: 'Simulating growth and yield', desc: 'Predicting how well the organism will perform' },
+    { label: 'Planning how to build it', desc: 'Choosing assembly method, safety switches, and designing primers' },
+    { label: 'Drawing the construct map', desc: 'Building a visual map of your complete design' },
   ]
 
   return (

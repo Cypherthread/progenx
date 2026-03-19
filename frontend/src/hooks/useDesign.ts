@@ -40,11 +40,17 @@ export const useDesign = create<DesignState>((set, get) => ({
       // Make rate limit errors user-friendly
       let friendlyMsg = msg
       if (msg.includes('429') || msg.includes('limit') || msg.includes('Free tier')) {
-        friendlyMsg = 'You\'ve used all 5 free designs this month. Upgrade to Pro for unlimited designs, or wait until next month.'
-      } else if (msg.includes('unavailable') || msg.includes('starting up')) {
-        friendlyMsg = 'The design engine is starting up. Please try again in about 30 seconds.'
+        friendlyMsg = 'You\'ve used all 5 free designs this month. Upgrade to Pro for unlimited designs, or come back next month.'
+      } else if (msg.includes('unavailable') || msg.includes('starting up') || msg.includes('Connection')) {
+        friendlyMsg = 'The design engine is warming up. This happens after periods of inactivity. Try again in about 30 seconds.'
       } else if (msg.includes('unexpected response') || msg.includes('parse')) {
-        friendlyMsg = 'The AI returned an unexpected response. Please try again. This is usually a one-time issue.'
+        friendlyMsg = 'Your idea was tricky for the AI this time. Try again, or simplify your description a bit.'
+      } else if (msg.includes('busy') || msg.includes('503')) {
+        friendlyMsg = 'Lots of people designing right now. Pro users get priority access. Try again in a moment.'
+      } else if (msg.includes('safety') || msg.includes('blocked') || msg.includes('denied')) {
+        friendlyMsg = 'This design triggered a safety flag. Try adjusting your idea or pick one of the example prompts.'
+      } else if (msg.includes('not found') || msg.includes('No known gene')) {
+        friendlyMsg = 'We couldn\'t find real building blocks for that exact idea yet. Try rephrasing, or pick a well-known application like plastic degradation or nitrogen fixation.'
       }
       set({ error: friendlyMsg, generating: false })
     }
