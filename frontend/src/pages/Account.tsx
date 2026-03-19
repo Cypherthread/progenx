@@ -118,20 +118,55 @@ export default function Account() {
                 onClick={() => navigate('/pricing')}
                 className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-500"
               >
-                Upgrade to Pro
+                Upgrade to Pro for $29/month
               </button>
             </div>
           ) : (
-            <div>
-              <p className="text-sm text-gray-400 mb-3">
-                You're on the {tierLabel} plan. Manage your subscription and payment method.
-              </p>
-              <button
-                onClick={handleManageBilling}
-                className="px-4 py-2 border border-gray-700 text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-800"
-              >
-                Manage Billing
-              </button>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-gray-800/30 border border-gray-700 rounded-lg">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  user.tier === 'admin' ? 'bg-purple-500/20' : 'bg-amber-500/20'
+                }`}>
+                  <svg viewBox="0 0 24 14" className="w-5 h-3" fill="none">
+                    <path d="M2 12L5 4L9 8L12 2L15 8L19 4L22 12H2Z" fill={user.tier === 'admin' ? '#A78BFA' : '#FBBF24'} />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{tierLabel} Plan</p>
+                  <p className="text-xs text-gray-500">Unlimited designs, Claude AI, full validation</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={handleManageBilling}
+                  className="px-4 py-2.5 border border-gray-700 text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-800"
+                >
+                  Update Payment Method
+                </button>
+                <button
+                  onClick={handleManageBilling}
+                  className="px-4 py-2.5 border border-gray-700 text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-800"
+                >
+                  View Invoices
+                </button>
+              </div>
+
+              <div className="pt-3 border-t border-gray-800">
+                <button
+                  onClick={async () => {
+                    if (confirm('Are you sure you want to cancel your Pro plan? You will keep access until the end of your current billing period.')) {
+                      handleManageBilling()
+                    }
+                  }}
+                  className="text-sm text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Cancel Plan
+                </button>
+                <p className="text-[10px] text-gray-600 mt-1">
+                  You'll keep Pro access until the end of your current billing period. After that, your account reverts to the free tier.
+                </p>
+              </div>
             </div>
           )}
         </div>
