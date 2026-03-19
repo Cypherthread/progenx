@@ -116,11 +116,11 @@ function ArcDial({
   }, [onChange, min, max])
 
   return (
-    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col items-center">
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">{label}</label>
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 flex flex-col items-center">
+      <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-2">{label}</label>
       <svg
         viewBox="0 0 120 80"
-        className="w-full max-w-[140px] cursor-pointer select-none"
+        className="w-full max-w-[160px] cursor-pointer select-none"
         onClick={handleInteraction}
         onMouseDown={(e) => {
           const move = (ev: MouseEvent) => handleInteraction({ currentTarget: e.currentTarget, clientX: ev.clientX, clientY: ev.clientY } as any)
@@ -155,7 +155,7 @@ function ArcDial({
           {displayValue}
         </text>
       </svg>
-      <div className="flex justify-between w-full px-1 -mt-1">
+      <div className="flex justify-between w-full px-2 mt-1">
         <span className="text-[9px] text-gray-600">{leftLabel}</span>
         <span className="text-[9px] text-gray-600">{rightLabel}</span>
       </div>
