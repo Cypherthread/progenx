@@ -99,11 +99,8 @@ function ArcDial({
   const trackLargeArc = (endAngle - startAngle) > 180 ? 1 : 0
 
   // Handle click/drag on the arc
-  const handleInteraction = useCallback((e: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>) => {
-    const svg = e.currentTarget
-    const rect = svg.getBoundingClientRect()
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+  const handleInteraction = useCallback((clientX: number, clientY: number, svgEl: SVGSVGElement) => {
+    const rect = svgEl.getBoundingClientRect()
     const x = clientX - rect.left - (rect.width / 2)
     const y = clientY - rect.top - (rect.height * 0.46)
     let angle = Math.atan2(y, x) * 180 / Math.PI + 90
@@ -111,6 +108,7 @@ function ArcDial({
     if (angle > 180) angle -= 360
     const clamped = Math.max(startAngle, Math.min(endAngle, angle))
     const newNorm = (clamped - startAngle) / (endAngle - startAngle)
+    // Smooth: step by 5% instead of jumping
     const stepped = Math.round(newNorm * 20) / 20
     onChange(min + stepped * (max - min))
   }, [onChange, min, max])
@@ -120,13 +118,25 @@ function ArcDial({
       <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-2">{label}</label>
       <svg
         viewBox="0 0 120 80"
-        className="w-full max-w-[160px] cursor-pointer select-none"
-        onClick={handleInteraction}
+        className="w-full max-w-[160px] cursor-pointer select-none touch-none"
+        onClick={(e) => handleInteraction(e.clientX, e.clientY, e.currentTarget)}
         onMouseDown={(e) => {
-          const move = (ev: MouseEvent) => handleInteraction({ currentTarget: e.currentTarget, clientX: ev.clientX, clientY: ev.clientY } as any)
+          e.preventDefault()
+          const svg = e.currentTarget
+          handleInteraction(e.clientX, e.clientY, svg)
+          const move = (ev: MouseEvent) => { ev.preventDefault(); handleInteraction(ev.clientX, ev.clientY, svg) }
           const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up) }
           document.addEventListener('mousemove', move)
           document.addEventListener('mouseup', up)
+        }}
+        onTouchStart={(e) => {
+          const svg = e.currentTarget
+          const touch = e.touches[0]
+          handleInteraction(touch.clientX, touch.clientY, svg)
+          const move = (ev: TouchEvent) => { ev.preventDefault(); handleInteraction(ev.touches[0].clientX, ev.touches[0].clientY, svg) }
+          const end = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end) }
+          document.addEventListener('touchmove', move, { passive: false })
+          document.addEventListener('touchend', end)
         }}
       >
         {/* Track (background arc) */}
