@@ -55,12 +55,12 @@ export default function Header() {
                     ? `${user.designs_this_month}/${user.monthly_limit}`
                     : 'Pro'}
                 </span>
-                <button
-                  onClick={logout}
-                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors hidden md:inline"
+                <Link
+                  to="/account"
+                  className="text-xs text-gray-500 hover:text-cyan-400 transition-colors hidden md:inline"
                 >
-                  Log out
-                </button>
+                  Account
+                </Link>
               </>
             ) : (
               <button

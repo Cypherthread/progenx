@@ -8,6 +8,7 @@ import Studio from '@/pages/Studio'
 import History from '@/pages/History'
 import Explore from '@/pages/Explore'
 import Pricing from '@/pages/Pricing'
+import Account from '@/pages/Account'
 
 export default function App() {
   const loadUser = useAuth((s) => s.loadUser)
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/history" element={<History />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/account" element={<Account />} />
         </Routes>
       </main>
       <ToastContainer />
