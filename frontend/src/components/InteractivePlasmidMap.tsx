@@ -86,18 +86,21 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
   const activeInfo = activeFeature ? featureInfo[activeFeature.label] : null
 
   return (
-    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-white">Construct Map</h3>
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-semibold text-white">Construct Map</h3>
+          <p className="text-[10px] text-gray-600 mt-0.5">Click any feature to inspect. {totalLength.toLocaleString()} bp circular.</p>
+        </div>
         {activeFeature && (
-          <span className="text-xs text-gray-400">
-            Click a feature for details
+          <span className="text-[10px] px-2 py-1 bg-cyan-500/10 text-cyan-400 rounded-md">
+            {activeFeature.label} selected
           </span>
         )}
       </div>
 
-      <div className="relative max-w-lg mx-auto">
-        <svg viewBox="0 0 500 500" className="w-full" style={{ maxHeight: 500 }}>
+      <div className="relative mx-auto" style={{ maxWidth: 520 }}>
+        <svg viewBox="0 0 500 500" className="w-full">
           {/* Glow filter */}
           <defs>
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -116,21 +119,36 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
             </filter>
           </defs>
 
-          {/* Background ring */}
+          {/* Background ring with subtle double track */}
+          <circle cx={cx} cy={cy} r={baseR} fill="none" stroke="#111827" strokeWidth="24" opacity="0.3" />
           <circle cx={cx} cy={cy} r={baseR} fill="none" stroke="#1F2937" strokeWidth="2" />
 
-          {/* Tick marks every 1000 bp */}
-          {Array.from({ length: Math.floor(totalLength / 1000) }).map((_, i) => {
-            const bp = (i + 1) * 1000
-            const [x1, y1] = polarToXY(baseR - 24, toAngle(bp))
-            const [x2, y2] = polarToXY(baseR - 20, toAngle(bp))
-            const [tx, ty] = polarToXY(baseR - 30, toAngle(bp))
+          {/* Origin marker (0 bp = top) */}
+          {(() => {
+            const [ox, oy] = polarToXY(baseR, 0)
+            return <circle cx={ox} cy={oy} r="3" fill="#4B5563" />
+          })()}
+
+          {/* Tick marks: minor every 500bp, major every 1000bp */}
+          {Array.from({ length: Math.floor(totalLength / 500) }).map((_, i) => {
+            const bp = (i + 1) * 500
+            const isMajor = bp % 1000 === 0
+            const innerR = isMajor ? baseR - 26 : baseR - 22
+            const outerR = baseR - 18
+            const [x1, y1] = polarToXY(innerR, toAngle(bp))
+            const [x2, y2] = polarToXY(outerR, toAngle(bp))
             return (
-              <g key={i} opacity={0.3}>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#4B5563" strokeWidth="1" />
-                <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central" fontSize="7" fill="#4B5563">
-                  {bp >= 1000 ? `${(bp / 1000).toFixed(0)}k` : bp}
-                </text>
+              <g key={i}>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#374151" strokeWidth={isMajor ? 1.5 : 0.5} opacity={isMajor ? 0.5 : 0.25} />
+                {isMajor && (() => {
+                  const [tx, ty] = polarToXY(baseR - 32, toAngle(bp))
+                  return (
+                    <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central" fontSize="7" fill="#4B5563"
+                      style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      {(bp / 1000).toFixed(0)}k
+                    </text>
+                  )
+                })()}
               </g>
             )
           })}
@@ -206,19 +224,26 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
             )
           })}
 
-          {/* Center info */}
-          <circle cx={cx} cy={cy} r={50} fill="#0F172A" stroke="#1E293B" strokeWidth="1" />
-          <text x={cx} y={cy - 12} textAnchor="middle" fontSize="11" fontWeight="700" fill="white"
+          {/* Center info with gradient background */}
+          <circle cx={cx} cy={cy} r={52} fill="url(#centerGradient)" />
+          <circle cx={cx} cy={cy} r={52} fill="none" stroke="#1E293B" strokeWidth="1" />
+          <defs>
+            <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#111827" />
+              <stop offset="100%" stopColor="#0B1120" />
+            </radialGradient>
+          </defs>
+          <text x={cx} y={cy - 14} textAnchor="middle" fontSize="10" fontWeight="700" fill="white"
             style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-            {designName.length > 20 ? designName.slice(0, 20) + '...' : designName}
+            {designName.length > 18 ? designName.slice(0, 18) + '...' : designName}
           </text>
-          <text x={cx} y={cy + 4} textAnchor="middle" fontSize="10" fill="#06B6D4"
+          <text x={cx} y={cy + 2} textAnchor="middle" fontSize="13" fontWeight="800" fill="#06B6D4"
             style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-            {totalLength.toLocaleString()} bp
+            {totalLength.toLocaleString()}
           </text>
-          <text x={cx} y={cy + 18} textAnchor="middle" fontSize="8" fill="#4B5563"
+          <text x={cx} y={cy + 16} textAnchor="middle" fontSize="8" fill="#4B5563"
             style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-            circular construct
+            base pairs
           </text>
         </svg>
       </div>
