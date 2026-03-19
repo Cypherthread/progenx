@@ -50,17 +50,32 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <span className="text-xs text-gray-500 hidden sm:inline tabular-nums">
-                  {user.tier === 'free'
-                    ? `${user.designs_this_month}/${user.monthly_limit}`
-                    : 'Pro'}
-                </span>
+                {user.tier === 'free' && (
+                  <span className="text-[10px] text-gray-600 hidden sm:inline tabular-nums">
+                    {user.designs_this_month}/{user.monthly_limit}
+                  </span>
+                )}
                 <Link
                   to="/account"
-                  className="hidden md:flex items-center gap-1.5 text-xs text-gray-500 hover:text-cyan-400 transition-colors"
+                  className="hidden md:flex items-center relative"
+                  title={user.tier === 'free' ? 'Account' : `${user.tier.charAt(0).toUpperCase() + user.tier.slice(1)} Account`}
                 >
-                  <div className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
+                  {/* Crown for pro/admin */}
+                  {(user.tier === 'pro' || user.tier === 'admin') && (
+                    <svg viewBox="0 0 24 14" className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-3 z-10" fill="none">
+                      <path d="M2 12L5 4L9 8L12 2L15 8L19 4L22 12H2Z" fill={user.tier === 'admin' ? '#A78BFA' : '#FBBF24'} stroke={user.tier === 'admin' ? '#7C3AED' : '#D97706'} strokeWidth="1" />
+                    </svg>
+                  )}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                    user.tier === 'admin' ? 'bg-purple-500/20 border-2 border-purple-500/50' :
+                    user.tier === 'pro' ? 'bg-amber-500/20 border-2 border-amber-500/50' :
+                    'bg-gray-800 border border-gray-700'
+                  }`}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`w-4 h-4 ${
+                      user.tier === 'admin' ? 'text-purple-400' :
+                      user.tier === 'pro' ? 'text-amber-400' :
+                      'text-gray-500'
+                    }`}>
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
