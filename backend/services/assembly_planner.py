@@ -42,6 +42,9 @@ def plan_assembly(
     # 7. Primer design (if DNA sequences available)
     primers = _design_primers(genes, codon_optimized)
 
+    # 8. Assembly compatibility check (restriction site scan)
+    compatibility = _check_assembly_compatibility(method["name"], genes, codon_optimized)
+
     result = {
         "origin_of_replication": ori,
         "selection_marker": marker,
@@ -50,6 +53,7 @@ def plan_assembly(
         "rbs_notes": rbs,
         "estimated_total_size_bp": full_size,
         "parts_count": n_parts,
+        "assembly_compatibility": compatibility,
         "summary": _build_summary(ori, marker, method, kill_switch, rbs, full_size, genes),
     }
 
@@ -249,3 +253,105 @@ def _build_summary(ori, marker, method, kill_switch, rbs, full_size, genes) -> s
         f"\n"
         f"RBS: {rbs['strategy']}\n"
     )
+
+
+# Common Type IIS and restriction enzyme recognition sites
+RESTRICTION_SITES = {
+    # Type IIS (used in Golden Gate / MoClo)
+    "BsaI": "GGTCTC",
+    "BsaI_rc": "GAGACC",
+    "BpiI": "GAAGAC",
+    "BpiI_rc": "GTCTTC",
+    "BbsI": "GAAGAC",
+    "BbsI_rc": "GTCTTC",
+    "SapI": "GCTCTTC",
+    "SapI_rc": "GAAGAGC",
+    # Common 6-cutters (used in restriction/ligation cloning)
+    "EcoRI": "GAATTC",
+    "BamHI": "GGATCC",
+    "HindIII": "AAGCTT",
+    "XbaI": "TCTAGA",
+    "SpeI": "ACTAGT",
+    "PstI": "CTGCAG",
+    "NotI": "GCGGCCGC",
+}
+
+# Which enzymes matter for each assembly method
+ASSEMBLY_ENZYMES = {
+    "Golden Gate": ["BsaI", "BsaI_rc"],
+    "Golden Gate (BsaI Type IIS)": ["BsaI", "BsaI_rc"],
+    "Gibson Assembly": [],  # Gibson doesn't use restriction enzymes
+    "MoClo": ["BsaI", "BsaI_rc", "BpiI", "BpiI_rc"],
+}
+
+
+def _check_assembly_compatibility(
+    method_name: str,
+    genes: list[dict],
+    codon_optimized: dict | None,
+) -> dict:
+    """Check if gene sequences contain restriction sites that would
+    interfere with the chosen assembly method.
+
+    This catches a real lab failure mode: internal BsaI sites in a gene
+    will cause Golden Gate assembly to cut in the wrong place, producing
+    incorrect constructs or no colonies.
+    """
+    relevant_enzymes = ASSEMBLY_ENZYMES.get(method_name, [])
+    if not relevant_enzymes:
+        return {
+            "compatible": True,
+            "method": method_name,
+            "issues": [],
+            "note": f"{method_name} does not use restriction enzymes — no site conflicts possible.",
+        }
+
+    issues = []
+
+    for gene in genes:
+        name = gene.get("name", "unknown")
+
+        # Check codon-optimized DNA first (this is what gets built)
+        dna = ""
+        if codon_optimized:
+            opt = codon_optimized.get(name, {})
+            if isinstance(opt, dict):
+                dna = opt.get("optimized_dna", "")
+
+        if not dna:
+            continue
+
+        dna_upper = dna.upper()
+        for enz_name in relevant_enzymes:
+            site = RESTRICTION_SITES.get(enz_name, "")
+            if not site:
+                continue
+
+            # Find all occurrences
+            pos = 0
+            while True:
+                idx = dna_upper.find(site, pos)
+                if idx == -1:
+                    break
+                issues.append({
+                    "gene": name,
+                    "enzyme": enz_name.replace("_rc", " (reverse complement)"),
+                    "site": site,
+                    "position": idx + 1,
+                    "warning": f"Internal {enz_name.replace('_rc', '')} site in {name} at position {idx + 1} — "
+                               f"this will cause incorrect cutting during {method_name} assembly.",
+                    "fix": f"Mutate the internal site with a synonymous codon change (silent mutation at position {idx + 1}).",
+                })
+                pos = idx + 1
+
+    return {
+        "compatible": len(issues) == 0,
+        "method": method_name,
+        "issues": issues,
+        "note": (
+            f"All genes are compatible with {method_name} — no internal restriction site conflicts found."
+            if not issues else
+            f"Found {len(issues)} internal restriction site{'s' if len(issues) != 1 else ''} that will interfere with {method_name}. "
+            f"These must be removed by silent mutation before assembly."
+        ),
+    }
