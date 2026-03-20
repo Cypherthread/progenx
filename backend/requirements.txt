@@ -18,5 +18,6 @@ pillow
 stripe
 resend
 psycopg2-binary
+sbol3
 # Optional: ESM-2 protein variant scoring (Pro tier, needs ~5GB disk)
 # pip install torch transformers

@@ -430,6 +430,41 @@ def list_designs(user: User = Depends(get_current_user), db: Session = Depends(g
     return [_design_response(d) for d in designs]
 
 
+@router.get("/{design_id}/sbol3")
+def download_sbol3(design_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Export design as SBOL3 format (standard synbio exchange format)."""
+    design = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
+    if not design:
+        raise HTTPException(status_code=404, detail="Design not found")
+
+    from services.sbol_exporter import export_design_sbol3
+    gene_circuit = _parse_json_field(design.gene_circuit)
+    gene_sequences = _parse_json_field(design.gene_sequences)
+    assembly_plan = _parse_json_field(design.assembly_plan)
+
+    sbol_content = export_design_sbol3(
+        design_name=design.design_name,
+        host_organism=design.host_organism or "",
+        gene_circuit=gene_circuit,
+        dna_sequence=design.dna_sequence,
+        gene_sequences=gene_sequences,
+        assembly_plan=assembly_plan,
+        safety_score=design.safety_score,
+        design_id=design.id,
+    )
+
+    if sbol_content is None:
+        raise HTTPException(status_code=503, detail="SBOL3 export not available (pySBOL3 not installed)")
+
+    from fastapi.responses import Response
+    slug = (design.design_name or "design").lower().replace(" ", "_")[:30]
+    return Response(
+        content=sbol_content,
+        media_type="application/rdf+xml",
+        headers={"Content-Disposition": f'attachment; filename="{slug}.sbol3.nt"'},
+    )
+
+
 @router.get("/{design_id}", response_model=DesignResponse)
 def get_design(design_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     design = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
