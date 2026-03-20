@@ -27,13 +27,14 @@ export const useDesign = create<DesignState>((set, get) => ({
   error: null,
 
   generate: async (prompt, environment, safety_level, complexity) => {
-    // Double-click protection: don't fire if already generating
     if (get().generating) return
 
     set({ generating: true, error: null })
     try {
       const result = await designs.generate({ prompt, environment, safety_level, complexity })
       set({ current: result, generating: false })
+      // Persist design ID for refresh recovery
+      sessionStorage.setItem('pgx_current_design', result.id)
       // Refresh user data to update design count
       useAuth.getState().loadUser()
     } catch (e: any) {
@@ -92,6 +93,7 @@ export const useDesign = create<DesignState>((set, get) => ({
     try {
       const d = await designs.get(id)
       set({ current: d })
+      sessionStorage.setItem('pgx_current_design', d.id)
     } catch (e: any) {
       set({ error: e.message })
     }

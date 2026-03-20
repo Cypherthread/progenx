@@ -290,19 +290,17 @@ export default function Explore() {
             </button>
 
             {/* Gradient header area */}
-            <div className="bg-gradient-to-br from-cyan-500/8 via-blue-500/5 to-transparent px-6 pt-6 pb-4">
-              {/* Header with bump */}
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold text-white">{selected.design_name}</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {selected.host_organism} | {selected.dna_sequence.length.toLocaleString()} bp | Safety {Math.round(selected.safety_score * 100)}%
-                  </p>
-                </div>
+            <div className="bg-gradient-to-br from-cyan-500/8 via-blue-500/5 to-transparent px-6 pt-6 pb-4 pr-14">
+              {/* Title — pr-14 keeps it clear of the absolute close button */}
+              <h2 className="text-xl font-bold text-white">{selected.design_name}</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {selected.host_organism} | {selected.dna_sequence.length.toLocaleString()} bp | Safety {Math.round(selected.safety_score * 100)}%
+              </p>
+              {/* Bump button — below title, not competing with close X */}
+              <div className="mt-3">
                 <button
                   onClick={() => {
                     handleBump(selected.id)
-                    // Trigger bounce animation
                     const el = document.getElementById('modal-bump-icon')
                     if (el) {
                       el.classList.remove('bump-animate')
@@ -310,13 +308,13 @@ export default function Explore() {
                       el.classList.add('bump-animate')
                     }
                   }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all shrink-0 ${
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     bumped
                       ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                       : 'text-gray-400 hover:text-cyan-400 border border-gray-700 hover:border-cyan-500/30 hover:bg-gray-800'
                   }`}
                 >
-                  <svg id="modal-bump-icon" viewBox="0 0 24 24" fill={bumped ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                  <svg id="modal-bump-icon" viewBox="0 0 24 24" fill={bumped ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
                     <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>{bumpCount}</span>
@@ -336,12 +334,12 @@ export default function Explore() {
                 <h3 className="text-sm font-medium text-white mb-3">Gene Circuit</h3>
                 <div className="space-y-2">
                   {(selected.gene_circuit?.genes || []).map((g: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-gray-800 last:border-0">
-                      <div>
+                    <div key={i} className="flex items-start justify-between gap-2 text-sm py-1.5 border-b border-gray-800 last:border-0">
+                      <div className="min-w-0">
                         <span className="font-medium text-white">{g.name}</span>
-                        <span className="text-gray-500 ml-2">{g.function}</span>
+                        <span className="text-gray-500 ml-2 text-xs">{g.function}</span>
                       </div>
-                      <span className="text-xs text-gray-600">{g.source_organism}</span>
+                      <span className="text-[10px] text-gray-600 shrink-0 mt-0.5">{g.source_organism}</span>
                     </div>
                   ))}
                 </div>

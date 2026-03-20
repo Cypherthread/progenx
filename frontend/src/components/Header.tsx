@@ -50,9 +50,6 @@ export default function Header() {
                   }`}
                 >
                   {label}
-                  {isActive && (
-                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/50" />
-                  )}
                 </Link>
               )
             })}

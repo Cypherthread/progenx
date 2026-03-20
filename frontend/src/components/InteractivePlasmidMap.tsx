@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 
 interface Feature {
   start: number
@@ -34,10 +34,35 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const isPanning = useRef(false)
+  const panStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 })
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect()
     setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+    if (isPanning.current) {
+      const dx = e.clientX - panStart.current.x
+      const dy = e.clientY - panStart.current.y
+      setPan({ x: panStart.current.panX + dx / zoom, y: panStart.current.panY + dy / zoom })
+    }
+  }, [zoom])
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault()
+    setZoom(prev => Math.max(0.5, Math.min(4, prev - e.deltaY * 0.002)))
+  }, [])
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 0) {
+      isPanning.current = true
+      panStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y }
+    }
+  }, [pan])
+
+  const handleMouseUp = useCallback(() => {
+    isPanning.current = false
   }, [])
 
   const cx = 250
@@ -72,7 +97,12 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
 
   function arcPath(startBp: number, endBp: number, r: number): string {
     const startDeg = toAngle(startBp)
-    const endDeg = toAngle(endBp)
+    let endDeg = toAngle(endBp)
+    // Enforce minimum arc span so small features render as curves, not squares
+    const minSpan = 12
+    if (endDeg - startDeg < minSpan) {
+      endDeg = startDeg + minSpan
+    }
     const [x1, y1] = polarToXY(r, startDeg)
     const [x2, y2] = polarToXY(r, endDeg)
     const span = endDeg - startDeg
@@ -105,7 +135,21 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
         )}
       </div>
 
-      <div className="relative mx-auto" style={{ maxWidth: 520 }} onMouseMove={handleMouseMove}>
+      <div
+        className="relative mx-auto max-w-full overflow-hidden rounded-lg"
+        style={{ maxWidth: 460, cursor: isPanning.current ? 'grabbing' : zoom > 1 ? 'grab' : 'default' }}
+        onMouseMove={handleMouseMove}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => { isPanning.current = false }}
+      >
+        {/* Zoom controls */}
+        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
+          <button onClick={() => setZoom(prev => Math.min(4, prev + 0.3))} className="w-7 h-7 flex items-center justify-center bg-gray-800/80 border border-gray-700/50 rounded-md text-gray-400 hover:text-white hover:bg-gray-700/80 text-sm font-bold transition-colors">+</button>
+          <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.3))} className="w-7 h-7 flex items-center justify-center bg-gray-800/80 border border-gray-700/50 rounded-md text-gray-400 hover:text-white hover:bg-gray-700/80 text-sm font-bold transition-colors">-</button>
+          {zoom !== 1 && <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }} className="w-7 h-7 flex items-center justify-center bg-gray-800/80 border border-gray-700/50 rounded-md text-gray-500 hover:text-white hover:bg-gray-700/80 text-[9px] transition-colors">1:1</button>}
+        </div>
         {/* Floating tooltip for hovered feature */}
         {hoveredIdx !== null && tooltipPos && (
           <div
@@ -116,18 +160,21 @@ export default function InteractivePlasmidMap({ features, totalLength, designNam
             <span className="text-gray-500 ml-1.5">{features[hoveredIdx].type}</span>
           </div>
         )}
-        <svg viewBox="0 0 500 500" className="w-full">
+        <svg
+          viewBox={`${-30 - pan.x * zoom} ${-10 - pan.y * zoom} ${560 / zoom} ${520 / zoom}`}
+          className="w-full transition-[viewBox] duration-100"
+        >
           {/* Glow filter */}
           <defs>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
+            <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            <filter id="glowStrong" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="8" result="blur" />
+            <filter id="glowStrong" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />

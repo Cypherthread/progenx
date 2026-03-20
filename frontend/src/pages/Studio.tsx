@@ -50,6 +50,16 @@ export default function Studio() {
     (location.state as any)?.prompt || ''
   )
 
+  // Restore design from session on refresh
+  useEffect(() => {
+    if (!current) {
+      const savedId = sessionStorage.getItem('pgx_current_design')
+      if (savedId) {
+        useDesign.getState().loadDesign(savedId)
+      }
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (current?.id) {
       loadChat(current.id)
@@ -122,31 +132,7 @@ export default function Studio() {
         {/* Left: Input + Challenges */}
         <div className="lg:col-span-1 space-y-6 lg:border-r lg:border-gray-800/60 lg:pr-8">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="shrink-0 opacity-80">
-                <path d="M14 2C14 2 10 6 10 10C10 12 11 14 14 14C17 14 18 12 18 10C18 6 14 2 14 2Z" fill="url(#dna-drop)" opacity="0.6"/>
-                <path d="M7 8C9.5 8 11 9.5 11 12C11 14.5 9 17 7 19" stroke="url(#dna-strand1)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-                <path d="M21 8C18.5 8 17 9.5 17 12C17 14.5 19 17 21 19" stroke="url(#dna-strand2)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-                <line x1="9" y1="10" x2="19" y2="10" stroke="rgba(6,182,212,0.3)" strokeWidth="1" strokeDasharray="2 2"/>
-                <line x1="8" y1="13" x2="20" y2="13" stroke="rgba(6,182,212,0.25)" strokeWidth="1" strokeDasharray="2 2"/>
-                <line x1="9" y1="16" x2="19" y2="16" stroke="rgba(6,182,212,0.2)" strokeWidth="1" strokeDasharray="2 2"/>
-                <circle cx="14" cy="22" r="3" fill="none" stroke="url(#dna-strand1)" strokeWidth="1.5"/>
-                <circle cx="14" cy="22" r="1" fill="rgba(6,182,212,0.5)"/>
-                <defs>
-                  <linearGradient id="dna-drop" x1="14" y1="2" x2="14" y2="14">
-                    <stop offset="0%" stopColor="#06B6D4"/>
-                    <stop offset="100%" stopColor="#22D3EE"/>
-                  </linearGradient>
-                  <linearGradient id="dna-strand1" x1="7" y1="8" x2="7" y2="19">
-                    <stop offset="0%" stopColor="#06B6D4"/>
-                    <stop offset="100%" stopColor="#0EA5E9"/>
-                  </linearGradient>
-                  <linearGradient id="dna-strand2" x1="21" y1="8" x2="21" y2="19">
-                    <stop offset="0%" stopColor="#22D3EE"/>
-                    <stop offset="100%" stopColor="#06B6D4"/>
-                  </linearGradient>
-                </defs>
-              </svg>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
               Design <span className="progenx-gradient-text">Studio</span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -243,7 +229,7 @@ export default function Studio() {
             <div className="flex items-center justify-center min-h-[250px] sm:min-h-[400px] border border-gray-800/50 rounded-xl bg-gray-900/20">
               <div className="flex flex-col items-center gap-3">
                 <span className="text-sm text-gray-600 font-medium tracking-wide">
-                  Waiting to generate...
+                  Waiting to Generate
                 </span>
                 <div className="flex gap-1">
                   {[0, 1, 2, 3, 4].map(i => (
