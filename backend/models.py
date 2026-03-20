@@ -147,6 +147,26 @@ class AnalyticsEvent(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class LabResult(Base):
+    """User-submitted experimental results for a gene/design.
+    Enables data-driven variant ranking over time."""
+    __tablename__ = "lab_results"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    design_id = Column(String, ForeignKey("designs.id"), nullable=False)
+    gene_name = Column(String, nullable=False)          # e.g. "petase"
+    sequence = Column(Text, default="")                  # AA or DNA sequence tested
+    organism = Column(String, default="")                # chassis used
+    result_type = Column(String, default="activity")     # activity, expression, stability, growth
+    value = Column(Float, default=0.0)                   # measured value
+    unit = Column(String, default="")                    # e.g. "U/mg", "mg/L", "°C"
+    conditions = Column(Text, default="{}")              # JSON: temp, pH, media, etc.
+    notes = Column(Text, default="")                     # free text
+    success = Column(Boolean, default=True)              # did it work at all?
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 

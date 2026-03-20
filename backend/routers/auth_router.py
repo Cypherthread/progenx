@@ -244,7 +244,7 @@ def delete_account(
     email, name = user.email, user.name
     from models import (
         Design, ChatMessage, AuditLog, AnalyticsEvent,
-        Bump, DesignComment, DesignVersion, ApiKey,
+        Bump, DesignComment, DesignVersion, ApiKey, LabResult,
     )
 
     # Delete all user data in order (foreign key constraints)
@@ -262,6 +262,7 @@ def delete_account(
     db.query(Bump).filter(Bump.user_id == user.id).delete(synchronize_session=False)
     db.query(DesignComment).filter(DesignComment.user_id == user.id).delete(synchronize_session=False)
     db.query(ApiKey).filter(ApiKey.user_id == user.id).delete(synchronize_session=False)
+    db.query(LabResult).filter(LabResult.user_id == user.id).delete(synchronize_session=False)
     db.query(AnalyticsEvent).filter(AnalyticsEvent.user_id == user.id).delete(synchronize_session=False)
     db.query(AuditLog).filter(AuditLog.user_id == user.id).delete(synchronize_session=False)
     db.query(Design).filter(Design.user_id == user.id).delete(synchronize_session=False)

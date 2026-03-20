@@ -76,7 +76,7 @@ _original_login = auth_router.router.routes
 
 @app.middleware("http")
 async def rate_limit_auth(request: Request, call_next):
-    if request.url.path in ("/api/auth/login", "/api/auth/signup"):
+    if request.url.path in ("/api/auth/login", "/api/auth/signup", "/api/auth/forgot-password"):
         ip = request.client.host if request.client else "unknown"
         if not _check_login_rate(ip):
             return Response(
@@ -92,6 +92,9 @@ app.include_router(designs_router.router, prefix="/api/designs", tags=["designs"
 app.include_router(challenges_router.router, prefix="/api/challenges", tags=["challenges"])
 app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"])
 app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
+
+from routers import lab_router
+app.include_router(lab_router.router, prefix="/api/lab", tags=["lab"])
 
 
 @app.on_event("startup")

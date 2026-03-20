@@ -68,6 +68,17 @@ export const billing = {
     request<{ portal_url: string }>('/billing/portal', { method: 'POST' }),
 }
 
+// Lab Feedback (Pro tier)
+export const lab = {
+  submit: (data: { design_id: string; gene_name: string; sequence?: string; organism?: string; result_type?: string; value?: number; unit?: string; conditions?: Record<string, any>; notes?: string; success?: boolean }) =>
+    request<{ id: string; message: string }>('/lab/results', { method: 'POST', body: JSON.stringify(data) }),
+  list: (designId?: string) =>
+    request<LabResultEntry[]>(designId ? `/lab/results?design_id=${designId}` : '/lab/results'),
+  variants: (geneName: string) =>
+    request<VariantSuggestions>(`/lab/variants/${geneName}`),
+  stats: () => request<LabStats>('/lab/stats'),
+}
+
 // Explore (public gallery)
 export const explore = {
   list: (sort: 'bumps' | 'newest' = 'bumps') =>
@@ -235,4 +246,44 @@ export interface ExploreDesignDetail {
   design: DesignResponse
   bump_count: number
   comments: ExploreComment[]
+}
+
+export interface LabResultEntry {
+  id: string
+  design_id: string
+  gene_name: string
+  result_type: string
+  value: number
+  unit: string
+  organism: string
+  success: boolean
+  notes: string
+  created_at: string | null
+}
+
+export interface VariantSuggestions {
+  gene_name: string
+  lab_results_count: number
+  data_driven: boolean
+  template_sequence: string | null
+  variants: {
+    position: number
+    wild_type: string
+    mutant: string
+    score: number
+    notation: string
+    combined_score: number
+    source: string
+    lab_validated: boolean
+  }[]
+  method: string
+  note: string
+}
+
+export interface LabStats {
+  total_results: number
+  genes_tested: string[]
+  success_rate: number
+  data_driven_genes: number
+  message: string
 }
