@@ -431,11 +431,29 @@ def list_designs(user: User = Depends(get_current_user), db: Session = Depends(g
 
 
 @router.get("/{design_id}/sbol3")
-def download_sbol3(design_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Export design as SBOL3 format (standard synbio exchange format)."""
+def download_sbol3(
+    design_id: str,
+    format: str = "turtle",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Export design as SBOL3 format (standard synbio exchange format).
+
+    Query params:
+        format: "turtle" (default, .ttl), "ntriples" (.nt), or "jsonld" (.jsonld)
+    """
     design = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
     if not design:
         raise HTTPException(status_code=404, detail="Design not found")
+
+    # Validate format parameter
+    format_config = {
+        "turtle": ("text/turtle", ".sbol3.ttl"),
+        "ntriples": ("application/n-triples", ".sbol3.nt"),
+        "jsonld": ("application/ld+json", ".sbol3.jsonld"),
+    }
+    if format not in format_config:
+        raise HTTPException(status_code=400, detail=f"Invalid format '{format}'. Use: turtle, ntriples, jsonld")
 
     from services.sbol_exporter import export_design_sbol3
     gene_circuit = _parse_json_field(design.gene_circuit)
@@ -451,17 +469,19 @@ def download_sbol3(design_id: str, user: User = Depends(get_current_user), db: S
         assembly_plan=assembly_plan,
         safety_score=design.safety_score,
         design_id=design.id,
+        output_format=format,
     )
 
     if sbol_content is None:
         raise HTTPException(status_code=503, detail="SBOL3 export not available (pySBOL3 not installed)")
 
     from fastapi.responses import Response
+    mime_type, suffix = format_config[format]
     slug = (design.design_name or "design").lower().replace(" ", "_")[:30]
     return Response(
         content=sbol_content,
-        media_type="application/rdf+xml",
-        headers={"Content-Disposition": f'attachment; filename="{slug}.sbol3.nt"'},
+        media_type=mime_type,
+        headers={"Content-Disposition": f'attachment; filename="{slug}{suffix}"'},
     )
 
 

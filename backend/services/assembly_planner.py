@@ -258,15 +258,18 @@ def _build_summary(ori, marker, method, kill_switch, rbs, full_size, genes) -> s
 # Common Type IIS and restriction enzyme recognition sites
 RESTRICTION_SITES = {
     # Type IIS (used in Golden Gate / MoClo)
-    "BsaI": "GGTCTC",
+    "BsaI": "GGTCTC",        # cuts +1/+5, NEB R0535
     "BsaI_rc": "GAGACC",
-    "BpiI": "GAAGAC",
+    "BsmBI": "CGTCTC",       # cuts +1/+5, isoschizomer Esp3I — NEB R0580
+    "BsmBI_rc": "GAGACG",    # used in MoClo Level 0, CRISPR vectors, Loop Assembly
+    "BpiI": "GAAGAC",        # cuts +2/+6, isoschizomer BbsI — Thermo FD1014
     "BpiI_rc": "GTCTTC",
-    "BbsI": "GAAGAC",
+    "BbsI": "GAAGAC",        # cuts +2/+6, NEB R0539
     "BbsI_rc": "GTCTTC",
-    "SapI": "GCTCTTC",
+    "SapI": "GCTCTTC",       # cuts +1/+4, NEB R0569
     "SapI_rc": "GAAGAGC",
-    # Common 6-cutters (used in restriction/ligation cloning)
+    # Common 6-cutters (palindromic — no _rc entries needed; reserved for
+    # future restriction/ligation cloning method support)
     "EcoRI": "GAATTC",
     "BamHI": "GGATCC",
     "HindIII": "AAGCTT",
@@ -278,10 +281,9 @@ RESTRICTION_SITES = {
 
 # Which enzymes matter for each assembly method
 ASSEMBLY_ENZYMES = {
-    "Golden Gate": ["BsaI", "BsaI_rc"],
-    "Golden Gate (BsaI Type IIS)": ["BsaI", "BsaI_rc"],
+    "Golden Gate (BsaI Type IIS)": ["BsaI", "BsaI_rc", "BsmBI", "BsmBI_rc"],
     "Gibson Assembly": [],  # Gibson doesn't use restriction enzymes
-    "MoClo": ["BsaI", "BsaI_rc", "BpiI", "BpiI_rc"],
+    "MoClo": ["BsaI", "BsaI_rc", "BsmBI", "BsmBI_rc", "BpiI", "BpiI_rc"],
 }
 
 
@@ -333,6 +335,25 @@ def _check_assembly_compatibility(
                 idx = dna_upper.find(site, pos)
                 if idx == -1:
                     break
+                # Determine if this is a coding region (has codon optimization data)
+                is_cds = bool(
+                    codon_optimized
+                    and codon_optimized.get(name, {}).get("cai_score") is not None
+                )
+                if is_cds:
+                    fix_advice = (
+                        f"Introduce a synonymous (silent) codon change within the "
+                        f"recognition site at position {idx + 1}. Target the wobble "
+                        f"(3rd) position of a codon overlapping the site."
+                    )
+                else:
+                    fix_advice = (
+                        f"This site is in a non-coding or native nucleotide region at "
+                        f"position {idx + 1}. Synonymous codon changes are not possible — "
+                        f"use site-directed mutagenesis with a conservative base substitution "
+                        f"that preserves regulatory function, or domesticate the part by "
+                        f"PCR-amplifying around the site."
+                    )
                 issues.append({
                     "gene": name,
                     "enzyme": enz_name.replace("_rc", " (reverse complement)"),
@@ -340,7 +361,7 @@ def _check_assembly_compatibility(
                     "position": idx + 1,
                     "warning": f"Internal {enz_name.replace('_rc', '')} site in {name} at position {idx + 1} — "
                                f"this will cause incorrect cutting during {method_name} assembly.",
-                    "fix": f"Mutate the internal site with a synonymous codon change (silent mutation at position {idx + 1}).",
+                    "fix": fix_advice,
                 })
                 pos = idx + 1
 

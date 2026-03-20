@@ -157,10 +157,16 @@ class LabResult(Base):
     design_id = Column(String, ForeignKey("designs.id"), nullable=False)
     gene_name = Column(String, nullable=False)          # e.g. "petase"
     sequence = Column(Text, default="")                  # AA or DNA sequence tested
+    sequence_type = Column(String, default="protein")    # "protein" or "dna"
+    mutations = Column(String, default="")               # e.g. "S238F/W159H" or "wild_type"
     organism = Column(String, default="")                # chassis used
     result_type = Column(String, default="activity")     # activity, expression, stability, growth
+    assay_method = Column(String, default="")            # plate_reader, hplc, gel, etc.
     value = Column(Float, default=0.0)                   # measured value
     unit = Column(String, default="")                    # e.g. "U/mg", "mg/L", "°C"
+    is_control = Column(Boolean, default=False)          # True = wild-type/negative control
+    experiment_id = Column(String, default="")           # groups replicates
+    replicate_number = Column(Integer, default=1)        # 1, 2, 3 for triplicates
     conditions = Column(Text, default="{}")              # JSON: temp, pH, media, etc.
     notes = Column(Text, default="")                     # free text
     success = Column(Boolean, default=True)              # did it work at all?
