@@ -1,10 +1,14 @@
-import resend
+try:
+    import resend
+    RESEND_AVAILABLE = True
+except ImportError:
+    RESEND_AVAILABLE = False
 from config import settings
 
 
 def send_email(to: str, subject: str, html: str):
     """Send a transactional email via Resend."""
-    if not settings.RESEND_API_KEY:
+    if not RESEND_AVAILABLE or not settings.RESEND_API_KEY:
         print(f"[EMAIL] Resend not configured. Would send to {to}: {subject}")
         return None
 

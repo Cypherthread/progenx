@@ -16,7 +16,7 @@ import re
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -47,31 +47,6 @@ class LabResultRequest(BaseModel):
     notes: str = Field(default="", max_length=2000)
     success: bool = True
 
-    @field_validator("result_type")
-    @classmethod
-    def validate_result_type(cls, v):
-        v = v.lower().strip()
-        if v not in VALID_RESULT_TYPES:
-            raise ValueError(f"result_type must be one of: {', '.join(sorted(VALID_RESULT_TYPES))}")
-        return v
-
-    @field_validator("sequence_type")
-    @classmethod
-    def validate_sequence_type(cls, v):
-        if v not in ("protein", "dna"):
-            raise ValueError("sequence_type must be 'protein' or 'dna'")
-        return v
-
-    @field_validator("mutations")
-    @classmethod
-    def validate_mutations(cls, v):
-        if not v or v.lower() == "wild_type":
-            return v
-        pattern = r'^[A-Z]\d+[A-Z](/[A-Z]\d+[A-Z])*$'
-        if not re.match(pattern, v.upper()):
-            raise ValueError("Mutations must be in notation like 'A237G' or 'S238F/W159H' or 'wild_type'")
-        return v.upper()
-
 
 @router.post("/results")
 def submit_lab_result(
@@ -82,6 +57,18 @@ def submit_lab_result(
     """Submit experimental results for a design's gene. Pro tier only."""
     if user.tier not in ("pro", "admin"):
         raise HTTPException(status_code=403, detail="Lab feedback is a Pro feature")
+
+    # Validate fields
+    req.result_type = req.result_type.lower().strip()
+    if req.result_type not in VALID_RESULT_TYPES:
+        raise HTTPException(status_code=400, detail=f"result_type must be one of: {', '.join(sorted(VALID_RESULT_TYPES))}")
+    if req.sequence_type not in ("protein", "dna"):
+        raise HTTPException(status_code=400, detail="sequence_type must be 'protein' or 'dna'")
+    if req.mutations and req.mutations.lower() != "wild_type":
+        pattern = r'^[A-Z]\d+[A-Z](/[A-Z]\d+[A-Z])*$'
+        if not re.match(pattern, req.mutations.upper()):
+            raise HTTPException(status_code=400, detail="Mutations must be like 'A237G' or 'S238F/W159H' or 'wild_type'")
+        req.mutations = req.mutations.upper()
 
     # Rate limit: max 50 submissions per hour
     one_hour_ago = datetime.utcnow() - timedelta(hours=1)
