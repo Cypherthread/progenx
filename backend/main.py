@@ -4,7 +4,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
 from database import engine, init_db
-from routers import auth_router, designs_router, challenges_router, billing_router, analytics_router
+from routers import auth_router, designs_router, challenges_router, billing_router
+try:
+    from routers import analytics_router
+except Exception:
+    analytics_router = None
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -91,11 +95,13 @@ app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"])
 app.include_router(designs_router.router, prefix="/api/designs", tags=["designs"])
 app.include_router(challenges_router.router, prefix="/api/challenges", tags=["challenges"])
 app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"])
-app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
+if analytics_router:
+    app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
 
 try:
     from routers import lab_router
-    app.include_router(lab_router.router, prefix="/api/lab", tags=["lab"])
+    if lab_router:
+        app.include_router(lab_router.router, prefix="/api/lab", tags=["lab"])
 except Exception as e:
     print(f"[WARN] Lab router failed to load: {e}")
 
