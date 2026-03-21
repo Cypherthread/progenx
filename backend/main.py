@@ -93,11 +93,12 @@ app.include_router(challenges_router.router, prefix="/api/challenges", tags=["ch
 app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"])
 app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
 
-try:
-    from routers import lab_router
-    app.include_router(lab_router.router, prefix="/api/lab", tags=["lab"])
-except Exception as e:
-    print(f"[WARN] Lab router failed to load: {e}")
+# Lab router disabled temporarily for Render debugging
+# try:
+#     from routers import lab_router
+#     app.include_router(lab_router.router, prefix="/api/lab", tags=["lab"])
+# except Exception as e:
+#     print(f"[WARN] Lab router failed to load: {e}")
 
 
 @app.on_event("startup")
