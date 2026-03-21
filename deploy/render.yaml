@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: protoforge-api
+    name: progenx-api
     runtime: python
     plan: free
     buildCommand: "cd backend && pip install -r requirements.txt"
@@ -13,10 +13,10 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        value: "https://protoforge.vercel.app"
+        value: "https://progenx.ai"
       - key: DATABASE_URL
-        value: "sqlite:///./protoforge.db"
+        value: "sqlite:///./progenx.db"
     disk:
-      name: protoforge-data
+      name: progenx-data
       mountPath: /app/backend
       sizeGB: 1

@@ -49,6 +49,9 @@ export default function Studio() {
   const [selectedPrompt, setSelectedPrompt] = useState(
     (location.state as any)?.prompt || ''
   )
+  const [onboardingDismissed, setOnboardingDismissed] = useState(
+    () => localStorage.getItem('pgx_onboarding_dismissed') !== null
+  )
 
   // Restore design from session on refresh
   useEffect(() => {
@@ -98,6 +101,9 @@ export default function Studio() {
       <Helmet>
         <title>Design Studio | Progenx</title>
         <meta name="robots" content="noindex" />
+        <meta property="og:title" content="Design Studio | ProGenX" />
+        <meta property="og:description" content="Describe your organism in plain English and get a complete bioengineering design with real gene circuits, DNA sequences, and safety scores." />
+        <meta property="og:url" content="https://progenx.ai/studio" />
       </Helmet>
       {/* Remaining designs banner */}
       {user.tier === 'free' && (
@@ -226,6 +232,47 @@ export default function Studio() {
               <ChatRefinement messages={chatMessages} />
             </ResultsErrorBoundary>
           ) : !generating && !error ? (
+            !onboardingDismissed ? (
+            <div className="min-h-[250px] sm:min-h-[400px] border border-gray-800/50 rounded-xl bg-gray-900/20 p-6 sm:p-8 flex flex-col">
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-300 mb-1">Not sure where to start?</h3>
+                  <p className="text-xs text-gray-600">Click any example to load it into the prompt box.</p>
+                </div>
+                <button
+                  onClick={() => { localStorage.setItem('pgx_onboarding_dismissed', '1'); setOnboardingDismissed(true) }}
+                  className="text-gray-600 hover:text-gray-400 transition-colors p-1 -mr-1 -mt-1"
+                  aria-label="Dismiss"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex flex-col gap-2 flex-1">
+                {[
+                  'Design a microbe that eats ocean microplastics and converts them to biodegradable PHA bioplastic',
+                  'Create a cyanobacterium that captures CO2 10x faster than natural photosynthesis',
+                  'Engineer a soil bacterium that fixes nitrogen for crops without synthetic fertilizer',
+                  'Create a yeast that produces spider silk protein for sustainable textiles',
+                ].map((prompt) => (
+                  <button
+                    key={prompt}
+                    onClick={() => {
+                      localStorage.setItem('pgx_onboarding_dismissed', '1')
+                      setOnboardingDismissed(true)
+                      setSelectedPrompt(prompt)
+                      track('click', { page: 'studio', element: 'onboarding_example', value: prompt.slice(0, 60) })
+                    }}
+                    className="text-left px-4 py-3 bg-gray-800/40 border border-gray-700/50 rounded-lg text-sm text-gray-400 hover:text-cyan-300 hover:border-cyan-500/30 hover:bg-gray-800/70 transition-all duration-200 leading-relaxed"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-700 mt-4">Or type your own idea in the prompt box.</p>
+            </div>
+            ) : (
             <div className="flex items-center justify-center min-h-[250px] sm:min-h-[400px] border border-gray-800/50 rounded-xl bg-gray-900/20">
               <div className="flex flex-col items-center gap-3">
                 <span className="text-sm text-gray-600 font-medium tracking-wide">
@@ -245,6 +292,7 @@ export default function Studio() {
                 </div>
               </div>
             </div>
+            )
           ) : null}
         </div>
       </div>

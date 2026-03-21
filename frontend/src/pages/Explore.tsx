@@ -129,6 +129,9 @@ export default function Explore() {
       <Helmet>
         <title>Explore Designs | Progenx</title>
         <meta name="description" content="Browse published bioengineering designs from the Progenx community. Plastic-eating microbes, nitrogen fixers, carbon capture organisms, and more." />
+        <meta property="og:title" content="Explore Designs | ProGenX" />
+        <meta property="og:description" content="Browse published bioengineering designs from the ProGenX community. Plastic-eating microbes, nitrogen fixers, carbon capture organisms, and more." />
+        <meta property="og:url" content="https://progenx.ai/explore" />
       </Helmet>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
