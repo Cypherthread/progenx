@@ -4,7 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
 from database import engine, init_db
-from routers import auth_router, designs_router, challenges_router, billing_router, analytics_router, admin_router
+from routers import auth_router, designs_router, challenges_router, billing_router, analytics_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -92,7 +92,6 @@ app.include_router(designs_router.router, prefix="/api/designs", tags=["designs"
 app.include_router(challenges_router.router, prefix="/api/challenges", tags=["challenges"])
 app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"])
 app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
-app.include_router(admin_router.router, prefix="/api/admin", tags=["admin"])  # TEMPORARY — remove after seeding
 
 
 @app.on_event("startup")
