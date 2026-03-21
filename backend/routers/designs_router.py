@@ -134,17 +134,6 @@ def create_design(
 
         user.designs_this_month += 1
 
-        # Send limit warning emails (free tier only)
-        if user.tier == "free":
-            try:
-                from services.email_service import send_design_limit_warning, send_design_limit_reached
-                if user.designs_this_month == user.monthly_limit:
-                    send_design_limit_reached(user.email, user.name)
-                elif user.designs_this_month == user.monthly_limit - 1:
-                    send_design_limit_warning(user.email, user.name, user.designs_this_month, user.monthly_limit)
-            except Exception:
-                pass
-
         # Sync to Airtable CRM (non-blocking)
         from services.airtable_sync import sync_design_created, update_user_activity
         gene_names = [g.get("name", "") for g in result.get("gene_circuit", {}).get("genes", [])]
@@ -428,61 +417,6 @@ def list_designs(user: User = Depends(get_current_user), db: Session = Depends(g
         .order_by(Design.created_at.desc()).limit(50).all()
     )
     return [_design_response(d) for d in designs]
-
-
-@router.get("/{design_id}/sbol3")
-def download_sbol3(
-    design_id: str,
-    format: str = "turtle",
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Export design as SBOL3 format (standard synbio exchange format).
-
-    Query params:
-        format: "turtle" (default, .ttl), "ntriples" (.nt), or "jsonld" (.jsonld)
-    """
-    design = db.query(Design).filter(Design.id == design_id, Design.user_id == user.id).first()
-    if not design:
-        raise HTTPException(status_code=404, detail="Design not found")
-
-    # Validate format parameter
-    format_config = {
-        "turtle": ("text/turtle", ".sbol3.ttl"),
-        "ntriples": ("application/n-triples", ".sbol3.nt"),
-        "jsonld": ("application/ld+json", ".sbol3.jsonld"),
-    }
-    if format not in format_config:
-        raise HTTPException(status_code=400, detail=f"Invalid format '{format}'. Use: turtle, ntriples, jsonld")
-
-    from services.sbol_exporter import export_design_sbol3
-    gene_circuit = _parse_json_field(design.gene_circuit)
-    gene_sequences = _parse_json_field(design.gene_sequences)
-    assembly_plan = _parse_json_field(design.assembly_plan)
-
-    sbol_content = export_design_sbol3(
-        design_name=design.design_name,
-        host_organism=design.host_organism or "",
-        gene_circuit=gene_circuit,
-        dna_sequence=design.dna_sequence,
-        gene_sequences=gene_sequences,
-        assembly_plan=assembly_plan,
-        safety_score=design.safety_score,
-        design_id=design.id,
-        output_format=format,
-    )
-
-    if sbol_content is None:
-        raise HTTPException(status_code=503, detail="SBOL3 export not available (pySBOL3 not installed)")
-
-    from fastapi.responses import Response
-    mime_type, suffix = format_config[format]
-    slug = (design.design_name or "design").lower().replace(" ", "_")[:30]
-    return Response(
-        content=sbol_content,
-        media_type=mime_type,
-        headers={"Content-Disposition": f'attachment; filename="{slug}{suffix}"'},
-    )
 
 
 @router.get("/{design_id}", response_model=DesignResponse)

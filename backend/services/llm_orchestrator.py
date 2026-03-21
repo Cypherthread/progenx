@@ -591,7 +591,7 @@ def refine_design(
 
     fba_results = run_fba(chassis, pathway_gene_names, refined.get("target_product", ""), original_design.get("environment", "lab"))
 
-    assembly = plan_assembly(genes, chassis, original_design.get("environment", "lab"), total_bp, codon_optimized=codon_optimized)
+    assembly = plan_assembly(genes, chassis, original_design.get("environment", "lab"), total_bp)
 
     plasmid = generate_plasmid_map(
         genes=genes,

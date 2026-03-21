@@ -30,7 +30,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.progenx.ai; font-src 'self'"
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.progenx.ai https://progenx-api.onrender.com; font-src 'self'"
         if request.url.scheme == "https":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
@@ -76,7 +76,7 @@ _original_login = auth_router.router.routes
 
 @app.middleware("http")
 async def rate_limit_auth(request: Request, call_next):
-    if request.url.path in ("/api/auth/login", "/api/auth/signup", "/api/auth/forgot-password"):
+    if request.url.path in ("/api/auth/login", "/api/auth/signup"):
         ip = request.client.host if request.client else "unknown"
         if not _check_login_rate(ip):
             return Response(
@@ -92,13 +92,6 @@ app.include_router(designs_router.router, prefix="/api/designs", tags=["designs"
 app.include_router(challenges_router.router, prefix="/api/challenges", tags=["challenges"])
 app.include_router(billing_router.router, prefix="/api/billing", tags=["billing"])
 app.include_router(analytics_router.router, prefix="/api/analytics", tags=["analytics"])
-
-# Lab router disabled temporarily for Render debugging
-# try:
-#     from routers import lab_router
-#     app.include_router(lab_router.router, prefix="/api/lab", tags=["lab"])
-# except Exception as e:
-#     print(f"[WARN] Lab router failed to load: {e}")
 
 
 @app.on_event("startup")

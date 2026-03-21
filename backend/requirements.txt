@@ -16,9 +16,6 @@ dna-features-viewer
 matplotlib
 pillow
 stripe
-resend
 psycopg2-binary
-# Optional: SBOL3 export (install manually: pip install sbol3)
-# sbol3
 # Optional: ESM-2 protein variant scoring (Pro tier, needs ~5GB disk)
 # pip install torch transformers
