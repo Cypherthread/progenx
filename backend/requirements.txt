@@ -1,12 +1,12 @@
-fastapi
-uvicorn[standard]
+fastapi>=0.115.0,<1.0
+uvicorn[standard]>=0.34.0,<1.0
 python-dotenv
 anthropic
 openai
 biopython
-sqlalchemy
+sqlalchemy>=2.0,<3.0
 httpx
-pydantic
+pydantic>=2.0,<3.0
 python-multipart
 pyjwt[crypto]
 bcrypt
